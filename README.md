@@ -1,2 +1,4 @@
-# one-fass
-A FairShare Scheduling service for OpenNebula. 
+# fass
+FairShare Scheduler for OpenNebula
+
+First commit: main daemon, logging and configuration systems and xmlrpc server (work in progress).

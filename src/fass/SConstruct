@@ -1,0 +1,34 @@
+# SConstruct for src/fass
+
+# ------------------------------------ # 
+# HEADER                               #
+#                                      #
+# Mailto: svallero AT to.infn.it       #
+#                                      #
+# ------------------------------------ #
+
+import os
+Import('env')
+
+lib_name='fass_core'
+
+# Sources to generate the library
+source_files=[
+    'Configurator.cc',
+    'Fass.cc'
+]
+
+# Build library
+env.StaticLibrary(lib_name, source_files)
+
+# Build daemon
+env.Prepend(LIBS=[
+    'fass_core',
+    'fass_log',
+    'fass_rpcm'
+])
+
+if not env.GetOption('clean'):
+    env.ParseConfig(("LDFLAGS='%s'") % (os.environ['LDFLAGS'],))
+
+env.Program('fassd.cc')
