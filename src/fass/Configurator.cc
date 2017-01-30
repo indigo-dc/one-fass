@@ -1,5 +1,5 @@
 /**
- * Request.h
+ * Configurator.cc
  *
  *      Author: Sara Vallero 
  *      Author: Valentina Zaccolo
