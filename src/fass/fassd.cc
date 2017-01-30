@@ -1,9 +1,9 @@
-/* ------------------------------------ */
-/* HEADER                               */
-/*                                      */
-/* Mailto: svallero AT to.infn.it       */
-/*                                      */
-/* ------------------------------------ */
+/**
+ * Request.h
+ *
+ *      Author: Sara Vallero 
+ *      Author: Valentina Zaccolo
+ **/
 
 #include <fcntl.h>
 #include <getopt.h>
@@ -42,7 +42,7 @@ static void print_help()
 
     cout << "\n"
          << "SYNOPSIS\n"
-         << "  Starts the One Fass daemon\n\n"
+         << "  Starts the FaSS daemon\n\n"
          << "OPTIONS\n"
          << "  -v, --verbose\toutput version information and exit\n"
          << "  -h, --help\tdisplay this help and exit\n"
@@ -133,13 +133,13 @@ int main(int argc, char **argv)
         }
     }
 
-    // Check if another fassd is running
+    /// Check if another fassd is running
     string lockfile;
     string var_location;
 
     fl = getenv("FASS_LOCATION");
 
-    if (fl == 0) // Fass in root of FSH
+    if (fl == 0) /// Fass in root of FSH
     {
         var_location = "/var/lib/fass/";
         lockfile     = "/var/lock/fass/fass";
@@ -164,14 +164,14 @@ int main(int argc, char **argv)
 
     close(fd);
 
-    // Fork & exit main process
+    /// Fork & exit main process
     if (foreground == true)
     {
-        pid = 0; // do not fork
+        pid = 0; /// do not fork
     }
     else
     {
-        // this call returns zero in child and PID of child in the parent
+        /// this call returns zero in child and PID of child in the parent
         pid = fork();
     }
 
@@ -182,7 +182,7 @@ int main(int argc, char **argv)
             exit(-1);
 
 
-        case 0: // Child process
+        case 0: /// Child process
 
             rc  = chdir(var_location.c_str());
 
@@ -193,7 +193,7 @@ int main(int argc, char **argv)
 
             if (foreground == false)
             {
-                // to run the process in new session and have a new group
+                /// to run the process in new session and have a new group
                 sid = setsid();
 
                 if (sid == -1)
@@ -203,12 +203,12 @@ int main(int argc, char **argv)
             }
 
             fassd_main();
-            
-            // delete the file if no process has it open
+
+            /// delete the file if no process has it open
             unlink(lockfile.c_str());
             break;
 
-        default: // Parent process
+        default: /// Parent process
             break;
     }
 
@@ -224,3 +224,7 @@ error_sid:
     unlink(lockfile.c_str());
     exit(-1);
 }
+
+
+
+
