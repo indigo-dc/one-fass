@@ -9,7 +9,7 @@
 #define REQUEST_ONE_PROXY_H_
 
 #include "Request.h"
-#include "Client.h"
+#include "XMLRPCClient.h"
 
 using namespace std;
 
