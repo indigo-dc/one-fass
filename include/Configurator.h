@@ -1,12 +1,12 @@
-/* ------------------------------------ */
-/* HEADER                               */
-/*                                      */
-/* Mailto: svallero AT to.infn.it       */
-/*                                      */
-/* ------------------------------------ */
+/**
+ * Configurator.h
+ *
+ *      Author: Sara Vallero 
+ *      Author: Valentina Zaccolo
+ */
 
-#ifndef CONFIGURATOR_H_
-#define CONFIGURATOR_H_
+#ifndef INCLUDE_CONFIGURATOR_H_
+#define INCLUDE_CONFIGURATOR_H_
 
 #include "FassLog.h"
 #include <boost/lexical_cast.hpp>
@@ -18,8 +18,8 @@
 
 using namespace std;
 namespace po = boost::program_options;
- 
-/* This class provides the basic abstraction for Fass configuration files */
+
+/** This class provides the basic abstraction for Fass configuration files */
 
 class Configurator
 {
@@ -30,53 +30,53 @@ public:
     }
 
     virtual ~Configurator(){};
-   
-    /* Parse and loads the configuration */
+
+    /** Parse and loads the configuration */
     bool load_configuration();
 
-    /* Get the configuration filename */
+    /** Get the configuration filename */
     string get_conf_fname(){ return conf_file; };
 
-    /* Prints loaded configuration*/
-    void print_loaded_options(); 
- 
+    /** Prints loaded configuration*/
+    void print_loaded_options();
+
 protected:
-    /* Name for the configuration file, fassd.conf */
+    /** Name for the configuration file, fassd.conf */
     string conf_file;
 
-    /* Map containing configuration variables */
+    /** Map containing configuration variables */
     po::variables_map   vm;
 
-    /* Allowed option types */
+    /** Allowed option types */
     enum allowed_types {is_string, is_int, is_double, is_bool, is_unkn};
 
-    /* Gets the option value type */
+    /** Gets the option value type */
     allowed_types get_option_type(boost::any value);
 
-    /* Gets a single configuration value from specified section*/
-    /* REMEMBER: methods with templates must be 
+    /** Gets a single configuration value from specified section*/
+    /** REMEMBER: methods with templates must be
        declared and implemented IN THE SAME FILE! */
 
-    template<typename T> 
+    template<typename T>
     bool get_option(const string section, const string name, T& value) const {
-        
+
     	string fullname = section + "." +  name;
- 
+
         bool retval = true;
 
         try{
         	value =  boost::any_cast<T>(vm[fullname].value());
         } catch (exception& e){
 		cout << e.what() << endl;
-                retval = false; 
+                retval = false;
 		}
 
     	return retval;
-    } 
+    }
 
 private:
 
-    // dummy
+    /// dummy
 
 };
 
@@ -92,20 +92,20 @@ public:
 
     ~FassConfigurator(){};
 
-    /* Gets the single option value */ 
-    template<class T> 
+    /** Gets the single option value */
+    template<class T>
     bool get_single_option(const string section, const string name, T& value) const {
 
-       return get_option(section, name, value);	
-       
+       return get_option(section, name, value);
+
    }
 
 private:
     static const char * conf_name;
-    /* Path for the var directory, for defaults */
+    /** Path for the var directory, for defaults */
     string var_location;
 };
 
-// TODO: poi ci vanno le classi per configurare gli algoritmi, le quote etc...
+/// TODO: classes to configure algorithms, quotas etc...
 
-#endif /*CONFIGURATOR_H_*/
+#endif /* INCLUDE_CONFIGURATOR_H_ */

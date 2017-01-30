@@ -1,12 +1,12 @@
-/* ------------------------------------ */
-/* HEADER                               */
-/*                                      */
-/* Mailto: svallero AT to.infn.it       */
-/*                                      */
-/* ------------------------------------ */
+/*
+ * Fass.h
+ *
+ *      Author: Sara Vallero 
+ *      Author: Valentina Zaccolo
+ */
 
-#ifndef FASS_H_
-#define FASS_H_
+#ifndef INCLUDE_FASS_H_
+#define INCLUDE_FASS_H_
 
 #include "Configurator.h"
 #include "Log.h"
@@ -14,12 +14,12 @@
 
 #include <stdlib.h>
 #include <string>
-//#include <sstream>
+#include <sstream>
 
 
 using namespace std;
 
-/* This is the main class for the Fass daemon fassd */
+/** This is the main class for the Fass daemon fassd **/
 
 class Fass
 {
@@ -33,66 +33,78 @@ public:
     };
 
 
-/*
-    // Manager getters 
+/**
+    // Manager getters
 
     RPCManager * get_rpcm()
     {
         return rpcm;
     };
 
-*/
-    // Environment and Configuration 
+**/
+    /// Environment and Configuration
 
-    // Logging: to keep it simple we only foresee logging to a file
-    // (no syslog)
+
+    /**
+     *  Returns the value of LOG->DEBUG_LEVEL in fassd.conf file
+     *      @return the debug level, to instantiate Log'ers
+     * Logging: to keep it simple we only foresee logging to a file
+     * (no syslog)
+     */
 
     Log::MessageType get_debug_level() const;
 
-    // REturns the value of FASS_LOCATION env variable. When this variable is
-    // not defined the fass location is "/".
+    /** Returns the value of FASS_LOCATION env variable. When this variable is
+    * not defined the fass location is "/".
+    *  @return the fass location.
+	*/
 
     const string& get_fass_location()
     {
         return fass_location;
     };
 
-    // Returns the version of fassd
+    /**
+     *  Returns the version of fassd
+     *    @return the version
+     */
     static string version()
     {
-        return "Fass 0.0";
+        return "Fass v 1.1";
     };
 
 
-    // Start all the managers for Fass 
+    /// Start all the managers for Fass
     void start(bool bootstrap_only=false);
 
 
-    // Initialize the database 
-    void bootstrap_db()
-    {
-        start(true);
-    }
+    /// Initialize the database
+    /// TODO
 
-/*
-    // Configuration attributes (read from fass.conf) 
+    //void bootstrap_db()
+    //{
+    //    start(true);
+    //}
 
-    template<typename T> 
+/**
+    /// Configuration attributes (read from fass.conf)
+
+    template<typename T>
     void get_configuration_attribute(const string& name, T& value) const
     {
         fass_configuration->get(name, value);
     };
-*/
+**/
 
 private:
 
-    // Constructors and = are private to only access the class through instance. 
-
-    Fass()//:fass_configuration(0)
+    /// Constructors and = are private to only access the class through instance.
+    
+    Fass():fass_configuration(0) 
     {
         const char * nl = getenv("FASS_LOCATION");
 
-        if (nl == 0) //Fass installed under root directory
+        if (nl == 0) ///Fass installed under root directory
         {
             fass_location = "/";
 
@@ -120,38 +132,39 @@ private:
     {
         delete fass_configuration;
         delete rpcm;
-        //delete db;
+        //delete db; 
     };
 
     Fass& operator=(Fass const&){return *this;};
 
-    // Environment variables 
+    /// Environment variables
     string  fass_location;
     string  etc_location;
     string  log_location;
     string  var_location;
+
     string  hostname;
 
 
-    // Configuration 
+    /// Configuration
 
     FassConfigurator * fass_configuration;
 
 
 
-    //  Fass Managers 
+    ///  Fass Managers
 
     RPCManager *        rpcm;
 
 /*
-    // Implementation functions 
-    // SV: cosa serve sta roba?
+    /// Implementation functions
+    /// Is this needed? 
 
     friend void fass_signal_handler (int sig);
 
-    // Helper functions 
-    
-    // Gets a Generic configuration attribute
+    /// Helper functions
+
+    /// Gets a Generic configuration attribute
 
     int get_conf_attribute(
         const string& key,
@@ -160,4 +173,7 @@ private:
 */
 };
 
-#endif /*FASS_H_*/
+
+
+
+#endif /* INCLUDE_FASS_H_ */
