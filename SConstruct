@@ -1,9 +1,3 @@
-# ------------------------------------ # 
-# HEADER                               #
-#                                      #
-# Mailto: svallero AT to.infn.it       #
-#                                      #
-# ------------------------------------ #
 
 import os
 import sys
@@ -47,8 +41,9 @@ main_env.Append(CPPPATH=[
 main_env.Append(LIBPATH=[
     cwd+'/src/fass',
     cwd+'/src/logger',
-    cwd+'/test',
-    cwd+'/src/rpcm'
+    cwd+'/src/rpcm',
+    cwd+'/src/client'
+
 ])
 
 # Compile flags
@@ -155,8 +150,8 @@ if not main_env.GetOption('clean'):
 build_scripts=[
     'src/fass/SConstruct',
     'src/logger/SConstruct',
-    'test/SConstruct',
-    'src/rpcm/SConstruct'
+    'src/rpcm/SConstruct',
+    'src/client/SContruct'
 ]
 
 for script in build_scripts:
