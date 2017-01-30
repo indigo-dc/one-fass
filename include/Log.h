@@ -1,12 +1,12 @@
-/* ------------------------------------ */
-/* HEADER                               */
-/*                                      */
-/* Mailto: svallero AT to.infn.it       */
-/*                                      */
-/* ------------------------------------ */
+/**
+ * Log.h
+ *
+ *      Author: Sara Vallero 
+ *      Author: Valentina Zaccolo
+ **/
 
-#ifndef _LOG_H_
-#define _LOG_H_
+#ifndef INCLUDE_LOG_H_
+#define INCLUDE_LOG_H_
 
 #include <string>
 #include <fstream>
@@ -14,7 +14,7 @@
 
 using namespace std;
 
-/* Log class: interface used by Fass components to log messages */
+/** Log class: interface used by Fass components to log messages **/
 
 class Log
 {
@@ -39,19 +39,19 @@ public:
         return log_level;
     }
 
-    // Logger interface
+    /// Logger interface
     virtual void log(
         const char *            module,
         const MessageType       type,
         const char *            message) = 0;
 
 protected:
-    
-    //Minimum log level for the messages
+
+    ///Minimum log level for the messages
     MessageType log_level;
 };
 
-/* FileLog class: writes messages to a log file */
+/** FileLog class: writes messages to a log file */
 
 class FileLog : public Log
 {
@@ -71,8 +71,8 @@ private:
     string log_file_name;
 };
 
-/* FileLogTS class: thread safe.
-   Implements mutex since different services log to the same file. */
+/** FileLogTS class: thread safe.
+   Implements mutex since different services log to the same file. **/
 
 class FileLogTS : public FileLog
 {
@@ -104,4 +104,6 @@ private:
     pthread_mutex_t log_mutex;
 };
 
-#endif /* _LOG_H_ */
+
+
+#endif /* INCLUDE_LOG_H_ */

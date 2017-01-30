@@ -1,12 +1,13 @@
-/* ------------------------------------ */
-/* HEADER                               */
-/*                                      */
-/* Mailto: svallero AT to.infn.it       */
-/*                                      */
-/* ------------------------------------ */
+/*
+ * FassLog.h
+ *
+ *      Author: Sara Vallero 
+ *      Author: Valentina Zaccolo
+ */
 
-#ifndef _FASS_LOG_H_
-#define _FASS_LOG_H_
+#ifndef INCLUDE_FASSLOG_H_
+#define INCLUDE_FASSLOG_H_
+
 
 #include "Log.h"
 #include <sstream>
@@ -30,7 +31,7 @@ public:
 
         FassLog::logger = new FileLogTS(filename, clevel, mode);
     };
-    
+
     // Finalize
     static void finalize_log_system()
     {
@@ -55,14 +56,14 @@ public:
     };
 
     static void log(
-        const char *           module,                                                           
-        const Log::MessageType type,                                                             
-        const string&          message)                                                          
-    {                                                                                            
-        logger->log(module,type,message.c_str());                                                
-    };                                                                                           
-                                                                                                 
-    // Get log level   
+        const char *           module,
+        const Log::MessageType type,
+        const string&          message)
+    {
+        logger->log(module,type,message.c_str());
+    };
+
+    // Get log level
     static Log::MessageType log_level()
     {
         return logger->get_log_level();
@@ -76,4 +77,6 @@ private:
     static Log *   logger;
 };
 
-#endif
+
+
+#endif /* INCLUDE_FASSLOG_H_ */

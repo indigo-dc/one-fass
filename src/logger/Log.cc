@@ -1,9 +1,9 @@
-/* ------------------------------------ */
-/* HEADER                               */
-/*                                      */
-/* Mailto: svallero AT to.infn.it       */
-/*                                      */
-/* ------------------------------------ */
+/**
+ * Log.cc
+ *
+ *      Author: Sara Vallero 
+ *      Author: Valentina Zaccolo
+ */
 
 #include "Log.h"
 
@@ -82,4 +82,6 @@ void FileLog::log(
         file.close();
     }
 }
+
+
 

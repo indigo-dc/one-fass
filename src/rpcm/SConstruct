@@ -1,10 +1,4 @@
 # SConstruct for src/fass
-#
-# Request.cc
-#
-#      Author: Sara Vallero 
-#      Author: Valentina Zaccolo
-#
 
 import os
 Import('env')

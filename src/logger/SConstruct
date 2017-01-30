@@ -1,11 +1,5 @@
 # SConstruct for src/fass
 
-# ------------------------------------ # 
-# HEADER                               #
-#                                      #
-# Mailto: svallero AT to.infn.it       #
-#                                      #
-# ------------------------------------ #
 
 import os
 Import('env')
