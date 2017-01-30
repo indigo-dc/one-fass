@@ -1,9 +1,9 @@
-/* ------------------------------------ */
-/* HEADER                               */
-/*                                      */
-/* Mailto: svallero AT to.infn.it       */
-/*                                      */
-/* ------------------------------------ */
+/**
+ * Request.cc
+ *
+ *      Author: Sara Vallero 
+ *      Author: Valentina Zaccolo
+ */
 #include "Request.h"
 #include "FassLog.h"
 #include <cstdlib>
@@ -19,16 +19,12 @@ void Request::execute(
     att.retval  = _retval;
     att.session = xmlrpc_c::value_string (_paramList.getString(0));
 
-    //FassLog::log("RPCM-SARA", Log::DEBUG, att.session);
-
     att.req_id = (reinterpret_cast<uintptr_t>(this) * rand()) % 10000;
 
-    // TODO: autenticazione, solo user oneadmin -> deleghiamo tutto ad ON
-   
     log_method_invoked(att, _paramList, format_str, method_name, hidden_params);
-   
-    request_execute(_paramList, att);  
-    log_result(att, method_name);
+
+   //request_execute(_paramList, att);
+   log_result(att, method_name);
 };
 
 void Request::log_method_invoked(const RequestAttributes& att,
@@ -216,5 +212,6 @@ void Request::success_response(const string& val, RequestAttributes& att)
 
     *(att.retval) = arrayresult;
 }
+
 
 

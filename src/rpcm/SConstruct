@@ -1,11 +1,10 @@
 # SConstruct for src/fass
-
-# ------------------------------------ # 
-# HEADER                               #
-#                                      #
-# Mailto: svallero AT to.infn.it       #
-#                                      #
-# ------------------------------------ #
+#
+# Request.cc
+#
+#      Author: Sara Vallero 
+#      Author: Valentina Zaccolo
+#
 
 import os
 Import('env')
@@ -27,7 +26,8 @@ env.StaticLibrary(lib_name, source_files)
 env.Prepend(LIBS=[
     'fass_core',
     'fass_rpcm',
-    'fass_log'
+    'fass_log',
+    'fass_client'
 ])
 
 if not env.GetOption('clean'):
