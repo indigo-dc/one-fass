@@ -1,15 +1,15 @@
-/* ------------------------------------ */
-/* HEADER                               */
-/*                                      */
-/* Mailto: svallero AT to.infn.it       */
-/*                                      */
-/* ------------------------------------ */
+/**
+ * Request.h
+ *
+ *      Author: Sara Vallero 
+ *      Author: Valentina Zaccolo
+ **/
 
 #include "Fass.h"
 #include "FassLog.h"
 #include "Configurator.h"
-//#include "Log.h"
-//#include "RPCManager.h"
+#include "Log.h"
+#include "RPCManager.h"
 
 #include <fstream>
 #include <signal.h>
@@ -37,7 +37,10 @@ void Fass::start(bool bootstrap_only)
     int             signal;
     char            hn[80];
 
-    // SV: a cosa serve?
+    /// returns the null-terminated hostname in the character
+    /// array hn, which has a length of 79 bytes.
+    /// is hostname used somewhere?
+
     if ( gethostname(hn,79) != 0 )
     {
         throw runtime_error("Error getting hostname");
@@ -45,7 +48,7 @@ void Fass::start(bool bootstrap_only)
 
     hostname = hn;
 
-    /* Configuration system */
+    /** Configuration system */
     fass_configuration = new FassConfigurator(etc_location, var_location);
 
     rc = fass_configuration->load_configuration();
@@ -55,18 +58,21 @@ void Fass::start(bool bootstrap_only)
         throw runtime_error("Could not load Fass configuration file.");
     }
 
-    /* Log system */
+    /** Log system */
 
     ostringstream os;
 
-    try{
+    try
+    {
         Log::MessageType   clevel;
 
         clevel     = get_debug_level();
 
-        // Initializing FASS daemon log system
+        /// Initializing FASS daemon log system
+    
         string log_fname;
         log_fname = log_location + "fass.log";
+        
         FassLog::init_log_system(clevel,
                            log_fname.c_str(),
                            ios_base::trunc,
@@ -82,36 +88,37 @@ void Fass::start(bool bootstrap_only)
        
         FassLog::log("FASS",Log::INFO,os);
         fass_configuration->print_loaded_options(); 
-    } catch(runtime_error&){
+    } 
+    catch(runtime_error&){
 
         throw;
     }
 
     /* Initialize the XML library */
-    // spero di riuescire ad evitarlo...
+    // Try to avoid it
     //    xmlInitParser();
 
 
-    /* Database */
+    /** Database */
 
-    // TODO: qui bisogna capire come procedere...
+    /// TODO
 
-    /* Block all signals before creating any thread */
+    /** Block all signals before creating any thread */
 
     sigfillset(&mask);
 
     pthread_sigmask(SIG_BLOCK, &mask, NULL);
 
-    /* Get manager timer from config */
+    /** Get manager timer from config */
     int  manager_timer;
     fass_configuration->get_single_option("fass", "manager_timer",manager_timer);
 
-    /* Managers */
+    /** Managers */
 
-    // ---- Request Manager ----
+    /// ---- Request Manager ----
     try
     {
-        int  rm_port = 0;
+        string rm_port;
         int  max_conn;
         int  max_conn_backlog;
         int  keepalive_timeout;
@@ -152,7 +159,7 @@ void Fass::start(bool bootstrap_only)
     }
 
 
-    // ---- Start the Request Manager ----
+    /// ---- Start the Request Manager ----
 
     rc = rpcm->start();
 
@@ -161,7 +168,7 @@ void Fass::start(bool bootstrap_only)
        throw runtime_error("Could not start the RPC Manager");
     }
 
-    /* Wait for a SIGTERM or SIGINT signal */
+    /** Wait for a SIGTERM or SIGINT signal */
 
     sigemptyset(&mask);
 
@@ -170,11 +177,11 @@ void Fass::start(bool bootstrap_only)
 
     sigwait(&mask, &signal);
 
-    /* Stop the managers and free resources */
+    /** Stop the managers and free resources */
 
-    //rpcm->finalize(); devi usare l'action manager
+    //rpcm->finalize(); we are not using action manager now
 
-    //sleep to wait drivers???
+    ///sleep to wait drivers???
 
     pthread_join(rpcm->get_thread_id(),0);
 
@@ -195,7 +202,7 @@ Log::MessageType Fass::get_debug_level() const
     //Log::MessageType clevel = Log::ERROR;
     Log::MessageType clevel = Log::DDDEBUG;
     
-/* SV: da sistemare 
+/* TODO 
     int              log_level_int;
 
     const VectorAttribute * log = nebula_configuration->get("LOG");
