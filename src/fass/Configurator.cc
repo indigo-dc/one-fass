@@ -31,7 +31,7 @@ bool Configurator::load_configuration(){
     		("help", "produce help message")
                 /// General
     		("fass.manager_timer", po::value<int>()->default_value(60), "managers period (s)")
-     		("fass.one_port", po::value<int>()->default_value(2633), "OpenNebula listen port")
+     		("fass.one_port", po::value<string>()->default_value("2633"), "OpenNebula listen port")
     		("fass.one_endpoint", po::value<string>()->default_value("localhost"), "OpenNebula listen endpoint")
     		("fass.log_level", po::value<int>()->default_value(3), "log level common to all managers")
 		/// RPC manager
