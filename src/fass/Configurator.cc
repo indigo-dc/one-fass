@@ -35,7 +35,7 @@ bool Configurator::load_configuration(){
     		("fass.one_endpoint", po::value<string>()->default_value("localhost"), "OpenNebula listen endpoint")
     		("fass.log_level", po::value<int>()->default_value(3), "log level common to all managers")
 		/// RPC manager
-    		("rpcm.listen_port", po::value<int>()->default_value(2634), "listen port")
+    		("rpcm.listen_port", po::value<string>()->default_value("2634"), "listen port")
     		("rpcm.listen_address", po::value<string>()->default_value("127.0.0.1"), "listen address")
     		("rpcm.max_conn", po::value<int>()->default_value(15), "max connections")
     		("rpcm.max_conn_backlog", po::value<int>()->default_value(15), "max connections backlog")
