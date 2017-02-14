@@ -23,7 +23,8 @@ class RPCManager
 public:
 
     RPCManager(
-            int _port,
+        const string& _port,
+//            int _port,
             int _max_conn,
             int _max_conn_backlog,
             int _keepalive_timeout,
@@ -59,7 +60,8 @@ private:
     pthread_t               rm_xml_server_thread; /// Thread ID for the XML server
 
 
-    int port; /// Port number where connection is opened
+    string port;
+    //int port; /// Port number where connection is opened
     int socket_fd;
     int max_conn;
     int max_conn_backlog;

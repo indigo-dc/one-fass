@@ -27,7 +27,8 @@
 #include <xmlrpc-c/server_abyss.hpp>
 
 RPCManager::RPCManager(
-        int _port,
+        const string& _port,
+//        int _port,
         int _max_conn,
         int _max_conn_backlog,
         int _keepalive_timeout,
@@ -192,7 +193,7 @@ bool RPCManager::setup_socket()
 
     rm_addr.sin_family      = AF_INET;
     // converts the unsigned short integer hostshort from host byte order to network byte order
-    rm_addr.sin_port        = htons(port);
+    rm_addr.sin_port        = htons(atoi(port.c_str()));
 
     // converts the Internet host address cp from IPv4 numbers-and-dots notation 
     // into binary data in network byte order

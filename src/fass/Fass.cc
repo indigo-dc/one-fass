@@ -114,8 +114,9 @@ void Fass::start(bool bootstrap_only)
     /// ---- Request Manager ----
     try
     {
-        int  rm_port = 0;
-        int  max_conn;
+        //int  rm_port = 0;
+        string rm_port = "";
+	int  max_conn;
         int  max_conn_backlog;
         int  keepalive_timeout;
         int  keepalive_max_conn;
