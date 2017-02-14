@@ -11,6 +11,7 @@
 #include <pwd.h>
 #include <stdlib.h>
 #include <stdexcept>
+#include <set>
 
 #include <limits.h>
 #include <string.h>
@@ -49,8 +50,9 @@ XMLRPCClient::XMLRPCClient(const string& secret, const string& endpoint,
     }
     else
     {
-        one_endpoint = "http://localhost:9869/RPC2";
-    }
+      
+    one_endpoint = "http://localhost:2633/RPC2";
+   }
 
     xmlrpc_limit_set(XMLRPC_XML_SIZE_LIMIT_ID, message_size);
 
@@ -176,6 +178,7 @@ void XMLRPCClient::call(const std::string &method, const std::string format,
 
 
 void XMLRPCClient::call(const std::string& method, const xmlrpc_c::paramList& plist,
+//     xmlrpc_c::value * result)
      xmlrpc_c::value * const result)
 {
     xmlrpc_c::clientXmlTransport_curl ctrans;
@@ -194,14 +197,16 @@ void XMLRPCClient::call(const std::string& method, const xmlrpc_c::paramList& pl
             " timeout, resetting call"));
     }
 
+    //*result = NULL;
+
     if (rpc->isSuccessful())
     {
-        *result = rpc->getResult();
+	*result = rpc->getResult();
     }
     else
     {
         xmlrpc_c::fault failure = rpc->getFault();
+	girerr::error(failure.getDescription());
 
-        girerr::error(failure.getDescription());
     }
 };

@@ -5,8 +5,8 @@
  *      Author: Valentina Zaccolo
  */
 
-#ifndef INCLUDE_CONFIGURATOR_H_
-#define INCLUDE_CONFIGURATOR_H_
+#ifndef CONFIGURATOR_H_
+#define CONFIGURATOR_H_
 
 #include "FassLog.h"
 #include <boost/lexical_cast.hpp>
@@ -18,7 +18,7 @@
 
 using namespace std;
 namespace po = boost::program_options;
-
+ 
 /** This class provides the basic abstraction for Fass configuration files */
 
 class Configurator
@@ -30,7 +30,7 @@ public:
     }
 
     virtual ~Configurator(){};
-
+   
     /** Parse and loads the configuration */
     bool load_configuration();
 
@@ -38,8 +38,8 @@ public:
     string get_conf_fname(){ return conf_file; };
 
     /** Prints loaded configuration*/
-    void print_loaded_options();
-
+    void print_loaded_options(); 
+ 
 protected:
     /** Name for the configuration file, fassd.conf */
     string conf_file;
@@ -54,29 +54,29 @@ protected:
     allowed_types get_option_type(boost::any value);
 
     /** Gets a single configuration value from specified section*/
-    /** REMEMBER: methods with templates must be
+    /** REMEMBER: methods with templates must be 
        declared and implemented IN THE SAME FILE! */
 
-    template<typename T>
+    template<typename T> 
     bool get_option(const string section, const string name, T& value) const {
-
+        
     	string fullname = section + "." +  name;
-
+ 
         bool retval = true;
 
         try{
         	value =  boost::any_cast<T>(vm[fullname].value());
         } catch (exception& e){
 		cout << e.what() << endl;
-                retval = false;
+                retval = false; 
 		}
 
     	return retval;
-    }
+    } 
 
 private:
 
-    /// dummy
+    // dummy
 
 };
 
@@ -92,12 +92,12 @@ public:
 
     ~FassConfigurator(){};
 
-    /** Gets the single option value */
-    template<class T>
+    /** Gets the single option value */ 
+    template<class T> 
     bool get_single_option(const string section, const string name, T& value) const {
 
-       return get_option(section, name, value);
-
+       return get_option(section, name, value);	
+       
    }
 
 private:
@@ -106,6 +106,6 @@ private:
     string var_location;
 };
 
-/// TODO: classes to configure algorithms, quotas etc...
+/// TODO: classes to configure algorithms, quotas etc... 
 
-#endif /* INCLUDE_CONFIGURATOR_H_ */
+#endif /*CONFIGURATOR_H_*/

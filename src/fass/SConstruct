@@ -1,6 +1,5 @@
 # SConstruct for src/fass
 
-
 import os
 Import('env')
 

@@ -1,0 +1,26 @@
+Thu Feb  2 09:07:47 2017 [FASS][I]: Starting Fass v1.1
+----------------------------------------
+     Fass Configuration File      
+----------------------------------------
+/root/fass/src/fass/etc/fassd.conf 
+----------------------------------------
+Thu Feb  2 09:07:47 2017 [CONF][I]: Reading configuration...
+> fass.log_level=5
+> fass.manager_timer=70
+> fass.one_endpoint=localhost
+> fass.one_port=2633
+> rpcm.keepalive_max_conn=30
+> rpcm.keepalive_timeout=15
+> rpcm.listen_address=0.0.0.0
+> rpcm.listen_port=2637
+> rpcm.log_call_format=Req:%i UID:%u %m invoked %l
+> rpcm.max_conn=15
+> rpcm.max_conn_backlog=15
+> rpcm.message_size(default)=1073741824
+> rpcm.rpc_log=1
+> rpcm.timeout=15
+
+Thu Feb  2 09:07:47 2017 [RPCM][I]: Starting RPC Manager...
+Thu Feb  2 09:07:47 2017 [RPCM][I]: Starting XML-RPC server, port 2637 ...
+Thu Feb  2 09:07:52 2017 [SCHED][I]: XML-RPC client using 1073741824 bytes for response buffer.
+

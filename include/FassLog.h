@@ -4,10 +4,8 @@
  *      Author: Sara Vallero 
  *      Author: Valentina Zaccolo
  */
-
-#ifndef INCLUDE_FASSLOG_H_
-#define INCLUDE_FASSLOG_H_
-
+#ifndef _FASS_LOG_H_
+#define _FASS_LOG_H_
 
 #include "Log.h"
 #include <sstream>
@@ -15,13 +13,13 @@
 using namespace std;
 
 
-/* The Logger class for the Fass components */
+/** The Logger class for the Fass components */
 
 class FassLog
 {
 public:
 
-    // Init
+    /// Init
     static void init_log_system(
         Log::MessageType    clevel,
         const char *        filename,
@@ -31,14 +29,14 @@ public:
 
         FassLog::logger = new FileLogTS(filename, clevel, mode);
     };
-
-    // Finalize
+    
+    /// Finalize
     static void finalize_log_system()
     {
         delete logger;
     }
 
-    // Log stuff
+    /// Log stuff
     static void log(
         const char *           module,
         const Log::MessageType type,
@@ -56,14 +54,14 @@ public:
     };
 
     static void log(
-        const char *           module,
-        const Log::MessageType type,
-        const string&          message)
-    {
-        logger->log(module,type,message.c_str());
-    };
-
-    // Get log level
+        const char *           module,                                                           
+        const Log::MessageType type,                                                             
+        const string&          message)                                                          
+    {                                                                                            
+        logger->log(module,type,message.c_str());                                                
+    };                                                                                           
+                                                                                                 
+    /// Get log level   
     static Log::MessageType log_level()
     {
         return logger->get_log_level();
@@ -77,6 +75,4 @@ private:
     static Log *   logger;
 };
 
-
-
-#endif /* INCLUDE_FASSLOG_H_ */
+#endif

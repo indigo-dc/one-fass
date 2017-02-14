@@ -1,10 +1,9 @@
 /**
- * fassd.cc 
+ * fassd.cc
  *
  *      Author: Sara Vallero 
  *      Author: Valentina Zaccolo
- **/
-
+ */
 #include <fcntl.h>
 #include <getopt.h>
 #include <iostream>
@@ -42,7 +41,7 @@ static void print_help()
 
     cout << "\n"
          << "SYNOPSIS\n"
-         << "  Starts the FaSS daemon\n\n"
+         << "  Starts the One Fass daemon\n\n"
          << "OPTIONS\n"
          << "  -v, --verbose\toutput version information and exit\n"
          << "  -h, --help\tdisplay this help and exit\n"
@@ -177,7 +176,7 @@ int main(int argc, char **argv)
 
 
     switch (pid){
-        case -1: // Error
+        case -1: /// Error
             cerr << "Error: Unable to fork.\n";
             exit(-1);
 
@@ -203,7 +202,7 @@ int main(int argc, char **argv)
             }
 
             fassd_main();
-
+            
             /// delete the file if no process has it open
             unlink(lockfile.c_str());
             break;
@@ -224,7 +223,3 @@ error_sid:
     unlink(lockfile.c_str());
     exit(-1);
 }
-
-
-
-

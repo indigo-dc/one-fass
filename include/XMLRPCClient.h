@@ -85,7 +85,9 @@ public:
      *    @param result of the xmlrpc call
      */
     void call(const std::string& method, const xmlrpc_c::paramList& plist,
+//         xmlrpc_c::value * result);
          xmlrpc_c::value * const result);
+
 private:
     /**
      * Creates a new xml-rpc client with specified options.

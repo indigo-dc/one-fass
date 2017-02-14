@@ -1,5 +1,4 @@
-# SConstruct for src/fass
-
+# SConstruct for src/logger
 
 import os
 Import('env')

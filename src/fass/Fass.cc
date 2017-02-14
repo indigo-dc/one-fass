@@ -1,15 +1,14 @@
 /**
- * Fass.cc 
+ * Request.h
  *
  *      Author: Sara Vallero 
  *      Author: Valentina Zaccolo
- **/
-
+ */
 #include "Fass.h"
 #include "FassLog.h"
 #include "Configurator.h"
-#include "Log.h"
-#include "RPCManager.h"
+//#include "Log.h"
+//#include "RPCManager.h"
 
 #include <fstream>
 #include <signal.h>
@@ -40,7 +39,6 @@ void Fass::start(bool bootstrap_only)
     /// returns the null-terminated hostname in the character
     /// array hn, which has a length of 79 bytes.
     /// is hostname used somewhere?
-
     if ( gethostname(hn,79) != 0 )
     {
         throw runtime_error("Error getting hostname");
@@ -62,17 +60,14 @@ void Fass::start(bool bootstrap_only)
 
     ostringstream os;
 
-    try
-    {
+    try{
         Log::MessageType   clevel;
 
         clevel     = get_debug_level();
 
         /// Initializing FASS daemon log system
-    
         string log_fname;
         log_fname = log_location + "fass.log";
-        
         FassLog::init_log_system(clevel,
                            log_fname.c_str(),
                            ios_base::trunc,
@@ -88,20 +83,21 @@ void Fass::start(bool bootstrap_only)
        
         FassLog::log("FASS",Log::INFO,os);
         fass_configuration->print_loaded_options(); 
-    } 
-    catch(runtime_error&){
+    } catch(runtime_error&){
 
         throw;
     }
 
-    /* Initialize the XML library */
+
+
+    /** Initialize the XML library */
     // Try to avoid it
     //    xmlInitParser();
 
 
     /** Database */
 
-    /// TODO
+    // TODO
 
     /** Block all signals before creating any thread */
 
@@ -118,7 +114,7 @@ void Fass::start(bool bootstrap_only)
     /// ---- Request Manager ----
     try
     {
-        string rm_port;
+        int  rm_port = 0;
         int  max_conn;
         int  max_conn_backlog;
         int  keepalive_timeout;
@@ -179,9 +175,9 @@ void Fass::start(bool bootstrap_only)
 
     /** Stop the managers and free resources */
 
-    //rpcm->finalize(); we are not using action manager now
+    //rpcm->finalize(); we are not using action manager now 
 
-    ///sleep to wait drivers???
+    //sleep to wait drivers???
 
     pthread_join(rpcm->get_thread_id(),0);
 

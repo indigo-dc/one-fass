@@ -3,10 +3,9 @@
  *
  *      Author: Sara Vallero 
  *      Author: Valentina Zaccolo
- **/
-
-#ifndef INCLUDE_LOG_H_
-#define INCLUDE_LOG_H_
+ */
+#ifndef _LOG_H_
+#define _LOG_H_
 
 #include <string>
 #include <fstream>
@@ -14,7 +13,7 @@
 
 using namespace std;
 
-/** Log class: interface used by Fass components to log messages **/
+/** Log class: interface used by Fass components to log messages */
 
 class Log
 {
@@ -46,8 +45,8 @@ public:
         const char *            message) = 0;
 
 protected:
-
-    ///Minimum log level for the messages
+    
+    /// Minimum log level for the messages
     MessageType log_level;
 };
 
@@ -72,7 +71,7 @@ private:
 };
 
 /** FileLogTS class: thread safe.
-   Implements mutex since different services log to the same file. **/
+   Implements mutex since different services log to the same file. */
 
 class FileLogTS : public FileLog
 {
@@ -104,6 +103,4 @@ private:
     pthread_mutex_t log_mutex;
 };
 
-
-
-#endif /* INCLUDE_LOG_H_ */
+#endif /* _LOG_H_ */

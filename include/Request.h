@@ -3,11 +3,10 @@
  *
  *      Author: Sara Vallero 
  *      Author: Valentina Zaccolo
- **/
+ */
 
-#ifndef INCLUDE_REQUEST_H_
-#define INCLUDE_REQUEST_H_
-
+#ifndef REQUEST_H_
+#define REQUEST_H_
 
 #include <set>
 #include <string>
@@ -18,7 +17,7 @@
 using namespace std;
 
 /** The Request Class represents the basic abstraction for the FASS XML-RPC API.
- *    This interface must be implemented by any XML-RPC API call **/
+ *    This interface must be implemented by any XML-RPC API call */
 
 struct RequestAttributes
 {
@@ -26,21 +25,24 @@ public:
     int uid;                  /// only oneadmin allowed
     int gid;                  /// only oneadmin allowed
 
-    string uname;             /// name of the user
+    string uname;             /// name of the user 
     string gname;             /// name of the user's group
 
     string password;          /// password of the user
 
-    string session;           /// session from ONE XML-RPC API
+    string session;           /// ession from ONE XML-RPC API 
     int    req_id;            /// request ID for log messages
 
-    //int umask;                // user umask for new objects
+    //int umask;                // user umask for new objects 
+    
+    xmlrpc_c::value * retval; ///return value from libxmlrpc-c                         
 
-    xmlrpc_c::value * retval; ///return value from libxmlrpc-c
 
-    string resp_msg;          /// additional response message 
-
-};
+    //PoolObjectSQL::ObjectType resp_obj; /**< object type */
+    //int                       resp_id;  /**< Id of the object */
+    string                    resp_msg; /**< Additional response message */
+                                                                                            
+}; 
 
 
 
@@ -48,7 +50,7 @@ class Request: public xmlrpc_c::method , public xmlrpc_c::defaultMethod
 {
 
 public:
-
+ 
     enum ErrorCode {
         SUCCESS        = 0x0000,
         //AUTHENTICATION = 0x0100,
@@ -85,18 +87,27 @@ protected:
     };
 
     virtual ~Request(){};
-
-    /** Methods to execute the request when received at the server **/
+ 
+    /** Methods to execute the request when received at the server */
 
     /** Wraps the actual execution function by authorizing the user
        and calling the request_execute virtual function
        @param _paramlist list of XML parameters
-       @param _retval value to be returned to the client **/
+       @param _retval value to be returned to the client */
     virtual void execute(xmlrpc_c::paramList const& _paramList,
         xmlrpc_c::value * const _retval);
-    /// this is for default function, it's not virtual, but overwritten by RequestOneProxy
+    /** this is for default function, it's not virtual, but overwritten by RequestOneProxy */
+//    void execute(const string& method_name, xmlrpc_c::paramList const& _paramList,
+//        xmlrpc_c::value  _retval) {};
+
     void execute(const string& method_name, xmlrpc_c::paramList const& _paramList,
+//        xmlrpc_c::value * _retval) {};
         xmlrpc_c::value * const _retval) {};
+
+virtual void execute(std::string _method_name,
+            xmlrpc_c::paramList paramList,
+            xmlrpc_c::value *   _retval) {};
+
 
     /** Actual Execution method for the request. Must be implemented by the XML-RPC requests.
        @param _paramlist of the XML-RPC call (complete list)
@@ -104,13 +115,13 @@ protected:
     virtual void request_execute(xmlrpc_c::paramList const& _paramList,
                                  RequestAttributes& att) = 0;
 
-    /** Builds an XML-RPC response updating retval.
+    /** Builds an XML-RPC response updating retval. 
        After calling this function the xml-rpc excute method should return
        @param val string to be returned to the client
        @param att the specific request attributes */
     void success_response(const string& val, RequestAttributes& att);
-
-/**
+ 
+    /**
      *  Builds an XML-RPC response updating retval. After calling this function
      *  the xml-rpc excute method should return. A descriptive error message
      *  is constructed using att.resp_obj, att.resp_id and/or att.resp_msg and
@@ -129,7 +140,7 @@ protected:
     static void log_method_invoked(const RequestAttributes& att,
         const xmlrpc_c::paramList&  paramList, const string& format_str,
         const std::string& method_name, const std::set<int>& hidden_params);
-
+   
     /** Logs the method result, including the output data or error message
        @param att the specific request attributes
        @param method_name that produced the error */
@@ -146,7 +157,4 @@ private:
 
 };
 
-
-
-
-#endif /* INCLUDE_REQUEST_H_ */
+#endif

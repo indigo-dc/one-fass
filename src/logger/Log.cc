@@ -68,7 +68,7 @@ void FileLog::log(
 
         ctime_r(&(the_time),str);
 
-        // Get rid of final enter character
+        /// Get rid of final enter character
         str[24] = '\0';
 
         file << str << " ";
@@ -82,6 +82,4 @@ void FileLog::log(
         file.close();
     }
 }
-
-
 

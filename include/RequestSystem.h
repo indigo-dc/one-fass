@@ -5,8 +5,8 @@
  *      Author: Valentina Zaccolo
  */
 
-#ifndef INCLUDE_REQUESTSYSTEM_H_
-#define INCLUDE_REQUESTSYSTEM_H_
+#ifndef REQUEST_SYSTEM_H
+#define REQUEST_SYSTEM_H
 
 #include "Request.h"
 
@@ -42,6 +42,21 @@ public:
                          RequestAttributes& att);
 };
 
+/*
+class SystemConfig : public RequestSystem
+{
+public:
+    SystemConfig():
+        RequestSystem("SystemConfig",
+                          "Returns the FASS configuration",
+                          "A:s")
+    {};
 
+    ~SystemConfig(){};
 
-#endif /* INCLUDE_REQUESTSYSTEM_H_ */
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+                         RequestAttributes& att);
+};	
+*/
+
+#endif

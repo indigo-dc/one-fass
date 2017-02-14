@@ -1,13 +1,14 @@
 /**
- * Configurator.cc
+ * Request.h
  *
  *      Author: Sara Vallero 
  *      Author: Valentina Zaccolo
- **/
+ */
 
 #include "Configurator.h"
 #include "FassLog.h"
 
+//#include <boost/program_options.hpp>
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -18,7 +19,7 @@
 
 using namespace std;
 
-/** -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 bool Configurator::load_configuration(){
 
@@ -29,7 +30,7 @@ bool Configurator::load_configuration(){
 
     desc.add_options()
     		("help", "produce help message")
-                /// General
+                /// General 
     		("fass.manager_timer", po::value<int>()->default_value(60), "managers period (s)")
      		("fass.one_port", po::value<int>()->default_value(2633), "OpenNebula listen port")
     		("fass.one_endpoint", po::value<string>()->default_value("localhost"), "OpenNebula listen endpoint")
@@ -118,3 +119,4 @@ Configurator::allowed_types Configurator::get_option_type(boost::any value){
 /* -------------------------------------------------------------------------- */
 
 const char * FassConfigurator::conf_name="fassd.conf";
+

@@ -4,6 +4,7 @@
  *      Author: Sara Vallero 
  *      Author: Valentina Zaccolo
  */
+
 #include "Request.h"
 #include "FassLog.h"
 #include <cstdlib>
@@ -22,9 +23,9 @@ void Request::execute(
     att.req_id = (reinterpret_cast<uintptr_t>(this) * rand()) % 10000;
 
     log_method_invoked(att, _paramList, format_str, method_name, hidden_params);
-
-   //request_execute(_paramList, att);
-   log_result(att, method_name);
+   
+    request_execute(_paramList, att);  
+    log_result(att, method_name);
 };
 
 void Request::log_method_invoked(const RequestAttributes& att,
@@ -213,5 +214,14 @@ void Request::success_response(const string& val, RequestAttributes& att)
     *(att.retval) = arrayresult;
 }
 
+void Request::failure_response(ErrorCode ec, RequestAttributes& att)
+{
+    vector<xmlrpc_c::value> arrayData;
 
+    arrayData.push_back(xmlrpc_c::value_boolean(false));
+    arrayData.push_back(xmlrpc_c::value_int(ec));
 
+    xmlrpc_c::value_array arrayresult(arrayData);
+
+    *(att.retval) = arrayresult;
+}

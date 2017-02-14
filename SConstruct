@@ -1,3 +1,10 @@
+#
+# SConstruct
+#	
+#      Author: Sara Vallero
+#      Author: Valentina Zaccolo
+#
+#
 
 import os
 import sys
@@ -41,9 +48,8 @@ main_env.Append(CPPPATH=[
 main_env.Append(LIBPATH=[
     cwd+'/src/fass',
     cwd+'/src/logger',
-    cwd+'/src/rpcm',
+    cwd+'/src/rpcm', 
     cwd+'/src/client'
-
 ])
 
 # Compile flags
@@ -92,10 +98,10 @@ main_env.Append(LIBS=['z','boost_program_options'])
 #    main_env.Append(CPPFLAGS=["-DOLD_XMLRPC"])
 
 # xmlrpc
-#xmlrpc_dir=ARGUMENTS.get('xmlrpc', 'none')
-#if xmlrpc_dir!='none':
-#    main_env.Append(LIBPATH=[xmlrpc_dir+"/lib", xmlrpc_dir+"/lib64"])
-#    main_env.Append(CPPPATH=[xmlrpc_dir+"/include"])
+xmlrpc_dir=ARGUMENTS.get('xmlrpc', 'none')
+if xmlrpc_dir!='none':
+    main_env.Append(LIBPATH=[xmlrpc_dir+"/lib", xmlrpc_dir+"/lib64"])
+    main_env.Append(CPPPATH=[xmlrpc_dir+"/include"])
 
 # build lex/bison
 #build_parsers=ARGUMENTS.get('parsers', 'no')
@@ -135,11 +141,11 @@ if not main_env.GetOption('clean'):
     except Exception, e:
         print e
         exit(-1)
-#else:
-#    main_env.Replace(mysql='yes')
-#    shutil.rmtree('.xmlrpc_test', True)
-#    shutil.rmtree('src/nebula/.xmlrpc_test', True)
-#    shutil.rmtree('src/scheduler/.xmlrpc_test', True)
+else:
+    main_env.Replace(mysql='yes')
+    shutil.rmtree('.xmlrpc_test', True)
+    shutil.rmtree('src/nebula/.xmlrpc_test', True)
+    shutil.rmtree('src/scheduler/.xmlrpc_test', True)
 
 
 # libxml2
@@ -151,7 +157,7 @@ build_scripts=[
     'src/fass/SConstruct',
     'src/logger/SConstruct',
     'src/rpcm/SConstruct',
-    'src/client/SContruct'
+    'src/client/SConstruct'
 ]
 
 for script in build_scripts:
