@@ -63,16 +63,18 @@ bool PriorityManager::start()
     unsigned int live_rescheds;
 
     pthread_attr_t pattr;
-   
+  
+    XMLRPCClient * client = XMLRPCClient::client();
+ 
     // XML-RPC Client
     try
     {
 
-        Client::initialize("", one_xmlrpc, message_size, timeout);
+        XMLRPCClient::initialize("", one_xmlrpc, message_size, timeout);
 
         oss.str("");
 
-        oss << "XML-RPC client using " << (Client::client())->get_message_size()
+        oss << "XML-RPC client using " << (XMLRPCClient::client())->get_message_size()
             << " bytes for response buffer.\n";
 
         FassLog::log("PM", Log::INFO, oss);
@@ -88,8 +90,6 @@ bool PriorityManager::start()
         {
             xmlrpc_c::value result;
             vector<xmlrpc_c::value> values;
-
-            Client * client = Client::client();
 
             client->call("one.system.config", "", &result);
 
@@ -112,10 +112,10 @@ bool PriorityManager::start()
 
     if ( rc != 0 )
     {
-	ostringstream oss;
+	//ostringstream oss;
 
-        oss << "Cannot get the VM pool: " << strerror(errno);
-        FassLog::log("PM",Log::ERROR,oss);
+        //oss << "Cannot get the VM pool: " << strerror(errno);
+        //FassLog::log("PM",Log::ERROR,oss);
         return;
     }
 
@@ -365,5 +365,3 @@ int PriorityManager::do_scheduled_actions()
     return 0;
 }
 */
-
-/*

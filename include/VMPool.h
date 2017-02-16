@@ -85,7 +85,7 @@ public:
      *
      *    @return 0 on success, -1 otherwise
      */
-    int update(int vid, const string &st) const;
+    int update(int vid) const;//, const string &st) const;
 
     /**
      *  Update the VM template
@@ -97,7 +97,7 @@ public:
     {
         string xml;
 
-        return update(vm->get_oid(), vm->get_template(xml));
+        return update(vm->get_oid());//, vm->get_template(xml));
     };
 
 protected:

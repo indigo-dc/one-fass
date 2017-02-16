@@ -129,7 +129,7 @@ void Fass::start(bool bootstrap_only)
     fass_configuration->get_single_option("pm", "max_dispatch", dispatch_limit);
     fass_configuration->get_single_option("pm", "live_rescheds", live_rescheds);
  
-    pm = new PriorityManager(one_xmlrpc, message_size, timeout, machines_limit, dispatch_limit, live_rescheds);
+    // TODO later pm = new PriorityManager(one_xmlrpc, message_size, timeout, machines_limit, dispatch_limit, live_rescheds);
     }
 
     catch (bad_alloc&)
@@ -140,12 +140,12 @@ void Fass::start(bool bootstrap_only)
 
     /// ---- Start the Priority Manager ----
 
-    rc = pm->start();
+    // TODO later rc = pm->start();
 
-    if ( !rc )
-    {
-       throw runtime_error("Could not start the Priority Manager");
-    }
+    //if ( !rc )
+    //{
+    //   throw runtime_error("Could not start the Priority Manager");
+    //}
 
 
     /// ---- Request Manager ----
