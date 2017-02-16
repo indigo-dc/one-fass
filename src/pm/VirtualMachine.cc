@@ -6,11 +6,98 @@
  */
 
 #include "VirtualMachine.h"
-
+#include <stdexcept>
+#include <cstring>
+#include <iostream>
+#include <sstream>
 
 #include <algorithm>
 #include <string> 
 #include <vector>
+
+
+void VirtualMachine::xpaths(std::vector<std::string>& content, const char * expr)
+{
+    xmlXPathObjectPtr obj;
+
+    std::ostringstream oss;
+    xmlNodePtr    cur;
+    xmlChar *     str_ptr;
+
+    obj = xmlXPathEvalExpression(reinterpret_cast<const xmlChar *>(expr), ctx);
+
+    if (obj == 0)
+    {
+        return;
+    }
+
+    switch (obj->type)
+    {
+        case XPATH_NUMBER:
+            oss << obj->floatval;
+
+            content.push_back(oss.str());
+            break;
+
+        case XPATH_NODESET:
+            for(int i = 0; i < obj->nodesetval->nodeNr ; ++i)
+            {
+                cur = obj->nodesetval->nodeTab[i];
+
+                if ( cur == 0 || cur->type != XML_ELEMENT_NODE )
+                {
+                    continue;
+                }
+
+                str_ptr = xmlNodeGetContent(cur);
+
+                if (str_ptr != 0)
+                {
+                    std::string ncontent = reinterpret_cast<char *>(str_ptr);
+
+                    content.push_back(ncontent);
+
+                    xmlFree(str_ptr);
+                }
+            }
+            break;
+
+        case XPATH_UNDEFINED:
+        case XPATH_BOOLEAN:
+        case XPATH_STRING:
+        case XPATH_POINT:
+        case XPATH_RANGE:
+        case XPATH_LOCATIONSET:
+        case XPATH_USERS:
+        case XPATH_XSLT_TREE:
+            break;
+
+    }
+
+    xmlXPathFreeObject(obj);
+};
+
+int VirtualMachine::xpath(string& value, const char * xpath_expr, const char * def)
+{
+    vector<string> values;
+    int rc = 0;
+
+    xpaths(values, xpath_expr);
+
+    if ( values.empty() == true )
+    {
+        value = def;
+        rc    = -1;
+    }
+    else
+    {
+        value = values[0];
+    }
+
+    return rc;
+}
+
+
 
 void VirtualMachine::init_attributes()
 {
