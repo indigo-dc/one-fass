@@ -10,6 +10,7 @@
 #define PRIORITY_MANAGER_H_
 
 #include "VMPool.h"
+#include <time.h>
 
 using namespace std;
 

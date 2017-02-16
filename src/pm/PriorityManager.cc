@@ -22,6 +22,7 @@
 #include <pthread.h>
 #include <cmath>
 #include <iomanip>
+#include <ctime>
 
 using namespace std;
 
@@ -57,7 +58,6 @@ bool PriorityManager::start()
     ostringstream oss;
 
     string etc_path;
-
     //unsigned int machines_limit;
     //unsigned int live_rescheds;
 
@@ -156,12 +156,22 @@ void PriorityManager::do_schedule()
 
 
  ostringstream oss;
- int time_start;
- int time_end; 
 
-// I need start and end
-// for start one can use 1st day of current year
-// for end current date
+ time_t time_start = time(0);
+ time_t time_end   = time(0);
+
+ tm tmp_tm = *localtime(&time_start);
+
+ tmp_tm.tm_sec  = 0;
+ tmp_tm.tm_min  = 0;
+ tmp_tm.tm_hour = 0;
+ tmp_tm.tm_mday = 1;
+ tmp_tm.tm_mon  = start_month - 1;
+ tmp_tm.tm_year = start_year - 1900;
+ tmp_tm.tm_isdst = -1; // Unknown daylight saving time
+
+ time_start = mktime(&tmp_tm);
+
 
 // TODO call the plugin basic + save the age from one.vmpool.accounting info
 
