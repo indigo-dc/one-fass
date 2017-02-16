@@ -14,7 +14,7 @@
 #include <libxml/parser.h>
 #include <libxml/xpath.h>
 #include <libxml/xpathInternals.h>
-
+#include <map>
 //#include "ObjectXML.h"
 //#include "HostPoolXML.h"
 //#include "Resource.h"

@@ -59,10 +59,10 @@ bool PriorityManager::start()
 
     string etc_path;
 
-    unsigned int machines_limit;
-    unsigned int live_rescheds;
+    //unsigned int machines_limit;
+    //unsigned int live_rescheds;
 
-    pthread_attr_t pattr;
+    //pthread_attr_t pattr;
   
     XMLRPCClient * client = XMLRPCClient::client();
  
@@ -116,7 +116,7 @@ bool PriorityManager::start()
 
         //oss << "Cannot get the VM pool: " << strerror(errno);
         //FassLog::log("PM",Log::ERROR,oss);
-        return;
+        return false; 
     }
 
 //TODO
@@ -125,14 +125,16 @@ bool PriorityManager::start()
 //TODO
 //    dispatch();
 
+return true;
+
 }
 
 int PriorityManager::set_up_pools()
 {
     int                             rc;
-
+    XMLRPCClient * client = XMLRPCClient::client();
     // VM pool
-    vmpool = new VMPool(client, machines_limit, live_rescheds==1);
+    vmpool = new VMPool(client, max_vm, live_rescheds==1);
 
     //Cleans the cache and gets the VM pool
     rc = vmpool->set_up();

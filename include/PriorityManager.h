@@ -10,15 +10,7 @@
 #define PRIORITY_MANAGER_H_
 
 #include "Log.h"
-//#include "HostPoolXML.h"
-//#include "VMGroupPoolXML.h"
-//#include "UserPoolXML.h"
-//#include "ClusterPoolXML.h"
-//#include "DatastorePoolXML.h"
 #include "VMPool.h"
-//#include "SchedulerPolicy.h"
-//#include "ActionManager.h"
-//#include "AclXML.h"
 
 using namespace std;
 
@@ -38,7 +30,7 @@ public:
 
 
     bool start();
-
+    VMPool * vmpool;
 
 private:
 
@@ -50,6 +42,8 @@ private:
 	int live_rescheds;	
 
 	int set_up_pools();
+
+
 };
 
 #endif

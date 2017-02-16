@@ -51,24 +51,24 @@ int VMPool::set_up()
              << right << setw(8)  << "VM"        << " "
              << right << setw(4)  << "CPU"       << " "
              << right << setw(11) << "Memory"    << " "
-             << right << setw(3)  << "PCI"       << " "
-             << right << setw(11) << "System DS" << " "
-             << " Image DS" << endl
-             << setw(60) << setfill('-') << "-" << setfill(' ') << endl;
+            // << right << setw(3)  << "PCI"       << " "
+            // << right << setw(11) << "System DS" << " "
+            // << " Image DS" << endl
+            // << setw(60) << setfill('-') << "-" << setfill(' ') << endl;
+         map<int, VirtualMachine*>::iterator iter;
+	 //std::vector<xmlNodePtr>::iterator it;
 
-	 std::vector<xmlNodePtr>::iterator it;
-
-            for (it = objects.begin(); it != objects.end(); it++)
+            for (iter = objects.begin(); iter != objects.end(); iter++)
             {
                 int cpu, mem;
-                long long disk;
-                vector<VectorAttribute *> pci;
+                //long long disk;
+                //vector<VectorAttribute *> pci;
 
                 string action = "DEPLOY";
 
-                VirtualMachine * vm = static_cast<VirtualMachine *>(it->second);
+                VirtualMachine * vm = static_cast<VirtualMachine *>(iter->second);
 
-                vm->get_requirements(cpu, mem, disk, pci);
+                vm->get_requirements(cpu, mem); //, disk, pci);
 
                 if (vm->is_resched())
                 {
@@ -82,9 +82,9 @@ int VMPool::set_up()
                 oss << right << setw(8)  << action      << " "
                     << right << setw(8)  << it->first   << " "
                     << right << setw(4)  << cpu         << " "
-                    << right << setw(11) << mem         << " "
-                    << right << setw(3)  << pci.size()  << " "
-                    << right << setw(11) << disk        << " ";
+                    << right << setw(11) << mem         << " ";
+                    //<< right << setw(3)  << pci.size()  << " "
+                    //<< right << setw(11) << disk        << " ";
 
                 oss << endl;
             }
