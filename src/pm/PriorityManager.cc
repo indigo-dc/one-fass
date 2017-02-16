@@ -7,8 +7,8 @@
 
 #include "Fass.h"
 #include "FassLog.h"
-#include "PriorityManager.h"
-#include "VMPool.h"
+//#include "PriorityManager.h"
+//#include "VMPool.h"
 #include "VirtualMachine.h"
 
 #include <stdexcept>
@@ -39,7 +39,11 @@ PriorityManager::PriorityManager(
 		live_rescheds(_live_rescheds)
 
 
-{};
+{
+
+    xmlrpc_limit_set(XMLRPC_XML_SIZE_LIMIT_ID, message_size);
+
+};
 
 
 
@@ -122,7 +126,7 @@ bool PriorityManager::start()
 
 return true;
 
-}
+};
 
 bool PriorityManager::set_up_pools()
 {
