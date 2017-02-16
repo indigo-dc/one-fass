@@ -50,7 +50,7 @@ int VMPool::set_up()
          oss << right << setw(8)  << "ACTION"    << " "
              << right << setw(8)  << "VM"        << " "
              << right << setw(4)  << "CPU"       << " "
-             << right << setw(11) << "Memory"    << " "
+             << right << setw(11) << "Memory"    << " " << endl;
             // << right << setw(3)  << "PCI"       << " "
             // << right << setw(11) << "System DS" << " "
             // << " Image DS" << endl
@@ -126,7 +126,7 @@ int VMPool::dispatch(int vid, int hid, int dsid, bool resched) const
 
     VirtualMachine* vm = get(vid);
 
-    if (vm != 0 && vm->clear_log())
+    if (vm != 0) // && vm->clear_log())
     {
         update(vm);
     }
@@ -160,7 +160,7 @@ int VMPool::dispatch(int vid, int hid, int dsid, bool resched) const
 
         oss << "Exception raised: " << e.what() << '\n';
 
-        NebulaLog::log("VM",Log::ERROR,oss);
+        FassLog::log("VM",Log::ERROR,oss);
 
         return -1;
     }
@@ -170,13 +170,13 @@ int VMPool::dispatch(int vid, int hid, int dsid, bool resched) const
 }
 
 
-int VMPool::update(int vid, const string &st) const
+int VMPool::update(int vid) const //, const string &st) const
 {
     xmlrpc_c::value result;
 
     try
     {
-        client->call("one.vm.update", "is", &result, vid, st.c_str());
+        client->call("one.vm.update", "is", &result, vid); //, st.c_str());
     }
     catch (exception const& e)
     {
@@ -184,6 +184,4 @@ int VMPool::update(int vid, const string &st) const
     }
     
 	return 0;
-}
-
 }

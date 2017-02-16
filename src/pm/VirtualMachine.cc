@@ -10,10 +10,7 @@
 
 #include <algorithm>
 #include <string> 
-//#include "DatastoreXML.h"
-//#include "DatastorePoolXML.h"
-//#include "NebulaUtil.h"
-//#include "History.h"
+#include <vector>
 
 void VirtualMachine::init_attributes()
 {
@@ -206,7 +203,7 @@ void VirtualMachine::reset_requirements(float& c, int& m) //, long long& d)
 {
     c = cpu;
     m = memory;
-    d = system_ds_usage;
+    //d = system_ds_usage;
 
     cpu    = 0;
     memory = 0;
