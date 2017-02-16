@@ -1,5 +1,5 @@
 /**
- * Request.h
+ * Fass.cc
  *
  *      Author: Sara Vallero 
  *      Author: Valentina Zaccolo
@@ -10,6 +10,8 @@
 #include "FassDb.h"
 //#include "Log.h"
 //#include "RPCManager.h"
+//#include "PriorityManager.h"
+
 
 #include <fstream>
 #include <signal.h>
@@ -128,6 +130,43 @@ void Fass::start(bool bootstrap_only)
 
     /** Managers */
 
+   /// ---- Priority Manager ----
+   try
+   {
+    string one_xmlrpc;
+    int message_size;
+    int timeout;   
+    int machines_limit;
+    int dispatch_limit;
+    int live_rescheds;
+
+
+    fass_configuration->get_single_option("fass", "timeout", timeout);
+    fass_configuration->get_single_option("fass", "message_size", message_size);
+    fass_configuration->get_single_option("fass", "one_xmlrpc", one_xmlrpc);
+    fass_configuration->get_single_option("pm", "max_vm", machines_limit);
+    fass_configuration->get_single_option("pm", "max_dispatch", dispatch_limit);
+    fass_configuration->get_single_option("pm", "live_rescheds", live_rescheds);
+ 
+    pm = new PriorityManager(one_xmlrpc, message_size, timeout, machines_limit, dispatch_limit, live_rescheds);
+    }
+
+    catch (bad_alloc&)
+    {
+        FassLog::log("FASS", Log::ERROR, "Error creating Priority Manager");
+        throw;
+    }
+
+    /// ---- Start the Priority Manager ----
+
+    rc = pm->start();
+
+    if ( !rc )
+    {
+       throw runtime_error("Could not start the Priority Manager");
+    }
+
+
     /// ---- Request Manager ----
     try
     {
@@ -190,6 +229,8 @@ void Fass::start(bool bootstrap_only)
     {
        throw runtime_error("Could not start the RPC Manager");
     }
+
+
 
     /** Wait for a SIGTERM or SIGINT signal */
 
