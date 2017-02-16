@@ -7,26 +7,20 @@
 
 #include "Fass.h"
 #include "FassLog.h"
+#include "PriorityManager.h"
+#include "VMPool.h"
+#include "VirtualMachine.h"
 
 #include <stdexcept>
 #include <stdlib.h>
-
 #include <signal.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/types.h>
 #include <pwd.h>
-
 #include <pthread.h>
-
 #include <cmath>
 #include <iomanip>
-
-//#include "Scheduler.h"
-//#include "SchedulerTemplate.h"
-//#include "RankPolicy.h"
-//#include "PoolObjectAuth.h"
-//#include "NebulaUtil.h"
 
 using namespace std;
 
@@ -63,6 +57,7 @@ bool PriorityManager::start()
     //unsigned int live_rescheds;
 
     //pthread_attr_t pattr;
+    FassLog::log("PM",Log::INFO,"Starting Priority Manager...");
   
     XMLRPCClient * client = XMLRPCClient::client();
  
@@ -129,9 +124,9 @@ return true;
 
 }
 
-int PriorityManager::set_up_pools()
+bool PriorityManager::set_up_pools()
 {
-    int                             rc;
+    int rc;
     XMLRPCClient * client = XMLRPCClient::client();
     // VM pool
     vmpool = new VMPool(client, max_vm, live_rescheds==1);
@@ -139,7 +134,7 @@ int PriorityManager::set_up_pools()
     //Cleans the cache and gets the VM pool
     rc = vmpool->set_up();
 
-    return rc;
+    return 0;
 };
 
 

@@ -9,7 +9,6 @@
 #ifndef PRIORITY_MANAGER_H
 #define PRIORITY_MANAGER_H_
 
-#include "Log.h"
 #include "VMPool.h"
 
 using namespace std;
@@ -17,7 +16,6 @@ using namespace std;
 class PriorityManager
 {
 public:
-
 	PriorityManager(
         const string _one_xmlrpc,
         int _message_size,
@@ -41,7 +39,7 @@ private:
 	int max_dispatch;
 	int live_rescheds;	
 
-	int set_up_pools();
+	bool set_up_pools();
 
 
 };
