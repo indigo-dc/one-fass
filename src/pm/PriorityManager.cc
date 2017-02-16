@@ -11,6 +11,7 @@
 //#include "VMPool.h"
 #include "VirtualMachine.h"
 
+// booh #include <time.h>
 #include <stdexcept>
 #include <stdlib.h>
 #include <signal.h>
@@ -124,6 +125,8 @@ bool PriorityManager::start()
 //TODO
 //    dispatch();
 
+   do_schedule();
+
 return true;
 
 };
@@ -141,7 +144,29 @@ bool PriorityManager::set_up_pools()
     return 0;
 };
 
+void PriorityManager::do_schedule()
+{
+ VirtualMachine * vm;
 
+    int vm_memory;
+    int vm_cpu;
+
+    const map<int, VirtualMachine*> pending_vms = vmpool->get_objects();
+    int rc;
+
+
+ ostringstream oss;
+ int time_start;
+ int time_end; 
+
+// I need start and end
+// for start one can use 1st day of current year
+// for end current date
+
+// TODO call the plugin basic + save the age from one.vmpool.accounting info
+
+
+}
 
 /*
 
