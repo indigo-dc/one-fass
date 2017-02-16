@@ -184,13 +184,8 @@ void PriorityManager::do_schedule()
          vm->get_requirements(vm_cpu, vm_memory);
      }
 
-
-// TODO add float to string funcion for time 
-        oss << "Statistics:\n"
-            << "\tNumber of VMs:            "
-            << pending_vms.size() << endl
-            << "\tTotal time:               "
-            << one_util::float_to_str(time(0) - time_start) << "s" << endl;
+        oss    << "\tNumber of VMs:            "
+            << pending_vms.size() << endl;
 
         FassLog::log("PM", Log::DDEBUG, oss);
 
