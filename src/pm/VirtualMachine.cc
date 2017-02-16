@@ -183,9 +183,9 @@ void VirtualMachine::init_attributes()
 
     xpath(action, "/VM/HISTORY_RECORDS/HISTORY/ACTION", -1);
 
-    resume = (action == History::STOP_ACTION ||
-              action == History::UNDEPLOY_ACTION ||
-              action == History::UNDEPLOY_HARD_ACTION );
+    //resume = (action == History::STOP_ACTION ||
+    //          action == History::UNDEPLOY_ACTION ||
+    //          action == History::UNDEPLOY_HARD_ACTION );
 /*
     if (get_nodes("/VM/TEMPLATE", nodes) > 0)
     {
@@ -469,7 +469,7 @@ bool VirtualMachineXML::clear_log()
 
 int VirtualMachine::parse_action_name(string& action_st)
 {
-    transform(st.begin(),st.end(),st.begin(),(int(*)(int))std::tolower);
+    transform(action_st.begin(),action_st.end(),action_st.begin(),(int(*)(int))std::tolower);
     
     if (   action_st != "terminate"
         && action_st != "terminate-hard"
