@@ -150,7 +150,7 @@ else:
 
 
 # libxml2
-#main_env.ParseConfig('xml2-config --libs --cflags')
+main_env.ParseConfig('xml2-config --libs --cflags')
 
 
 # SCONS scripts to build
