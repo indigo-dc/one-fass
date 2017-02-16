@@ -10,6 +10,7 @@
 #include "Configurator.h"
 #include "Log.h"
 #include "RPCManager.h"
+#include "PriorityManager.h"
 
 #include <stdlib.h>
 #include <string>
@@ -129,6 +130,7 @@ private:
     {
         delete fass_configuration;
         delete rpcm;
+	delete pm;
         //delete db;
     };
 
@@ -151,7 +153,7 @@ private:
     ///  Fass Managers 
 
     RPCManager *        rpcm;
-
+    PriorityManager *   pm;
 /**
     /// Implementation functions 
     /// Is this needed? 

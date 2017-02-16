@@ -24,3 +24,19 @@ Tue Feb 14 13:10:00 2017 [RPCM][I]: Starting RPC Manager...
 Tue Feb 14 13:10:00 2017 [RPCM][I]: Starting XML-RPC server, port 2637 ...
 Tue Feb 14 13:10:24 2017 [SCHED][I]: XML-RPC client using 1073741824 bytes for response buffer.
 
+Tue Feb 14 13:17:40 2017 [SCHED][I]: XML-RPC client using 1073741824 bytes for response buffer.
+
+Tue Feb 14 13:18:07 2017 [SCHED][I]: XML-RPC client using 1073741824 bytes for response buffer.
+
+Tue Feb 14 13:18:22 2017 [RPCM][D]: Req:9392 UID:0 SystemVersion invoked , ""
+Tue Feb 14 13:18:22 2017 [RPCM][D]: Req:9392 UID:0 SystemVersion result SUCCESS, "Fass v1.1"
+Tue Feb 14 13:37:53 2017 [SCHED][I]: XML-RPC client using 1073741824 bytes for response buffer.
+
+Tue Feb 14 13:40:58 2017 [SCHED][I]: XML-RPC client using 1073741824 bytes for response buffer.
+
+Tue Feb 14 13:45:49 2017 [SCHED][I]: XML-RPC client using 1073741824 bytes for response buffer.
+
+Tue Feb 14 14:13:18 2017 [SCHED][I]: XML-RPC client using 1073741824 bytes for response buffer.
+
+Wed Feb 15 04:22:18 2017 [SCHED][I]: XML-RPC client using 1073741824 bytes for response buffer.
+

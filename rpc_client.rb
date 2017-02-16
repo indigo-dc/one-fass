@@ -26,7 +26,7 @@ require "xmlrpc/client"
 server = XMLRPC::Client.new("localhost", "/RPC2", 2637)
 begin
 #  param = server.call("fass.system.version", "","")
-  param = server.call("one.clusterpool.info", "", "");
+  param = server.call("one.vmpool.info", "", "");
 
   puts "#{param}"
 rescue XMLRPC::FaultException => e

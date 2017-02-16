@@ -49,7 +49,8 @@ main_env.Append(LIBPATH=[
     cwd+'/src/fass',
     cwd+'/src/logger',
     cwd+'/src/rpcm', 
-    cwd+'/src/client'
+    cwd+'/src/client',
+    cwd+'/src/pm'
 ])
 
 # Compile flags
@@ -157,7 +158,8 @@ build_scripts=[
     'src/fass/SConstruct',
     'src/logger/SConstruct',
     'src/rpcm/SConstruct',
-    'src/client/SConstruct'
+    'src/client/SConstruct',
+    'src/pm/SConstruct'
 ]
 
 for script in build_scripts:
