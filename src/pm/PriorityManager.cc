@@ -162,6 +162,9 @@ void PriorityManager::do_schedule()
 
  tm tmp_tm = *localtime(&time_start);
 
+ int start_month;
+ int start_year;
+
  tmp_tm.tm_sec  = 0;
  tmp_tm.tm_min  = 0;
  tmp_tm.tm_hour = 0;
@@ -172,6 +175,36 @@ void PriorityManager::do_schedule()
 
  time_start = mktime(&tmp_tm);
 
+ map<int, VirtualMachine*>::const_iterator  vm_it;
+
+ for (vm_it=pending_vms.begin(); vm_it != pending_vms.end(); vm_it++)
+     {
+         vm = static_cast<VirtualMachine*>(vm_it->second);
+ 
+         vm->get_requirements(vm_cpu, vm_memory);
+     }
+
+
+// TODO add float to string funcion for time 
+        oss << "Statistics:\n"
+            << "\tNumber of VMs:            "
+            << pending_vms.size() << endl
+            << "\tTotal time:               "
+            << one_util::float_to_str(time(0) - time_start) << "s" << endl;
+
+        FassLog::log("PM", Log::DDEBUG, oss);
+
+        oss << "Scheduling Results:" << endl;
+
+        for (map<int, VirtualMachine*>::const_iterator vm_it=pending_vms.begin();
+            vm_it != pending_vms.end(); vm_it++)
+        {
+            vm = static_cast<VirtualMachine*>(vm_it->second);
+
+            oss << *vm;
+        }
+
+        FassLog::log("PM", Log::DDDEBUG, oss);
 
 // TODO call the plugin basic + save the age from one.vmpool.accounting info
 
