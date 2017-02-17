@@ -7,6 +7,7 @@
 
 #include "Fass.h"
 #include "FassLog.h"
+#include "InitShares.h"
 //#include "PriorityManager.h"
 //#include "VMPool.h"
 #include "VirtualMachine.h"
@@ -105,9 +106,6 @@ bool PriorityManager::start()
 
         FassLog::log("PM", Log::INFO, "oned successfully contacted.");
 
-//TODO
-//        do_scheduled_actions();
-
     rc = set_up_pools();
 
     if ( rc != 0 )
@@ -192,7 +190,8 @@ void PriorityManager::do_prioritize()
 	 vm->get_uid();
 	 vm->get_gid();
 	 vm->get_state(); 
-         vm->get_rank();  // TODO check this string and how to translate it into vm priority list
+ // I think that this is not relevant 
+ //         vm->get_rank();  
         
         oss << *vm;
     }
@@ -203,6 +202,16 @@ void PriorityManager::do_prioritize()
          << pending_vms.size() << endl;
 
  FassLog::log("PM", Log::INFO, oss);
+ 
+ /** Configuration system */
+ initial_shares = new FassInitShares(etc_location, var_location);
+ 
+ rc = initial_shares->load_shares();
+
+ if ( !rc )
+    {
+        throw runtime_error("Could not load inital shares file.");
+    }
 
  // Get the share. Actally this is an info in the host, which we are not checking.
  //
