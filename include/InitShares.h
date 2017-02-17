@@ -103,4 +103,4 @@ private:
 
 /// TODO: classes to configure algorithms, quotas etc... 
 
-#endif /*CONFIGURATOR_H_*/
+#endif 

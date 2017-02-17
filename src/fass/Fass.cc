@@ -59,6 +59,16 @@ void Fass::start(bool bootstrap_only)
         throw runtime_error("Could not load Fass configuration file.");
     }
 
+    /** Initial shares system */
+    initial_shares = new FassInitShares(etc_location, var_location);
+
+    rc = initial_shares->load_shares();
+
+    if ( !rc )
+    {
+        throw runtime_error("Could not load initial shares file.");
+    }
+
     /** Log system */
 
     ostringstream os;
@@ -147,6 +157,10 @@ void Fass::start(bool bootstrap_only)
     fass_configuration->get_single_option("pm", "max_vm", machines_limit);
     fass_configuration->get_single_option("pm", "max_dispatch", dispatch_limit);
     fass_configuration->get_single_option("pm", "live_rescheds", live_rescheds);
+
+    initial_shares->get_single_option("users", "user", userID);
+    initial_shares->get_singel_option("users", "group", groupID);
+    initial_shares->get_single_option("users", "share", share);
  
     pm = new PriorityManager(one_xmlrpc, message_size, timeout, machines_limit, dispatch_limit, live_rescheds);
     }

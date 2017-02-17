@@ -202,19 +202,11 @@ void PriorityManager::do_prioritize()
          << pending_vms.size() << endl;
 
  FassLog::log("PM", Log::INFO, oss);
- 
- /** Configuration system */
- initial_shares = new FassInitShares(etc_location, var_location);
- 
- rc = initial_shares->load_shares();
 
- if ( !rc )
-    {
-        throw runtime_error("Could not load inital shares file.");
-    }
 
- // Get the share. Actally this is an info in the host, which we are not checking.
- //
+ //shares retrieved in Fass class and passed into pm 
+
+
  PluginBasic::update_prio(oid, uid, gid, vm_cpu, vm_memory, usage, share, &vm_prio);
 
 

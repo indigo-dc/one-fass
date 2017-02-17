@@ -43,9 +43,9 @@ user make_user( const std::string& user_group_share )
                             "users.user",
                             user_group_share);
   }
-  return slave(boost::lexical_cast<unsigned short>(tokens[0]),
-	       boost::lexical_cast<unsigned short>(tokens[1]),
-               boost::lexical_cast<unsigned short>(tokens[2]));
+  return user(boost::lexical_cast<unsigned short>(tokens[0]),
+	      boost::lexical_cast<unsigned short>(tokens[1]),
+              boost::lexical_cast<unsigned short>(tokens[2]));
 }
 
 bool InitShares::load_shares(){
