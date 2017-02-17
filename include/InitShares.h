@@ -9,6 +9,8 @@
 #define INITSHARES_H_
 
 #include "FassLog.h"
+#include <boost/algorithm/string/classification.hpp>
+#include <boost/algorithm/string/split.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/program_options.hpp>
 #include <exception>
@@ -48,6 +50,7 @@ protected:
     /** Gets a single configuration value from specified section*/
     /** REMEMBER: methods with templates must be 
        declared and implemented IN THE SAME FILE! */
+
 
     template<typename T> 
     bool get_option(const string section, const string name, T& value) const {

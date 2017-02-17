@@ -6,32 +6,14 @@
  */
 
 #include "InitShares.h"
-#include "FassLog.h"
-
-//#include <boost/program_options.hpp>
 #include <fstream>
-#include <iostream>
-#include <sstream>
-
-#include <boost/algorithm/string/classification.hpp>
-#include <boost/algorithm/string/split.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/program_options.hpp>
-
-
-//#include <unistd.h>
-//#include <sys/stat.h>
-
 
 using namespace std;
 
-/* -------------------------------------------------------------------------- */
-
-
-template < typename T >
-boost::program_options::typed_value< T >* make_value( T* store_to )
+template <typename T>
+boost::program_options::typed_value<T>* make_value(T* store_to)
 {
-  return boost::program_options::value< T >( store_to );
+  return boost::program_options::value<T>(store_to);
 }
 
 struct user 
@@ -91,7 +73,24 @@ bool InitShares::load_shares(){
     }
 
     po::notify(vm);     
-    
+   
+  std::vector<user> users;
+  std::transform(user_configs.begin(), user_configs.end(),
+                  std::back_inserter(users),
+                  make_user);
+  
+  // To retreive the values
+  // std::ostream& operator<<(std::ostream& stream, 
+  //                          const user& user)
+  // {
+  // return stream << "User ID: " << user.user 
+  //               << ", group ID: " << user.group
+  //               << ", share %: " << user.share;
+  // }
+  // Print users
+  // std::copy(users.begin(), users.end(), 
+  //           std::ostream_iterator<user>( std::cout, "\n" ) );
+  
     return true;
 }
 
