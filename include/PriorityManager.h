@@ -41,7 +41,7 @@ private:
 	int live_rescheds;	
 
 	bool set_up_pools();
-	void do_schedule();
+	void do_prioritize();
 
 };
 

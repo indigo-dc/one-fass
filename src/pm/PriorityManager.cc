@@ -118,14 +118,8 @@ bool PriorityManager::start()
         //FassLog::log("PM",Log::ERROR,oss);
         return false; 
     }
-
-//TODO
-//    match_schedule();
-
-//TODO
-//    dispatch();
-
-   do_schedule();
+   
+ do_prioritize();
 
 return true;
 
@@ -144,7 +138,7 @@ bool PriorityManager::set_up_pools()
     return 0;
 };
 
-void PriorityManager::do_schedule()
+void PriorityManager::do_prioritize()
 {
  VirtualMachine * vm;
 
@@ -176,7 +170,12 @@ void PriorityManager::do_schedule()
 
  time_start = mktime(&tmp_tm);
 
+ client->call("one.vmpool.accounting", "iii", &result, 0, time_start, time_end); // TODO how to use this info? 
+
+
  map<int, VirtualMachine*>::const_iterator  vm_it;
+
+ oss << "Scheduling Results:" << endl;
 
  for (vm_it=pending_vms.begin(); vm_it != pending_vms.end(); vm_it++)
      {
@@ -186,251 +185,20 @@ void PriorityManager::do_schedule()
 	 vm->get_oid(); // TODO add this to VirtualMachine class
 	 vm->get_uid();
 	 vm->get_gid();
-	 vm->get_state();
+	 vm->get_state(); 
+         
+        oss << *vm;
     }
+  FassLog::log("PM", Log::INFO, oss);
 
-        oss    << "\tNumber of VMs:            "
-            << pending_vms.size() << endl;
+ 
+  oss    << "\tNumber of VMs:            "
+         << pending_vms.size() << endl;
 
-        FassLog::log("PM", Log::DDEBUG, oss);
+ FassLog::log("PM", Log::INFO, oss);
 
-        oss << "Scheduling Results:" << endl;
-
-        for (map<int, VirtualMachine*>::const_iterator vm_it=pending_vms.begin();
-            vm_it != pending_vms.end(); vm_it++)
-        {
-            vm = static_cast<VirtualMachine*>(vm_it->second);
-
-            oss << *vm;
-        }
-
-        FassLog::log("PM", Log::DDDEBUG, oss);
-
-// TODO call the plugin basic + save the age from one.vmpool.accounting info
+ PluginBasic(oid, uid, gid, vm_cpu, vm_memory, usage, share, &vm_prio);
 
 
 }
 
-/*
-
-void PriorityManager::match_schedule()
-{
-    VirtualMachineXML * vm;
-
-    int vm_memory;
-    int vm_cpu;
-    long long vm_disk;
-    vector<VectorAttribute *> vm_pci;
-
-    int n_resources;
-    int n_matched;
-    int n_auth;
-    int n_error;
-    int n_fits;
-
-    //HostXML * host;
-    //DatastoreXML *ds;
-
-    string m_error;
-
-    map<int, ObjectXML*>::const_iterator  vm_it;
-    map<int, ObjectXML*>::const_iterator  obj_it;
-
-    vector<SchedulerPolicy *>::iterator it;
-
-    const map<int, ObjectXML*> pending_vms = vmpool->get_objects();
-    //const map<int, ObjectXML*> hosts       = hpool->get_objects();
-    //const map<int, ObjectXML*> datastores  = dspool->get_objects();
-    //const map<int, ObjectXML*> users       = upool->get_objects();
-
-    //double total_cl_match_time = 0;
-    //double total_host_match_time = 0;
-    //double total_host_rank_time = 0;
-    //double total_ds_match_time = 0;
-    //double total_ds_rank_time = 0;
-
-    time_t stime = time(0);
-
-    for (vm_it=pending_vms.begin(); vm_it != pending_vms.end(); vm_it++)
-    {
-        vm = static_cast<VirtualMachineXML*>(vm_it->second);
-
-        vm->get_requirements(vm_cpu, vm_memory, vm_disk, vm_pci);
-
-        n_resources = 0;
-        n_fits    = 0;
-        n_matched = 0;
-        n_auth    = 0;
-        n_error   = 0;
-
-
-    if (FassLog::log_level() >= Log::DDEBUG)
-    {
-        ostringstream oss;
-
-        oss << "Match Making statistics:\n"
-            << "\tNumber of VMs:            "
-            << pending_vms.size() << endl
-            << "\tTotal time:               "
-            << one_util::float_to_str(time(0) - stime) << "s" << endl
-
-        FassLog::log("PM", Log::DDEBUG, oss);
-    }
-
-    if (FassLog::log_level() >= Log::DDDEBUG)
-    {
-        ostringstream oss;
-
-        oss << "Priority Management Results:" << endl;
-
-        for (map<int, ObjectXML*>::const_iterator vm_it=pending_vms.begin();
-            vm_it != pending_vms.end(); vm_it++)
-        {
-            vm = static_cast<VirtualMachineXML*>(vm_it->second);
-
-            oss << *vm;
-        }
-
-        FassLog::log("PM", Log::DDDEBUG, oss);
-    }
-}
-
-*/
-/*
-void PriorityManager::dispatch()
-{
-    //HostXML *           host;
-    //DatastoreXML *      ds;
-    VirtualMachineXML * vm;
-
-    ostringstream dss;
-    string        error;
-
-    int cpu, mem;
-    long long dsk;
-    vector<VectorAttribute *> pci;
-
-    int hid, dsid, cid;
-
-    unsigned int dispatched_vms = 0;
-    bool dispatched, matched;
-    char * estr;
-
-    map<int, ObjectXML*>::const_iterator vm_it;
-
-    vector<Resource *>::const_reverse_iterator i, j;
-
-    const map<int, ObjectXML*> pending_vms = vmpool->get_objects();
-
-    dss << "Dispatching VMs to hosts:\n" << "\tVMID\tHost\tSystem DS\n"
-        << "\t-------------------------\n";
-
-    //--------------------------------------------------------------------------
-    // Dispatch each VM till we reach the dispatch limit
-    //--------------------------------------------------------------------------
-
-    for (vm_it = pending_vms.begin();
-         vm_it != pending_vms.end() &&
-            ( dispatch_limit <= 0 || dispatched_vms < dispatch_limit );
-         vm_it++)
-    {
-        dispatched = false;
-
-        vm = static_cast<VirtualMachineXML*>(vm_it->second);
-
-       // const vector<Resource *> resources = vm->get_match_hosts();
-*/
-/* Let's see what to do with this
-
-int PriorityManager::do_scheduled_actions()
-{
-    VirtualMachineXML* vm;
-
-    const map<int, ObjectXML*>  vms = vmapool->get_objects();
-    map<int, ObjectXML*>::const_iterator vm_it;
-
-    vector<Attribute *> attributes;
-    vector<Attribute *>::iterator it;
-
-    VectorAttribute* vatt;
-
-    int action_time;
-    int done_time;
-    int has_time;
-    int has_done;
-
-    string action_st, error_msg;
-
-    time_t the_time = time(0);
-    string time_str = one_util::log_time(the_time);
-
-    for (vm_it=vms.begin(); vm_it != vms.end(); vm_it++)
-    {
-        vm = static_cast<VirtualMachineXML*>(vm_it->second);
-
-        vm->get_actions(attributes);
-
-        // TODO: Sort actions by TIME
-        for (it=attributes.begin(); it != attributes.end(); it++)
-        {
-            vatt = dynamic_cast<VectorAttribute*>(*it);
-
-            if (vatt == 0)
-            {
-                delete *it;
-
-                continue;
-            }
-
-            has_time  = vatt->vector_value("TIME", action_time);
-            has_done  = vatt->vector_value("DONE", done_time);
-            action_st = vatt->vector_value("ACTION");
-
-            if (has_time == 0 && has_done == -1 && action_time < the_time)
-            {
-                ostringstream oss;
-
-                int rc = VirtualMachineXML::parse_action_name(action_st);
-
-                oss << "Executing action '" << action_st << "' for VM "
-                    << vm->get_oid() << " : ";
-
-                if ( rc != 0 )
-                {
-                    error_msg = "This action is not supported.";
-                }
-                else
-                {
-                    rc = vmapool->action(vm->get_oid(), action_st, error_msg);
-                }
-
-                if (rc == 0)
-                {
-                    vatt->remove("MESSAGE");
-                    vatt->replace("DONE", static_cast<int>(the_time));
-
-                    oss << "Success.";
-                }
-                else
-                {
-                    ostringstream oss_aux;
-
-                    oss_aux << time_str << " : " << error_msg;
-
-                    vatt->replace("MESSAGE", oss_aux.str());
-
-                    oss << "Failure. " << error_msg;
-                }
-
-                NebulaLog::log("VM", Log::INFO, oss);
-            }
-
-            vm->set_attribute(vatt);
-        }
-
-        vmpool->update(vm);
-    }
-
-    return 0;
-}
-*/
