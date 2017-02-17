@@ -50,6 +50,7 @@ main_env.Append(LIBPATH=[
     cwd+'/src/logger',
     cwd+'/src/rpcm', 
     cwd+'/src/client',
+    cwd+'/src/database',
     cwd+'/src/pm'
 ])
 
@@ -61,7 +62,16 @@ main_env.Append(CPPFLAGS=[
 
 # Linking flags & common libraries
 main_env.Append(LINKFLAGS=['-g', '-pthread'])
-main_env.Append(LIBS=['z','boost_program_options'])
+#main_env.Append(LIBS=['z','boost_program_options','jsoncpp'])
+main_env.Append(LIBS=['z','boost_program_options','boost_system'])
+
+# jsoncpp parser
+main_env.Append(LIBPATH=["/usr/lib/jsoncpp", "/user/lib64/jsoncpp"])
+main_env.Append(CPPPATH=["/usr/include/jsoncpp"])
+
+# poco libraries
+#main_env.Append(LIBPATH=["/usr/lib64/Poco"])
+#main_env.Append(CPPPATH=["/usr/include/Poco"])
 
 #######################
 # EXTRA CONFIGURATION #
@@ -142,11 +152,11 @@ if not main_env.GetOption('clean'):
     except Exception, e:
         print e
         exit(-1)
-else:
-    main_env.Replace(mysql='yes')
-    shutil.rmtree('.xmlrpc_test', True)
-    shutil.rmtree('src/nebula/.xmlrpc_test', True)
-    shutil.rmtree('src/scheduler/.xmlrpc_test', True)
+#else:
+#    main_env.Replace(mysql='yes')
+#    shutil.rmtree('.xmlrpc_test', True)
+#    shutil.rmtree('src/nebula/.xmlrpc_test', True)
+#    shutil.rmtree('src/scheduler/.xmlrpc_test', True)
 
 
 # libxml2
@@ -159,6 +169,7 @@ build_scripts=[
     'src/logger/SConstruct',
     'src/rpcm/SConstruct',
     'src/client/SConstruct',
+    'src/database/SConstruct',
     'src/pm/SConstruct'
 ]
 
