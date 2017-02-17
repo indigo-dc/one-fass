@@ -162,8 +162,9 @@ void PriorityManager::do_schedule()
 
  tm tmp_tm = *localtime(&time_start);
 
- int start_month;
- int start_year;
+ int start_month = 1;   // January
+ int start_year = 2016; // TODO Make this number settable in the Configurator class 
+
 
  tmp_tm.tm_sec  = 0;
  tmp_tm.tm_min  = 0;
@@ -182,7 +183,11 @@ void PriorityManager::do_schedule()
          vm = static_cast<VirtualMachine*>(vm_it->second);
  
          vm->get_requirements(vm_cpu, vm_memory);
-     }
+	 vm->get_oid(); // TODO add this to VirtualMachine class
+	 vm->get_uid();
+	 vm->get_gid();
+	 vm->get_state();
+    }
 
         oss    << "\tNumber of VMs:            "
             << pending_vms.size() << endl;
