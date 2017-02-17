@@ -150,6 +150,10 @@ void Fass::start(bool bootstrap_only)
     int dispatch_limit;
     int live_rescheds;
 
+    std::vector<user> users;
+    std::list<users> list_of_users;
+
+// TODO add the shares vectors
 
     fass_configuration->get_single_option("fass", "timeout", timeout);
     fass_configuration->get_single_option("fass", "message_size", message_size);
@@ -158,9 +162,15 @@ void Fass::start(bool bootstrap_only)
     fass_configuration->get_single_option("pm", "max_dispatch", dispatch_limit);
     fass_configuration->get_single_option("pm", "live_rescheds", live_rescheds);
 
-    initial_shares->get_single_option("users", "user", userID);
-    initial_shares->get_singel_option("users", "group", groupID);
-    initial_shares->get_single_option("users", "share", share);
+  // change because it is not a single option!  initial_shares->get_single_option("users", "user", userID);
+
+
+   list_of_users::iterator list_it;
+
+   for (list_it = users.begin(); list_it != users.end(); ++list_it)
+   {
+       list_of_users.insert(list_it,users);
+   }
  
     pm = new PriorityManager(one_xmlrpc, message_size, timeout, machines_limit, dispatch_limit, live_rescheds);
     }
