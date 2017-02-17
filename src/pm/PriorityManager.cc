@@ -158,7 +158,8 @@ void PriorityManager::do_prioritize()
 
  int start_month = 1;   // January
  int start_year = 2016; // TODO Make this number settable in the Configurator class 
-
+ 
+ float vm_prio = 1.0; // value from 0 to 1
 
  tmp_tm.tm_sec  = 0;
  tmp_tm.tm_min  = 0;
@@ -170,6 +171,11 @@ void PriorityManager::do_prioritize()
 
  time_start = mktime(&tmp_tm);
 
+ // first param is the filter flag: 
+ // -3: Connected user resources
+ // -2: All resources
+ // -1: Connected user and his group resources 
+ // 0: UID User Resources
  client->call("one.vmpool.accounting", "iii", &result, 0, time_start, time_end); // TODO how to use this info? 
 
 
@@ -182,11 +188,12 @@ void PriorityManager::do_prioritize()
          vm = static_cast<VirtualMachine*>(vm_it->second);
  
          vm->get_requirements(vm_cpu, vm_memory);
-	 vm->get_oid(); // TODO add this to VirtualMachine class
+	 vm->get_oid(); 
 	 vm->get_uid();
 	 vm->get_gid();
 	 vm->get_state(); 
-         
+         vm->get_rank();  // TODO check this string and how to translate it into vm priority list
+        
         oss << *vm;
     }
   FassLog::log("PM", Log::INFO, oss);
@@ -197,7 +204,10 @@ void PriorityManager::do_prioritize()
 
  FassLog::log("PM", Log::INFO, oss);
 
- PluginBasic(oid, uid, gid, vm_cpu, vm_memory, usage, share, &vm_prio);
+ // Get the share. Actally this is an info in the host, which we are not checking.
+ //
+ PluginBasic::update_prio(oid, uid, gid, vm_cpu, vm_memory, usage, share, &vm_prio);
+
 
 
 }
