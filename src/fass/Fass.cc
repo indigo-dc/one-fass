@@ -7,6 +7,7 @@
 #include "Fass.h"
 #include "FassLog.h"
 #include "Configurator.h"
+#include "InitShares.h"
 #include "FassDb.h"
 //#include "Log.h"
 //#include "RPCManager.h"
@@ -162,7 +163,7 @@ void Fass::start(bool bootstrap_only)
     fass_configuration->get_single_option("pm", "max_dispatch", dispatch_limit);
     fass_configuration->get_single_option("pm", "live_rescheds", live_rescheds);
 
-  // change because it is not a single option!  initial_shares->get_single_option("users", "user", userID);
+    initial_shares->get_single_option("users", "user", user);
 
 
    list_of_users::iterator list_it;
@@ -172,7 +173,7 @@ void Fass::start(bool bootstrap_only)
        list_of_users.insert(list_it,users);
    }
  
-    pm = new PriorityManager(one_xmlrpc, message_size, timeout, machines_limit, dispatch_limit, live_rescheds);
+    pm = new PriorityManager(one_xmlrpc, message_size, timeout, machines_limit, dispatch_limit, live_rescheds, list_of_users);
     }
 
     catch (bad_alloc&)

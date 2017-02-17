@@ -79,18 +79,6 @@ bool InitShares::load_shares(){
                   std::back_inserter(users),
                   make_user);
   
-  // To retreive the values
-  // std::ostream& operator<<(std::ostream& stream, 
-  //                          const user& user)
-  // {
-  // return stream << "User ID: " << user.user 
-  //               << ", group ID: " << user.group
-  //               << ", share %: " << user.share;
-  // }
-  // Print users
-  // std::copy(users.begin(), users.end(), 
-  //           std::ostream_iterator<user>( std::cout, "\n" ) );
-  
     return true;
 }
 
