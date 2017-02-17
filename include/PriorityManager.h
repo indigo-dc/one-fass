@@ -10,6 +10,7 @@
 #define PRIORITY_MANAGER_H_
 
 #include "VMPool.h"
+#include "InitShares.h"
 #include <time.h>
 
 using namespace std;
@@ -23,7 +24,8 @@ public:
         int _timeout,
         int _max_vm,
         int _max_dispatch,
-        int _live_rescheds);
+        int _live_rescheds,
+	list<user> list_of_users);
 
 	~PriorityManager(){};	
 
@@ -38,7 +40,8 @@ private:
 	int timeout;
 	int max_vm;
 	int max_dispatch;
-	int live_rescheds;	
+	int live_rescheds;
+	list<user> list_of_users;	
 
 	bool set_up_pools();
 	void do_prioritize();

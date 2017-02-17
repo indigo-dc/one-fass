@@ -33,14 +33,15 @@ PriorityManager::PriorityManager(
 	int _timeout,
 	int _max_vm,
 	int _max_dispatch,
-	int _live_rescheds):
+	int _live_rescheds,
+	list<user> list_of_users):
 		one_xmlrpc(_one_xmlrpc),
 		message_size(_message_size),
 		timeout(_timeout),
 		max_vm(_max_vm),
 		max_dispatch(_max_dispatch),
-		live_rescheds(_live_rescheds)
-
+		live_rescheds(_live_rescheds),
+		list_of_users(_list_of_users)
 
 {
 
@@ -139,9 +140,13 @@ bool PriorityManager::set_up_pools()
 void PriorityManager::do_prioritize()
 {
  VirtualMachine * vm;
-
+    
+    int oid;
+    int uid;
+    int gid;    
     int vm_memory;
     int vm_cpu;
+    list<user> list_of_users;
 
     const map<int, VirtualMachine*> pending_vms = vmpool->get_objects();
     int rc;
@@ -155,7 +160,7 @@ void PriorityManager::do_prioritize()
  tm tmp_tm = *localtime(&time_start);
 
  int start_month = 1;   // January
- int start_year = 2016; // TODO Make this number settable in the Configurator class 
+ int start_year = 2016; // TODO Make this number settable in the config file 
  
  float vm_prio = 1.0; // value from 0 to 1
 
@@ -174,7 +179,7 @@ void PriorityManager::do_prioritize()
  // -2: All resources
  // -1: Connected user and his group resources 
  // 0: UID User Resources
- client->call("one.vmpool.accounting", "iii", &result, 0, time_start, time_end); // TODO how to use this info? 
+ //client->call("one.vmpool.accounting", "iii", &result, 0, time_start, time_end); // how to use this info?  TODO with Sara
 
 
  map<int, VirtualMachine*>::const_iterator  vm_it;
@@ -192,7 +197,7 @@ void PriorityManager::do_prioritize()
 	 vm->get_state(); 
  // I think that this is not relevant 
  //         vm->get_rank();  
-        
+ 	       
         oss << *vm;
     }
   FassLog::log("PM", Log::INFO, oss);
@@ -207,9 +212,7 @@ void PriorityManager::do_prioritize()
  //shares retrieved in Fass class and passed into pm 
 
 
- PluginBasic::update_prio(oid, uid, gid, vm_cpu, vm_memory, usage, share, &vm_prio);
-
-
+ PluginBasic::update_prio(oid, uid, gid, vm_cpu, vm_memory, list_of_users, &vm_prio); // TODO we miss historical usage U
 
 }
 

@@ -9,7 +9,9 @@ lib_name='fass_pm'
 source_files=[
     'PriorityManager.cc',
     'VMPool.cc',
-    'VirtualMachine.cc'
+    'VirtualMachine.cc',
+    'InitialShares.cc',
+    'BasicPlugin.cc'
 ]
 
 # Build library
