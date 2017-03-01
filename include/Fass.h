@@ -119,7 +119,7 @@ private:
             }
 
             etc_location     = fass_location + "etc/";
-            log_location     = fass_location + "log/";
+            log_location     = fass_location + "var/";
             var_location     = fass_location + "var/";
         }
     };
