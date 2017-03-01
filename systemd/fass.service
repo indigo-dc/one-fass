@@ -3,8 +3,8 @@ Description=FairShare Scheduling service for Opennebula
 After=syslog.target
 After=network.target
 After=remote-fs.target
-After=opennebula.service
-BindTo=opennebula.service
+#After=opennebula.service
+#BindTo=opennebula.service
 
 [Service]
 Type=simple
@@ -13,11 +13,15 @@ User=fassadmin
 PermissionsStartOnly=true
 
 ExecStart=/usr/bin/fassd -f
-# Log file location must exist
+# File locations must exist
 ExecStartPre=/bin/mkdir -p /var/log/fass
+ExecStartPre=/bin/mkdir -p /var/run/fass
+ExecStartPre=/bin/mkdir -p /var/lock/fass
+ExecStartPre=/bin/mkdir -p /var/lib/fass
 ExecStartPre=/bin/chown fassadmin:fassadmin /var/log/fass
 ExecStartPre=/bin/chown fassadmin:fassadmin /var/run/fass
 ExecStartPre=/bin/chown fassadmin:fassadmin /var/lock/fass
+ExecStartPre=/bin/chown fassadmin:fassadmin /var/lib/fass
 ExecStartPre=/usr/sbin/logrotate -s /tmp/logrotate.state -f /etc/logrotate.d/fass
 ExecStop=/bin/kill -TERM $MAINPID
 PIDFile=/var/run/fass/fass.pid
