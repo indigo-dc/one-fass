@@ -57,7 +57,7 @@ public:
         //AUTHORIZATION  = 0x0200,
         //NO_EXISTS      = 0x0400
         //ACTION         = 0x0800,
-        //XML_RPC_API    = 0x1000,
+        XML_RPC_API    = 0x1000,
         INTERNAL       = 0x2000,
         //ALLOCATE       = 0x4000
     };
@@ -121,6 +121,18 @@ virtual void execute(std::string _method_name,
        @param att the specific request attributes */
     void success_response(const string& val, RequestAttributes& att);
  
+    /** Builds an XML-RPC response updating retval. 
+       After calling this function the xml-rpc excute method should return
+       @param val int to be returned to the client
+       @param att the specific request attributes */
+    void success_response(const int& val, RequestAttributes& att);
+    
+    /** Builds an XML-RPC response updating retval. 
+       After calling this function the xml-rpc excute method should return
+       @param val bool to be returned to the client
+       @param att the specific request attributes */
+    void success_response(const bool& val, RequestAttributes& att);
+
     /**
      *  Builds an XML-RPC response updating retval. After calling this function
      *  the xml-rpc excute method should return. A descriptive error message

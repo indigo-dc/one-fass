@@ -48,8 +48,8 @@ eval set -- "$TEMP_OPT"
 INSTALL_ETC="yes"
 UNINSTALL="no"
 LINK="no"
-FASSADMIN_USER=`id -u`
-FASSADMIN_GROUP=`id -g`
+FASSADMIN_USER=`id -u fassadmin`
+FASSADMIN_GROUP=`id -g fassadmin`
 SRC_DIR=$PWD
 
 while true ; do
@@ -87,6 +87,10 @@ if [ -z "$ROOT" ] ; then
                 # $LIB_LOCATION $VAR_LOCATION" 
     CHOWN_DIRS="$LOG_LOCATION $RUN_LOCATION $LOCK_LOCATION"
                # $VAR_LOCATION 
+
+    # systemd
+    #cp systemd/fass.service /usr/lib/systemd/system/fass.service
+    #cp systemd/fass.logrotate /etc/logrotate.d/fass
 else
     BIN_LOCATION="$ROOT/bin"
     #LIB_LOCATION="$ROOT/lib"

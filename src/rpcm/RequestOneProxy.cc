@@ -8,6 +8,10 @@
 
 #include "RequestOneProxy.h"
 #include "Fass.h"
+#include "FassLog.h"
+#include <xmlrpc-c/base.hpp>
+#include <xmlrpc-c/client_simple.hpp>
+#include <typeinfo>
 
 using namespace std;
 
@@ -15,82 +19,76 @@ void RequestOneProxy::execute(
         const string& _method_name,                                                        
         xmlrpc_c::paramList const& _paramList,                                            
 	xmlrpc_c::value * const _retval)
-//        xmlrpc_c::value *   const  _retval)      
 {   
 
-    /** XML-RPC Client */
- 
-XMLRPCClient * client;
-try
-    {
-    string one_xmlrpc = "http://localhost:2633/RPC2";
-    long long    message_size = 1073741824;
-    unsigned int timeout = 60;
 
 
-    client = XMLRPCClient::initialize("oneadmin:opennebula", one_xmlrpc, message_size, timeout);
-    
-    //XMLRPCClient::initialize("", one_xmlrpc, message_size, timeout);
+    RequestAttributes att;                                                                 
+                                                                                           
+    att.retval  = _retval;                                                                 
+    att.session = xmlrpc_c::value_string (_paramList.getString(0));                        
+                                                                                           
+    att.req_id = (reinterpret_cast<uintptr_t>(this) * rand()) % 10000;                     
+                                                                                           
+    // TODO: autenticazione, solo user oneadmin -> deleghiamo tutto ad ON                  
+    //  
+    log_method_invoked(att, _paramList, format_str, _method_name, hidden_params);           
+    vector<xmlrpc_c::value> values;
+   
+    try{
+        // TODO: do not hardcode server url 
+        string const serverUrl("http://localhost:2633/RPC2");
+        xmlrpc_c::clientSimple myClient;
+    	xmlrpc_c::value result;
 
-
-
-    ostringstream oss;
-    oss.str("");
-
-    oss << "XML-RPC client using " << (XMLRPCClient::client())->get_message_size()
-        << " bytes for response buffer.\n";
-
-    FassLog::log("SCHED", Log::INFO, oss);
-    }
-    catch(runtime_error & err)
-    {
-    throw;
-    }
-                                                                                       
-   RequestAttributes att;
-
-        try
-        {
-
-            //XMLRPCClient * client = XMLRPCClient::client();
-
-            //xmlrpc_c::value pippo;
-            //client->call(_method_name, _paramList, &pippo);
-    	    
-
-	xmlrpc_c::value pippo;
-        client->call(_method_name, _paramList, &pippo);
-		//stringstream oss;
-            //oss << "Throwing error:" << pippo.getString(1) << "\n";
-            //FassLog::log("CICCIA", Log::INFO, oss);
-
-		* _retval = pippo;
-    	    //*att.retval  = pippo;
-    	    //att.session = xmlrpc_c::value_string (_paramList.getString(1));
-    	    //att.req_id = (reinterpret_cast<uintptr_t>(this) * rand()) % 10000;
-            
-	    //att.resp_obj = pippo;
-	
-	    //log_method_invoked(att, _paramList, format_str, _method_name, hidden_params);
-
-            //success_response("Default!", att);
-            //log_result(att, _method_name);
-
-
-        }
-        catch (exception const& e)
-        {
+        myClient.call(serverUrl, _method_name,_paramList, &result);
+    	values = xmlrpc_c::value_array(result).vectorValueValue();
+    	bool   success = xmlrpc_c::value_boolean(values[0]);
+        
+        // one says failure
+	if (!success){
+    	    string message = xmlrpc_c::value_string(values[1]); 
             ostringstream oss;
 
-            oss << "Cannot contact oned, will retry... Error: " << e.what();
+            oss << "Oned returned failure... Error: " << message;
+            
+            FassLog::log("RPCM", Log::ERROR, oss);
+            failure_response(XML_RPC_API, att);
+            }
+        
+        // one says success
+        xmlrpc_c::value val;
+        const xmlrpc_c::value::type_t type = values[1].type();
 
-            FassLog::log("SCHED", Log::ERROR, oss);
+        switch (type){
+            case xmlrpc_c::value::TYPE_STRING: // string
+               success_response(xmlrpc_c::value_string(values[1]), att);
+            break; 
+            case xmlrpc_c::value::TYPE_INT: // int
+               success_response(xmlrpc_c::value_int(values[1]), att);
+            break; 
+            case xmlrpc_c::value::TYPE_BOOLEAN: // bool
+               success_response(xmlrpc_c::value_boolean(values[1]), att);
+            break; 
+            default:
+               failure_response(INTERNAL, att);
+            break; 
+        } 
 
-            att.resp_msg = "Could not connect";
-            failure_response(INTERNAL, att);
+    } catch (exception const& e){
+        ostringstream oss;
 
+        oss << "Cannot contact oned... Error: " << e.what();
+        FassLog::log("RPCM", Log::ERROR, oss);
+        
+        ostringstream oss2;
+        oss2 << "Message type is: " << values[1].type();
+        FassLog::log("RPCM", Log::INFO, oss2);
+        failure_response(INTERNAL, att);
         }
 
 
+                                                            
+    log_result(att, _method_name);                                                           
 
 };   
