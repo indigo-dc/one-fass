@@ -23,6 +23,7 @@ class RPCManager
 public:
 
     RPCManager(
+        const string& _one_endpoint,
         const string& _port,
 //            int _port,
             int _max_conn,
@@ -60,6 +61,7 @@ private:
     pthread_t               rm_xml_server_thread; /// Thread ID for the XML server
 
 
+    string one_endpoint;
     string port;
     //int port; /// Port number where connection is opened
     int socket_fd;

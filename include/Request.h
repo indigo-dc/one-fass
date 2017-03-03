@@ -30,7 +30,7 @@ public:
 
     string password;          /// password of the user
 
-    string session;           /// ession from ONE XML-RPC API 
+    string session;           /// session from ONE XML-RPC API 
     int    req_id;            /// request ID for log messages
 
     //int umask;                // user umask for new objects 

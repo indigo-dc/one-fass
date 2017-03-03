@@ -27,7 +27,21 @@ void RequestOneProxy::execute(
                                                                                            
     att.retval  = _retval;                                                                 
     att.session = xmlrpc_c::value_string (_paramList.getString(0));                        
-                                                                                           
+    
+    string  uname("null");
+    att.uname = uname;
+    try{
+       string uname = xmlrpc_c::value_string (_paramList.getString(0));    
+       size_t found  = uname.find(':');
+       if (found != string::npos) {
+          att.uname = uname.erase(found);
+       } 
+    } catch (exception ){
+       att.uname = "wrong format";
+    }                                                                                       
+    //oss << "Cannot contact oned... Error: " << e.what();
+    //FassLog::log("RPCM", Log::ERROR, oss); 
+    //att.uname = xmlrpc_c::value_string (_paramList.getString(0));
     att.req_id = (reinterpret_cast<uintptr_t>(this) * rand()) % 10000;                     
                                                                                            
     // TODO: autenticazione, solo user oneadmin -> deleghiamo tutto ad ON                  
@@ -37,11 +51,13 @@ void RequestOneProxy::execute(
    
     try{
         // TODO: do not hardcode server url 
-        string const serverUrl("http://localhost:2633/RPC2");
+        //string const serverUrl("http://localhost:2633/RPC2");
         xmlrpc_c::clientSimple myClient;
     	xmlrpc_c::value result;
-
-        myClient.call(serverUrl, _method_name,_paramList, &result);
+ 
+        FassLog::log("ONEPROXY", Log::INFO, this->one_endpoint);
+        myClient.call(one_endpoint, _method_name,_paramList, &result);
+        //myClient.call(serverUrl, _method_name,_paramList, &result);
     	values = xmlrpc_c::value_array(result).vectorValueValue();
     	bool   success = xmlrpc_c::value_boolean(values[0]);
         
