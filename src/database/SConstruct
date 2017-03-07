@@ -1,0 +1,27 @@
+# SConstruct for src/fass
+
+import os
+Import('env')
+
+lib_name='fass_db'
+
+# Sources to generate the library
+source_files=[
+    'InfluxDb.cc',
+    'test.cc' # tmp
+]
+
+# Build library
+env.StaticLibrary(lib_name, source_files)
+
+# Build daemon
+env.Prepend(LIBS=[
+    'fass_db',
+    'fass_log'
+])
+
+if not env.GetOption('clean'):
+    env.ParseConfig(("LDFLAGS='%s'") % (os.environ['LDFLAGS'],))
+
+# tmp
+env.Program('test.cc')
