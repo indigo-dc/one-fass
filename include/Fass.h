@@ -8,6 +8,7 @@
 #define FASS_H_
 
 #include "Configurator.h"
+#include "FassDb.h"
 #include "Log.h"
 #include "RPCManager.h"
 
@@ -129,7 +130,7 @@ private:
     {
         delete fass_configuration;
         delete rpcm;
-        //delete db;
+        delete database;
     };
 
     Fass& operator=(Fass const&){return *this;};
@@ -146,7 +147,8 @@ private:
 
     FassConfigurator * fass_configuration;
 
-
+    /// Database
+    FassDb * database;
 
     ///  Fass Managers 
 

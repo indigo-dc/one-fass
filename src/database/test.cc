@@ -49,8 +49,8 @@ int main(int argc, char **argv){
    
   	boost::asio::streambuf request;
   	std::ostream request_stream(&request);
-  	//request_stream << "GET " << "/ping" << " HTTP/1.0\r\n";
-  	request_stream << "GET " << "/query?pretty=true&db=mydb&q=show%20databases" << " HTTP/1.0\r\n";
+  	request_stream << "GET " << "/ping" << " HTTP/1.0\r\n";
+  	//request_stream << "GET " << "/query?pretty=true&db=mydb&q=show%20databases" << " HTTP/1.0\r\n";
   	request_stream << "Host: " << "localhost" << "\r\n";
   	request_stream << "Accept: */*\r\n";
   	request_stream << "Connection: close\r\n\r\n";

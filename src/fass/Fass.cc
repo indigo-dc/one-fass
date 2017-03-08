@@ -7,6 +7,7 @@
 #include "Fass.h"
 #include "FassLog.h"
 #include "Configurator.h"
+#include "FassDb.h"
 //#include "Log.h"
 //#include "RPCManager.h"
 
@@ -97,7 +98,23 @@ void Fass::start(bool bootstrap_only)
 
     /** Database */
 
-    // TODO
+    // instance of specific DB (can be changed)
+    string dbtype;
+    string dbendpoint;
+    string dbname;
+    int dbport;
+    fass_configuration->get_single_option("database", "type", dbtype);
+    fass_configuration->get_single_option("database", "endpoint", dbendpoint);
+    fass_configuration->get_single_option("database", "port", dbport);
+    fass_configuration->get_single_option("database", "name", dbname);
+    if ( dbtype == "influxdb" ){ // TODO: should be done with a switch and enum, not critical
+       database = new InfluxDb(dbendpoint, dbport, dbname);
+    } else {
+       FassLog::log("FASS", Log::ERROR, "Unknown database type!");
+       throw; 
+    }
+   
+    // FOR VALE: database should be passed as argument to the Priority Manager
 
     /** Block all signals before creating any thread */
 
