@@ -1,5 +1,3 @@
 src/*/*.o
 src/*/*.a
-install.sh
-restart.sh
 .sconsign.dblite
