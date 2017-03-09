@@ -26,11 +26,11 @@ class RequestOneProxy: public Request
 
 public:
 
-    RequestOneProxy( const string& _one_endpoint,
+    RequestOneProxy( const string& _one_endpoint, const long int _message_size, const int _timeout,
                      const string& method_name = "OneProxy",
                      const string& help = "Forwards all unhandled methods to ONE endpoint",
                      const string& params = "")
-        :Request(method_name,params,help),one_endpoint(_one_endpoint)
+        :Request(method_name,params,help),one_endpoint(_one_endpoint),message_size(_message_size),timeout(_timeout)
     {};
     
 
@@ -38,6 +38,9 @@ public:
 
 private:
     string one_endpoint;    
+    long int message_size;
+    int timeout;
+  
 protected:
     /// placeholders to implement virtual methods of parent class
     void request_execute(xmlrpc_c::paramList const& _paramList,

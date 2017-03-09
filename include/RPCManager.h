@@ -34,7 +34,7 @@ public:
             const string _xml_log_file,
             const string call_log_format,
             const string _listen_address,
-            int message_size);
+            int _message_size);
 
     ~RPCManager(){};
  
@@ -73,6 +73,7 @@ private:
     
     string xml_log_file;
     string listen_address;
+    int message_size;
    
      
     bool setup_socket();
