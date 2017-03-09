@@ -12,6 +12,7 @@
 #include "Log.h"
 //#include "PriorityManager.h"
 #include "RPCManager.h"
+#include "XMLRPCClient.h"
 
 #include <stdlib.h>
 #include <string>
@@ -155,6 +156,7 @@ private:
 
     RPCManager *        rpcm;
     //PriorityManager *   pm;
+    XMLRPCClient *      rpccli;
 
 /**
     /// Implementation functions 
