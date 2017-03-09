@@ -46,6 +46,10 @@ bool Configurator::load_configuration(){
     		("rpcm.rpc_log", po::value<bool>()->default_value(true), "separate rpc log")
     		("rpcm.message_size", po::value<int>()->default_value(1073741824), "message size")
     		("rpcm.log_call_format", po::value<string>()->default_value("Req:%i UID:%u %m invoked %l"), "log call format")
+    		("database.type", po::value<string>()->default_value("influxdb"), "DB back-end")
+    		("database.endpoint", po::value<string>()->default_value("localhost"), "DB endpoint")
+    		("database.port", po::value<int>()->default_value(8086), "DB listen port")
+    		("database.name", po::value<string>()->default_value("fassdb"), "DB name")
     		;
 
     /// Read the configuration file
