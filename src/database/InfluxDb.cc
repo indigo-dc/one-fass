@@ -182,14 +182,14 @@ bool InfluxDb::write_initial_shares(const float share, const string user, const 
 bool InfluxDb::write_queue(const int priority, const string user, const string group, const int vmid,  const float cpus, const float memory, const long int starttime, const long int timestamp){
 
     
-    FassLog::log("INFLUXDB", Log::INFO, "Writing initial shares.");
+    FassLog::log("INFLUXDB", Log::INFO, "Writing queue.");
      
     return true;
 }
 
 bool InfluxDb::write_usage(const float cpu_usage, const float memory_usage, const string user, const string group, const long int since, const long int timestamp){
 
-    FassLog::log("INFLUXDB", Log::INFO, "Usage records.");
+    FassLog::log("INFLUXDB", Log::INFO, "Writing usage records.");
      
     return true;
 }
