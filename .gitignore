@@ -1,3 +1,5 @@
 src/*/*.o
 src/*/*.a
 .sconsign.dblite
+src/fass/fassd
+src/database/test
