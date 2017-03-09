@@ -29,7 +29,7 @@ begin
   #param = server.call("fass.system.version", "","")
   #param = server.call("one.clusterpool.info","","");
   #param = server.call("one.clusterpool.info","oneadmin:nebula");
-  #param = server.call("one.vmpool.info","oneadmin:nebula",-2,-1,-1,-1);
+  param = server.call("one.vmpool.info","oneadmin:nebula",-2,-1,-1,-1);
   #param = server.call("one.system.config","oneadmin:nebula");
   #param = server.call("one.system.version", "oneadmin:nebula","", "");
   #param = server.call("one.system.version",10);
