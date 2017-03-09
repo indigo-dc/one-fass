@@ -10,6 +10,7 @@
 #include "Configurator.h"
 #include "FassDb.h"
 #include "Log.h"
+//#include "PriorityManager.h"
 #include "RPCManager.h"
 
 #include <stdlib.h>
@@ -153,6 +154,7 @@ private:
     ///  Fass Managers 
 
     RPCManager *        rpcm;
+    //PriorityManager *   pm;
 
 /**
     /// Implementation functions 
