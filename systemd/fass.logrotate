@@ -1,0 +1,19 @@
+delaycompress
+dateext
+dateformat -%Y%m%d-%s
+
+compress
+weekly
+rotate 52
+
+/var/log/fass/fass_xmlrpc.log {
+   missingok
+   notifempty
+   copytruncate
+}
+
+/var/log/fass/fassd.log {
+   missingok
+   notifempty
+   copytruncate
+}

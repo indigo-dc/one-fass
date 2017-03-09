@@ -131,6 +131,15 @@ void Fass::start(bool bootstrap_only)
     /// ---- Request Manager ----
     try
     {
+        string one_endpoint;
+        string one_port;
+        fass_configuration->get_single_option("fass", "one_endpoint", one_endpoint);
+        fass_configuration->get_single_option("fass", "one_port", one_port);
+        one_endpoint.append(":");
+        one_endpoint.append(one_port);
+        one_endpoint.append("/RPC2");
+        FassLog::log("FASS", Log::DEBUG, one_endpoint);
+
         //int  rm_port = 0;
         string rm_port = "";
 	int  max_conn;
@@ -160,7 +169,7 @@ void Fass::start(bool bootstrap_only)
             rpc_filename = log_location + "fass_xmlrpc.log";
         }
 
-        rpcm = new RPCManager(rm_port, max_conn, max_conn_backlog,
+        rpcm = new RPCManager(one_endpoint,rm_port, max_conn, max_conn_backlog,
             keepalive_timeout, keepalive_max_conn, timeout, rpc_filename,
             log_call_format, rm_listen_address, message_size);
 

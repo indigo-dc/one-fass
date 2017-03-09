@@ -1,0 +1,18 @@
+# dependencies besides the ON ones
+(runtime)
+boost
+xmlrpc-c-c++
+xmlrpc-c-client++
+
+(systemd)
+/usr/lib/systemd/system/fass.service
+/etc/logrotate.d/fass.logrotate
+
+(to build)
+scons
+xmlrpc-c-devel
+boost-devel
+
+(pre)
+groupadd fassadmin
+useradd fassadmin -g fassadmin -M -s /sbin/nologin

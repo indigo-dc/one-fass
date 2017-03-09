@@ -27,6 +27,7 @@
 #include <xmlrpc-c/server_abyss.hpp>
 
 RPCManager::RPCManager(
+        const string& _one_endpoint,
         const string& _port,
 //        int _port,
         int _max_conn,
@@ -38,6 +39,7 @@ RPCManager::RPCManager(
         const string call_log_format,
         const string _listen_address,
         int message_size):
+            one_endpoint(_one_endpoint), 
             port(_port),
             socket_fd(-1),
             max_conn(_max_conn),
@@ -110,7 +112,7 @@ void RPCManager::register_xml_methods(){
     xmlrpc_c::methodPtr system_version(new SystemVersion());
     
     /// ONE Proxy Methods
-    xmlrpc_c::defaultMethodPtr one_proxy(new RequestOneProxy());
+    xmlrpc_c::defaultMethodPtr one_proxy(new RequestOneProxy(one_endpoint));
     
     // add to registry
     RPCManagerRegistry.addMethod("fass.system.version", system_version);

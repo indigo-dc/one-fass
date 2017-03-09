@@ -129,7 +129,8 @@ void XMLRPCClient::call(const std::string &method, const std::string format,
 
     xmlrpc_c::paramList plist;
 
-    plist.add(xmlrpc_c::value_string(one_auth));
+    //plist.add(xmlrpc_c::value_string(one_auth));
+    plist.add(xmlrpc_c::value_string("oneadmin:nebula"));
 
     for (i = format.begin(); i != format.end(); ++i)
     {
