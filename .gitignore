@@ -3,3 +3,5 @@ src/*/*.a
 .sconsign.dblite
 src/fass/fassd
 src/database/test
+src/rpcm/test_queue
+src/rpcm/tree1.c

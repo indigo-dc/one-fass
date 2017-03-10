@@ -6,6 +6,7 @@
  */
 
 #include "XMLRPCClient.h"
+#include "FassLog.h"
 #include <xmlrpc-c/base.hpp>
 #include <xmlrpc-c/client_simple.hpp>
 #include <typeinfo>
