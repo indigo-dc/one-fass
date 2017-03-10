@@ -33,7 +33,7 @@ bool Configurator::load_configuration(){
                 /// General 
     		("fass.manager_timer", po::value<int>()->default_value(60), "managers period (s)")
      		("fass.one_port", po::value<string>()->default_value("2633"), "OpenNebula listen port")
-    		("fass.one_endpoint", po::value<string>()->default_value("localhost"), "OpenNebula listen endpoint")
+    		("fass.one_endpoint", po::value<string>()->default_value("http://localhost"), "OpenNebula listen endpoint")
     		("fass.log_level", po::value<int>()->default_value(3), "log level common to all managers")
 		("fass.one_xmlrpc", po::value<string>()->default_value("http://localhost:2633/RPC2"), "URL to connect to the OpenNebula")
 		("fass.message_size", po::value<int>()->default_value(1073741824), "message size")
@@ -47,6 +47,11 @@ bool Configurator::load_configuration(){
     		("rpcm.keepalive_max_conn", po::value<int>()->default_value(30), "keepalive max connections")
     		("rpcm.rpc_log", po::value<bool>()->default_value(true), "separate rpc log")
     		("rpcm.log_call_format", po::value<string>()->default_value("Req:%i UID:%u %m invoked %l"), "log call format")
+                // Database 
+    		("database.type", po::value<string>()->default_value("influxdb"), "DB back-end")
+    		("database.endpoint", po::value<string>()->default_value("localhost"), "DB endpoint")
+    		("database.port", po::value<int>()->default_value(8086), "DB listen port")
+    		("database.name", po::value<string>()->default_value("fassdb"), "DB name")
     		/// Priority manager
     		("pm.max_vm", po::value<int>()->default_value(5000), "Maximum number of Virtual Machines scheduled in each scheduling action")
 		("pm.max_dispatch", po::value<int>()->default_value(30), "Maximum number of Virtual Machines actually dispatched to a host in each scheduling action")

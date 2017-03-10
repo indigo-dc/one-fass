@@ -8,19 +8,36 @@
 #include "Request.h"
 #include "FassLog.h"
 #include <cstdlib>
+#include <pwd.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
 
 string Request::format_str;
+ 
+using namespace std;
 
 void Request::execute(
         xmlrpc_c::paramList const& _paramList,
         xmlrpc_c::value *   const  _retval)
 {
     RequestAttributes att;
-
+    // user attributes
+    struct passwd *pw;
+    uid_t uid;
+    gid_t gid;
+    uid = geteuid (); 
+    gid = getegid ();
+    pw = getpwuid (uid);
+    att.uid = uid;
+    att.gid = gid;
+    att.uname = pw->pw_name; 
+    
     att.retval  = _retval;
     att.session = xmlrpc_c::value_string (_paramList.getString(0));
 
     att.req_id = (reinterpret_cast<uintptr_t>(this) * rand()) % 10000;
+
 
     log_method_invoked(att, _paramList, format_str, method_name, hidden_params);
    
@@ -105,7 +122,7 @@ void Request::log_method_invoked(const RequestAttributes& att,
         }
     }
 
-    FassLog::log("RPCM", Log::DEBUG, oss);
+    FassLog::log("REQUEST", Log::DEBUG, oss);
 }
 
 void Request::log_xmlrpc_value(const xmlrpc_c::value& v, std::ostringstream& oss)
@@ -164,17 +181,18 @@ void Request::log_result(const RequestAttributes& att, const string& method_name
 {
     std::ostringstream oss;
 
-    oss << "Req:" << att.req_id << " UID:";
+    oss << "Req:" << att.req_id << " UNAME:";
 
-    if ( att.uid != -1 )
-    {
-        oss << att.uid;
-    }
-    else
-    {
-        oss << "-";
-    }
+    //if ( att.uid != -1 )
+    //{
+    //    oss << att.uid;
+    //}
+    //else
+    //{
+    //    oss << "-";
+    //}
 
+    oss << att.uname;
     oss << " " << method_name << " result ";
 
     xmlrpc_c::value_array array1(*att.retval);
@@ -189,14 +207,14 @@ void Request::log_result(const RequestAttributes& att, const string& method_name
             log_xmlrpc_value(vvalue[i], oss);
         }
 
-        FassLog::log("RPCM", Log::DEBUG, oss);
+        FassLog::log("REQUEST", Log::DEBUG, oss);
     }
     else
     {
         oss << "FAILURE "
             << static_cast<string>(xmlrpc_c::value_string(vvalue[1]));
 
-        FassLog::log("RPCM", Log::ERROR, oss);
+        FassLog::log("REQUEST", Log::ERROR, oss);
     }
 }
 
@@ -207,6 +225,32 @@ void Request::success_response(const string& val, RequestAttributes& att)
 
     arrayData.push_back(xmlrpc_c::value_boolean(true));
     arrayData.push_back(xmlrpc_c::value_string(val));
+    arrayData.push_back(xmlrpc_c::value_int(SUCCESS));
+
+    xmlrpc_c::value_array arrayresult(arrayData);
+
+    *(att.retval) = arrayresult;
+}
+
+void Request::success_response(const int& val, RequestAttributes& att)
+{
+    vector<xmlrpc_c::value> arrayData;
+
+    arrayData.push_back(xmlrpc_c::value_boolean(true));
+    arrayData.push_back(xmlrpc_c::value_int(val));
+    arrayData.push_back(xmlrpc_c::value_int(SUCCESS));
+
+    xmlrpc_c::value_array arrayresult(arrayData);
+
+    *(att.retval) = arrayresult;
+}
+
+void Request::success_response(const bool& val, RequestAttributes& att)
+{
+    vector<xmlrpc_c::value> arrayData;
+
+    arrayData.push_back(xmlrpc_c::value_boolean(true));
+    arrayData.push_back(xmlrpc_c::value_boolean(val));
     arrayData.push_back(xmlrpc_c::value_int(SUCCESS));
 
     xmlrpc_c::value_array arrayresult(arrayData);

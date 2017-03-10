@@ -23,6 +23,7 @@ class RPCManager
 public:
 
     RPCManager(
+        const string& _one_endpoint,
         const string& _port,
 //            int _port,
             int _max_conn,
@@ -33,7 +34,7 @@ public:
             const string _xml_log_file,
             const string call_log_format,
             const string _listen_address,
-            int message_size);
+            int _message_size);
 
     ~RPCManager(){};
  
@@ -60,6 +61,7 @@ private:
     pthread_t               rm_xml_server_thread; /// Thread ID for the XML server
 
 
+    string one_endpoint;
     string port;
     //int port; /// Port number where connection is opened
     int socket_fd;
@@ -71,6 +73,7 @@ private:
     
     string xml_log_file;
     string listen_address;
+    int message_size;
    
      
     bool setup_socket();

@@ -8,8 +8,11 @@
 #define FASS_H_
 
 #include "Configurator.h"
+#include "FassDb.h"
 #include "Log.h"
+//#include "PriorityManager.h"
 #include "RPCManager.h"
+#include "XMLRPCClient.h"
 #include "PriorityManager.h"
 
 #include <stdlib.h>
@@ -120,7 +123,7 @@ private:
             }
 
             etc_location     = fass_location + "etc/";
-            log_location     = fass_location + "log/";
+            log_location     = fass_location + "var/";
             var_location     = fass_location + "var/";
         }
     };
@@ -130,8 +133,8 @@ private:
     {
         delete fass_configuration;
         delete rpcm;
+        delete database;
 	delete pm;
-        //delete db;
     };
 
     Fass& operator=(Fass const&){return *this;};
@@ -148,11 +151,14 @@ private:
 
     FassConfigurator * fass_configuration;
 
-
+    /// Database
+    FassDb * database;
 
     ///  Fass Managers 
 
     RPCManager *        rpcm;
+    XMLRPCClient *      rpccli;
+
     PriorityManager *   pm;
 /**
     /// Implementation functions 
