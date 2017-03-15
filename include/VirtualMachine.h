@@ -5,8 +5,8 @@
  *      Author: Valentina Zaccolo
  */
 
-#ifndef VM_XML_H_
-#define VM_XML_H_
+#ifndef VIRTUAL_MACHINE_H_
+#define VIRTUAL_MACHINE_H_
 
 #include <sstream>
 #include <string>
@@ -31,17 +31,28 @@ class VirtualMachine
 {
 public:
 
-    VirtualMachine(const string &xml_doc)
-    {
-        init_attributes();
+//    VirtualMachine(const string &xml_doc)
+//    {
+//        init_attributes();
+//    };
+
+    /**
+    *  Constructs an object using a XML Node. The node is copied to the new
+    *  object
+    */
+    VirtualMachine(const xmlNodePtr node);
+
+    ~VirtualMachine(){
+        if (xml != 0){
+            xmlFreeDoc(xml);
+        }
+
+        if ( ctx != 0){
+            xmlXPathFreeContext(ctx);
+        }
+
     };
 
-    VirtualMachine(const xmlNodePtr node)
-    {
-        init_attributes();
-    }
-
-    ~VirtualMachine(){}
   /*  {
         if (vm_template != 0)
         {
@@ -470,11 +481,21 @@ public:
      */
     //bool clear_log();
 
-protected:
+private:
 
     /**
      *  For constructors
      */
+
+    // TODO: not sure if the 2 below are needed
+    const char **paths;	         // array of paths to look for attributes in search method
+    int num_paths;               // number of elements in paths array
+
+    
+    xmlDocPtr   xml;             // XML representation of the Object
+    xmlXPathContextPtr ctx;      // XPath Context to access Object elements
+    
+ 
     void init_attributes();
 
 //    void init_storage_usage();
@@ -490,7 +511,6 @@ protected:
     set<int> affined_vms;
 */
     /* ----------------------- VIRTUAL MACHINE ATTRIBUTES ------------------- */
-    xmlXPathContextPtr ctx;
     int   oid;
 
     int   uid;

@@ -15,6 +15,39 @@
 #include <string> 
 #include <vector>
 
+VirtualMachine::VirtualMachine(const xmlNodePtr node):paths(0),num_paths(0),xml(0),ctx(0){
+
+    // constructs the object
+    xml = xmlNewDoc(reinterpret_cast<const xmlChar *>("1.0"));
+
+    if (xml == 0)
+    {
+        throw("Error allocating XML Document");
+    }
+
+    ctx = xmlXPathNewContext(xml);
+
+    if (ctx == 0)
+    {
+        xmlFreeDoc(xml);
+        throw("Unable to create new XPath context");
+    }
+
+    xmlNodePtr root_node = xmlDocCopyNode(node,xml,1);
+
+    if (root_node == 0)
+    {
+        xmlXPathFreeContext(ctx);
+        xmlFreeDoc(xml);
+        throw("Unable to allocate node");
+    }
+
+    xmlDocSetRootElement(xml, root_node);
+
+    // initialize VM attributes
+    init_attributes();
+
+};
 
 void VirtualMachine::xpaths(std::vector<std::string>& content, const char * expr)
 {
