@@ -68,7 +68,8 @@ public:
      */
     void call_async(const std::string& method, const xmlrpc_c::paramList& plist, xmlrpc_c::value * const result);
     void call_sync(const std::string& method, const xmlrpc_c::paramList& plist, xmlrpc_c::value * const result);
-
+    // this method adds the authentication to the parameters list and calls the call_async method
+    void call(const std::string& method, const xmlrpc_c::paramList& plist, xmlrpc_c::value * const result);
 private:
     /**
      * Creates a new xml-rpc client with specified options.
