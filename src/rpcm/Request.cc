@@ -207,7 +207,7 @@ void Request::log_result(const RequestAttributes& att, const string& method_name
             log_xmlrpc_value(vvalue[i], oss);
         }
 
-        FassLog::log("REQUEST", Log::DEBUG, oss);
+        FassLog::log("REQUEST", Log::DDEBUG, oss);
     }
     else
     {
