@@ -6,42 +6,79 @@
  */
 
 
-#ifndef PRIORITY_MANAGER_H
+#ifndef PRIORITY_MANAGER_H_
 #define PRIORITY_MANAGER_H_
 
 #include "VMPool.h"
+#include "XMLRPCClient.h"
 #include <time.h>
+#include <pthread.h>
 
 using namespace std;
+
+extern "C" void * pm_loop(void *arg);
 
 class PriorityManager
 {
 public:
 	PriorityManager(
         const string _one_xmlrpc,
+        const string _one_string,
         int _message_size,
         int _timeout,
-        int _max_vm,
-        int _max_dispatch,
-        int _live_rescheds);
+        int _manager_timer,
+        unsigned int _max_vm);
 
-	~PriorityManager(){};	
+	~PriorityManager(){
+            delete client;
+        };	
 
+    pthread_t get_thread_id() const{
+        return pm_thread;
+    };
 
-    bool start();
+    int start();
+
+    void finalize(){
+
+        lock();
+        stop_manager = true;
+        pthread_cond_signal(&cond);
+        unlock();
+    };
+
     VMPool * vmpool;
 
 private:
+       
+        friend void * pm_loop(void *arg);
+        // we do not need all the ONE ActionManager machinery
+        void loop();
 
+        void lock(){
+            pthread_mutex_lock(&mutex);
+        };
+
+        void unlock()
+        {
+            pthread_mutex_unlock(&mutex);
+        };
+
+        pthread_t  pm_thread;        // thread for the Priority Manager
+        pthread_mutex_t mutex;
+        pthread_cond_t  cond;
+
+        bool stop_manager;
 	string one_xmlrpc;
+	string one_secret;
 	int message_size;
 	int timeout;
-	int max_vm;
-	int max_dispatch;
-	int live_rescheds;	
+	int manager_timer;
+	unsigned int max_vm;
 
-	bool set_up_pools();
-	void do_schedule();
+        XMLRPCClient *client;
+	bool get_queue();
+//	void do_schedule();
 
 };
 

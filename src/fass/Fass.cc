@@ -124,15 +124,11 @@ void Fass::start(bool bootstrap_only)
 
     pthread_sigmask(SIG_BLOCK, &mask, NULL);
 
-    /** Get manager timer from config */
-    int  manager_timer;
-    fass_configuration->get_single_option("fass", "manager_timer",manager_timer);
-
     /** Managers */
     // some config variables are used both by the RPCManager and the XMLRPCClient (called by the PM)
     // we use the same valuse for both server/client, these should be consistent with the OpenNebula ones
-    int  timeout;
     int  message_size;
+    int  timeout;
     // OpenNebula xml-rpc endpoint
     string one_endpoint;
     string one_port;
@@ -146,17 +142,19 @@ void Fass::start(bool bootstrap_only)
     string one_secret;
     fass_configuration->get_single_option("fass", "one_secret", one_secret);
     // xml-rpc config
-    fass_configuration->get_single_option("rpcm", "timeout", timeout);
     fass_configuration->get_single_option("rpcm", "message_size", message_size);
+    fass_configuration->get_single_option("rpcm", "timeout", timeout);
 
    /// ---- Priority Manager ----
    try
    {
+    int  manager_timer;
     int machines_limit;
 
     fass_configuration->get_single_option("pm", "max_vm", machines_limit);
+    fass_configuration->get_single_option("pm", "manager_timer", manager_timer);
  
-    pm = new PriorityManager(one_endpoint, one_secret, message_size, timeout, machines_limit);
+    pm = new PriorityManager(one_endpoint, one_secret, message_size, timeout, manager_timer, machines_limit);
     }
 
     catch (bad_alloc&)
@@ -239,11 +237,12 @@ void Fass::start(bool bootstrap_only)
 
     /** Stop the managers and free resources */
 
-    //rpcm->finalize(); we are not using action manager now 
+    pm->finalize();  
 
     //sleep to wait drivers???
 
     pthread_join(rpcm->get_thread_id(),0);
+    pthread_join(pm->get_thread_id(),0);
 
     //XML Library
 //    xmlCleanupParser();

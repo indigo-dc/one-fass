@@ -31,7 +31,6 @@ bool Configurator::load_configuration(){
     desc.add_options()
     		("help", "produce help message")
                 /// General 
-    		("fass.manager_timer", po::value<int>()->default_value(60), "managers period (s)")
      		("fass.one_port", po::value<string>()->default_value("2633"), "OpenNebula listen port")
     		("fass.one_endpoint", po::value<string>()->default_value("http://localhost"), "OpenNebula listen endpoint")
     		("fass.one_secret", po::value<string>()->default_value("oneadmin:opennebula"), "OpenNebula authentication")
@@ -53,6 +52,7 @@ bool Configurator::load_configuration(){
     		("database.port", po::value<int>()->default_value(8086), "DB listen port")
     		("database.name", po::value<string>()->default_value("fassdb"), "DB name")
     		/// Priority manager
+    		("pm.manager_timer", po::value<int>()->default_value(60), "manager period (s)")
     		("pm.max_vm", po::value<int>()->default_value(5000), "Maximum number of Virtual Machines scheduled in each scheduling action")
 		;
 
