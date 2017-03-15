@@ -259,25 +259,20 @@ void Fass::start(bool bootstrap_only)
 
 Log::MessageType Fass::get_debug_level() const
 {
-    //Log::MessageType clevel = Log::ERROR;
-    Log::MessageType clevel = Log::DDDEBUG;
+    Log::MessageType clevel = Log::ERROR;
     
-/* TODO 
-    int              log_level_int;
+    int              log_level_int ;
 
-    const VectorAttribute * log = nebula_configuration->get("LOG");
+    fass_configuration->get_single_option("fass", "log_level", log_level_int);  
 
-    if ( log != 0 )
+    if ( log_level_int != 0 )
     {
-        string value = log->vector_value("DEBUG_LEVEL");
-
-        log_level_int = atoi(value.c_str());
 
         if ( Log::ERROR <= log_level_int && log_level_int <= Log::DDDEBUG )
         {
             clevel = static_cast<Log::MessageType>(log_level_int);
         }
     }
-*/
+
     return clevel;
 }
