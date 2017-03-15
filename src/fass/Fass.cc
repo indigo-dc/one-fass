@@ -129,26 +129,34 @@ void Fass::start(bool bootstrap_only)
     fass_configuration->get_single_option("fass", "manager_timer",manager_timer);
 
     /** Managers */
+    // some config variables are used both by the RPCManager and the XMLRPCClient (called by the PM)
+    // we use the same valuse for both server/client, these should be consistent with the OpenNebula ones
+    int  timeout;
+    int  message_size;
+    // OpenNebula xml-rpc endpoint
+    string one_endpoint;
+    string one_port;
+    fass_configuration->get_single_option("fass", "one_endpoint", one_endpoint);
+    fass_configuration->get_single_option("fass", "one_port", one_port);
+    one_endpoint.append(":");
+    one_endpoint.append(one_port);
+    one_endpoint.append("/RPC2");
+    //FassLog::log("FASS", Log::DEBUG, one_endpoint);
+    // OpenNebula authentication 
+    string one_secret;
+    fass_configuration->get_single_option("fass", "one_secret", one_secret);
+    // xml-rpc config
+    fass_configuration->get_single_option("rpcm", "timeout", timeout);
+    fass_configuration->get_single_option("rpcm", "message_size", message_size);
 
    /// ---- Priority Manager ----
    try
    {
-    string one_xmlrpc;
-    int message_size;
-    int timeout;   
     int machines_limit;
-    int dispatch_limit;
-    int live_rescheds;
 
-
-    fass_configuration->get_single_option("fass", "timeout", timeout);
-    fass_configuration->get_single_option("fass", "message_size", message_size);
-    fass_configuration->get_single_option("fass", "one_xmlrpc", one_xmlrpc);
     fass_configuration->get_single_option("pm", "max_vm", machines_limit);
-    fass_configuration->get_single_option("pm", "max_dispatch", dispatch_limit);
-    fass_configuration->get_single_option("pm", "live_rescheds", live_rescheds);
  
-    pm = new PriorityManager(one_xmlrpc, message_size, timeout, machines_limit, dispatch_limit, live_rescheds);
+    pm = new PriorityManager(one_endpoint, one_secret, message_size, timeout, machines_limit);
     }
 
     catch (bad_alloc&)
@@ -170,14 +178,6 @@ void Fass::start(bool bootstrap_only)
     /// ---- Request Manager ----
     try
     {
-        string one_endpoint;
-        string one_port;
-        fass_configuration->get_single_option("fass", "one_endpoint", one_endpoint);
-        fass_configuration->get_single_option("fass", "one_port", one_port);
-        one_endpoint.append(":");
-        one_endpoint.append(one_port);
-        one_endpoint.append("/RPC2");
-        FassLog::log("FASS", Log::DEBUG, one_endpoint);
 
         //int  rm_port = 0;
         string rm_port = "";
@@ -185,11 +185,9 @@ void Fass::start(bool bootstrap_only)
         int  max_conn_backlog;
         int  keepalive_timeout;
         int  keepalive_max_conn;
-        int  timeout;
         bool rpc_log;
         string log_call_format;
         string rpc_filename = "";
-        int  message_size;
         string rm_listen_address; //= "0.0.0.0";
 
         fass_configuration->get_single_option("rpcm", "listen_port", rm_port);
@@ -198,9 +196,7 @@ void Fass::start(bool bootstrap_only)
         fass_configuration->get_single_option("rpcm", "max_conn_backlog", max_conn_backlog);
         fass_configuration->get_single_option("rpcm", "keepalive_timeout", keepalive_timeout);
         fass_configuration->get_single_option("rpcm", "keepalive_max_conn", keepalive_max_conn);
-        fass_configuration->get_single_option("rpcm", "timeout", timeout);
         fass_configuration->get_single_option("rpcm", "rpc_log", rpc_log);
-        fass_configuration->get_single_option("rpcm", "message_size", message_size);
         fass_configuration->get_single_option("rpcm", "log_call_format", log_call_format);
 
         if (rpc_log)
