@@ -13,4 +13,4 @@ FaSS grants fair access to dynamic resources prioritizing tasks assigned accordi
 See [installation](https://indigo-dc.gitbooks.io/one-fass/content/doc/install.html) for details.
 
 ## Is it difficult to use?
-A complete use case is described in the section [using FaSS](https://indigo-dc.gitbooks.io/one-fass/content/doc/using-fass.html)
+No, usage description can be found in the section [using FaSS](https://indigo-dc.gitbooks.io/one-fass/content/doc/using-fass.html)
