@@ -1,5 +1,5 @@
 # Install
-* [Centos 7 instructions](https://indigo-dc.gitbooks.io/one-fass/content/doc/install-centos.html)
+* [Centos 7 instructions](doc/install-centos.md)
 
 ## Ports open needed for FaSS
 TODO
