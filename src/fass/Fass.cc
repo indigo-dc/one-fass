@@ -135,45 +135,52 @@ void Fass::start(bool bootstrap_only)
 
     pthread_sigmask(SIG_BLOCK, &mask, NULL);
 
-    /** Get manager timer from config */
-    int  manager_timer;
-    fass_configuration->get_single_option("fass", "manager_timer",manager_timer);
-
     /** Managers */
+    // some config variables are used both by the RPCManager and the XMLRPCClient (called by the PM)
+    // we use the same valuse for both server/client, these should be consistent with the OpenNebula ones
+    int  message_size;
+    int  timeout;
+    // OpenNebula xml-rpc endpoint
+    string one_endpoint;
+    string one_port;
+    fass_configuration->get_single_option("fass", "one_endpoint", one_endpoint);
+    fass_configuration->get_single_option("fass", "one_port", one_port);
+    one_endpoint.append(":");
+    one_endpoint.append(one_port);
+    one_endpoint.append("/RPC2");
+    //FassLog::log("FASS", Log::DEBUG, one_endpoint);
+    // OpenNebula authentication 
+    string one_secret;
+    fass_configuration->get_single_option("fass", "one_secret", one_secret);
+    // xml-rpc config
+    fass_configuration->get_single_option("rpcm", "message_size", message_size);
+    fass_configuration->get_single_option("rpcm", "timeout", timeout);
 
    /// ---- Priority Manager ----
    try
    {
-    string one_xmlrpc;
-    int message_size;
-    int timeout;   
+    int  manager_timer;
     int machines_limit;
-    int dispatch_limit;
-    int live_rescheds;
+
+    fass_configuration->get_single_option("pm", "max_vm", machines_limit);
+    fass_configuration->get_single_option("pm", "manager_timer", manager_timer); 
 
     std::vector<user> users;
     std::list<users> list_of_users;
 
-// TODO add the shares vectors
-
-    fass_configuration->get_single_option("fass", "timeout", timeout);
-    fass_configuration->get_single_option("fass", "message_size", message_size);
-    fass_configuration->get_single_option("fass", "one_xmlrpc", one_xmlrpc);
-    fass_configuration->get_single_option("pm", "max_vm", machines_limit);
-    fass_configuration->get_single_option("pm", "max_dispatch", dispatch_limit);
-    fass_configuration->get_single_option("pm", "live_rescheds", live_rescheds);
+// TODO add the shares vector
 
     initial_shares->get_single_option("users", "user", user);
 
+    list_of_users::iterator list_it;
 
-   list_of_users::iterator list_it;
-
-   for (list_it = users.begin(); list_it != users.end(); ++list_it)
-   {
-       list_of_users.insert(list_it,users);
-   }
+    for (list_it = users.begin(); list_it != users.end(); ++list_it)
+    {
+        list_of_users.insert(list_it,users);
+    }
  
-    pm = new PriorityManager(one_xmlrpc, message_size, timeout, machines_limit, dispatch_limit, live_rescheds, list_of_users);
+    pm = new PriorityManager(one_endpoint, one_secret, message_size, timeout, manager_timer, machines_limit, list_of_users);
+
     }
 
     catch (bad_alloc&)
@@ -195,14 +202,6 @@ void Fass::start(bool bootstrap_only)
     /// ---- Request Manager ----
     try
     {
-        string one_endpoint;
-        string one_port;
-        fass_configuration->get_single_option("fass", "one_endpoint", one_endpoint);
-        fass_configuration->get_single_option("fass", "one_port", one_port);
-        one_endpoint.append(":");
-        one_endpoint.append(one_port);
-        one_endpoint.append("/RPC2");
-        FassLog::log("FASS", Log::DEBUG, one_endpoint);
 
         //int  rm_port = 0;
         string rm_port = "";
@@ -210,11 +209,9 @@ void Fass::start(bool bootstrap_only)
         int  max_conn_backlog;
         int  keepalive_timeout;
         int  keepalive_max_conn;
-        int  timeout;
         bool rpc_log;
         string log_call_format;
         string rpc_filename = "";
-        int  message_size;
         string rm_listen_address; //= "0.0.0.0";
 
         fass_configuration->get_single_option("rpcm", "listen_port", rm_port);
@@ -223,9 +220,7 @@ void Fass::start(bool bootstrap_only)
         fass_configuration->get_single_option("rpcm", "max_conn_backlog", max_conn_backlog);
         fass_configuration->get_single_option("rpcm", "keepalive_timeout", keepalive_timeout);
         fass_configuration->get_single_option("rpcm", "keepalive_max_conn", keepalive_max_conn);
-        fass_configuration->get_single_option("rpcm", "timeout", timeout);
         fass_configuration->get_single_option("rpcm", "rpc_log", rpc_log);
-        fass_configuration->get_single_option("rpcm", "message_size", message_size);
         fass_configuration->get_single_option("rpcm", "log_call_format", log_call_format);
 
         if (rpc_log)
@@ -268,11 +263,12 @@ void Fass::start(bool bootstrap_only)
 
     /** Stop the managers and free resources */
 
-    //rpcm->finalize(); we are not using action manager now 
+    pm->finalize();  
 
     //sleep to wait drivers???
 
     pthread_join(rpcm->get_thread_id(),0);
+    pthread_join(pm->get_thread_id(),0);
 
     //XML Library
 //    xmlCleanupParser();
@@ -288,25 +284,20 @@ void Fass::start(bool bootstrap_only)
 
 Log::MessageType Fass::get_debug_level() const
 {
-    //Log::MessageType clevel = Log::ERROR;
-    Log::MessageType clevel = Log::DDDEBUG;
+    Log::MessageType clevel = Log::ERROR;
     
-/* TODO 
-    int              log_level_int;
+    int              log_level_int ;
 
-    const VectorAttribute * log = nebula_configuration->get("LOG");
+    fass_configuration->get_single_option("fass", "log_level", log_level_int);  
 
-    if ( log != 0 )
+    if ( log_level_int != 0 )
     {
-        string value = log->vector_value("DEBUG_LEVEL");
-
-        log_level_int = atoi(value.c_str());
 
         if ( Log::ERROR <= log_level_int && log_level_int <= Log::DDDEBUG )
         {
             clevel = static_cast<Log::MessageType>(log_level_int);
         }
     }
-*/
+
     return clevel;
 }

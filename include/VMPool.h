@@ -7,8 +7,8 @@
 
 
 
-#ifndef VM_POOL_XML_H_
-#define VM_POOL_XML_H_
+#ifndef VM_POOL_H_
+#define VM_POOL_H_
 
 // this should not be necessary #include "PoolXML.h"
 #include "VirtualMachine.h"
@@ -29,13 +29,15 @@ public:
 		machines_limit(_machines_limit),
         	live_resched(_live_resched){};
 
-    ~VMPool(){};
-    
+    ~VMPool(){
+    	flush();
+    };
+
+
    const map<int, VirtualMachine*>& get_objects() const
     {
         return objects;
     };
-
 
     /**
      * Retrieves the pending and rescheduling VMs
@@ -52,6 +54,7 @@ public:
      *
      *   @return a pointer to the object, 0 in case of failure
      */
+/*
     VirtualMachine * get(int oid) const
     {
 
@@ -69,15 +72,7 @@ public:
         }
         
     };
-
-    /**
-     *  Dispatch a VM to the given host
-     *    @param vid the VM id
-     *    @param hid the id of the target host
-     *    @param resched the machine is going to be rescheduled
-     */
-    int dispatch(int vid, int hid, int dsid, bool resched) const;
-
+*/
     /**
      *  Update the VM template
      *    @param vid the VM id
@@ -85,7 +80,7 @@ public:
      *
      *    @return 0 on success, -1 otherwise
      */
-    int update(int vid) const;//, const string &st) const;
+//    int update(int vid) const;//, const string &st) const;
 
     /**
      *  Update the VM template
@@ -93,24 +88,30 @@ public:
      *
      *      @return 0 on success, -1 otherwise
      */
+/*
     int update(VirtualMachine * vm) const
     {
         string xml;
 
         return update(vm->get_oid());//, vm->get_template(xml));
     };
-
+*/
 protected:
 
+    // deletes pool objects
+    void flush();
+    // adds an object to the pool
+    void add_object(xmlNodePtr node);
 
-    virtual int load_info(xmlrpc_c::value &result);
-
-    /**
-     * Do live migrations to resched VMs
-     */
-    bool live_resched;
+    int load_vms(xmlrpc_c::value &result);
+    // parse the XML response from ONE into a xmlXPathContextPtr
+    bool xml_parse(const string &xml_doc);  
+    xmlXPathContextPtr ctx; // XML xpath context pointer
+    // get XML nodes corresponding to VMs
+    int get_nodes(const string& xpath_expr, std::vector<xmlNodePtr>& content);
     XMLRPCClient *  client;
     unsigned int   machines_limit;
+    bool live_resched;
 
     /**
      * Hash map contains the suitable [id, object] pairs

@@ -9,15 +9,33 @@
 #include <stdexcept>
 #include <iomanip>
 #include <vector>
+#include <libxml/parser.h>
+#include <libxml/tree.h>
+#include <libxml/xpath.h>
+#include <libxml/xpathInternals.h>
+#include <stdexcept>
+#include <assert.h>
 
-int VMPool::set_up()
-{
+void VMPool::add_object(xmlNodePtr node){
 
-	int rc;
-	ostringstream   oss;
-	map<int, VirtualMachine*>::iterator it;
+        if ( node == 0 || node->children == 0 || node->children->next==0 )
+    	{
+              FassLog::log("VMPOOL",Log::ERROR, "XML Node does not represent a valid Virtual Machine");
+              return;
+        }
 
-        // Clean the pool to get updated data from OpenNebula
+        VirtualMachine* vm = new VirtualMachine(node);
+
+        objects.insert(pair<int,VirtualMachine*>(vm->get_oid(),vm));
+
+        ostringstream   oss;
+        oss << "Inserting VM object with ID: " << vm->get_oid() << "\n";
+        FassLog::log("VMPOOL",Log::DDEBUG, oss);
+};
+
+void VMPool::flush(){
+
+        map<int,VirtualMachine*>::iterator it;
 
         for (it=objects.begin();it!=objects.end();it++)
         {
@@ -26,11 +44,22 @@ int VMPool::set_up()
 
         objects.clear();
 
+};
 
-        // Load the ids (to get an updated list of the pool)
+int VMPool::set_up()
+{
+
+	int rc;
+	ostringstream   oss;
+
+        // clean the pool to get updated data from OpenNebula
+        VMPool::flush();
+
+
+        // load the complete pool of VMs from OpenNebula
         xmlrpc_c::value result;
 
-        rc = load_info(result);
+        rc = load_vms(result);
 
         if ( rc != 0 )
         {
@@ -38,73 +67,58 @@ int VMPool::set_up()
                            "Could not retrieve VM pool info from ONE");
             return -1;
         }
+       
+        // read the response  
+        vector<xmlrpc_c::value> values = xmlrpc_c::value_array(result).vectorValueValue();
+        bool   success = xmlrpc_c::value_boolean(values[0]);
 
+        // OpenNebula says failure
+        if (!success){
+            string message = xmlrpc_c::value_string(values[1]);
 
-    if ( rc == 0 )
-    {
+            oss << "Oned returned failure... Error: " << message << "\n";
+            FassLog::log("VMPOOL",Log::ERROR, oss); 
+            return -1;
+                                                                                      
+        }    
 
-     if (FassLog::log_level() >= Log::DDDEBUG)
-      {
-         oss << "Virtual Machines and capacity:" << endl;
+        // the output of the one.vmpool.info method is always a string                      
+        string vmlist(static_cast<string>(xmlrpc_c::value_string(values[1]))); 
+        // parse the response and select only pending/rescheduling VMs 
+        xmlInitParser();                                                                  
+        xml_parse(vmlist);                                                                
+        std::vector<xmlNodePtr> nodes; 
+        int n_nodes;                                                 
+        n_nodes = get_nodes("/VM_POOL/VM[STATE=1 or ((LCM_STATE=3 or LCM_STATE=16) and RESCHED=1)]", nodes);  
 
-         oss << right << setw(8)  << "ACTION"    << " "
-             << right << setw(8)  << "VM"        << " "
-             << right << setw(4)  << "CPU"       << " "
-             << right << setw(11) << "Memory"    << " " << endl;
-            // << right << setw(3)  << "PCI"       << " "
-            // << right << setw(11) << "System DS" << " "
-            // << " Image DS" << endl
-            // << setw(60) << setfill('-') << "-" << setfill(' ') << endl;
-         map<int, VirtualMachine*>::iterator iter;
-	 //std::vector<xmlNodePtr>::iterator it;
+        oss << "I got " << n_nodes << " pending VMs!";
+        FassLog::log("VMPOOL",Log::DEBUG, oss); 
 
-            for (iter = objects.begin(); iter != objects.end(); iter++)
-            {
-                int cpu, mem;
-                //long long disk;
-                //vector<VectorAttribute *> pci;
-
-                string action = "DEPLOY";
-
-                VirtualMachine * vm = static_cast<VirtualMachine *>(iter->second);
-
-                vm->get_requirements(cpu, mem); //, disk, pci);
-
-                if (vm->is_resched())
-                {
-                    action = "RESCHED";
-                }
-                else if (vm->is_resume())
-                {
-                    action = "RESUME";
-                }
-
-                oss << right << setw(8)  << action      << " "
-                    << right << setw(8)  << it->first   << " "
-                    << right << setw(4)  << cpu         << " "
-                    << right << setw(11) << mem         << " ";
-                    //<< right << setw(3)  << pci.size()  << " "
-                    //<< right << setw(11) << disk        << " ";
-
-                oss << endl;
-            }
-        }
-        else
+         for (unsigned int i=0 ; i < nodes.size(); i++)
         {
-            oss << "Found " << objects.size() << " pending/rescheduling VMs.";
+            VMPool::add_object(nodes[i]);
         }
 
-        FassLog::log("VMPool",Log::DEBUG,oss);
-    }
+        //free_nodes(nodes);
+        
+ 
+        // clean global variables that might have been allocated by the parser
+        xmlCleanupParser();
 
     return rc;
 }
 
-int VMPool::load_info(xmlrpc_c::value &result)
+int VMPool::load_vms(xmlrpc_c::value &result)
 {
     try
     {
-        client->call("one.vmpool.info", "iiii", &result, -2, -1, -1, -1);
+        xmlrpc_c::paramList plist;
+        plist.add(xmlrpc_c::value_int(-2));
+        plist.add(xmlrpc_c::value_int(-1));
+        plist.add(xmlrpc_c::value_int(-1));
+        plist.add(xmlrpc_c::value_int(-1));
+
+        client->call("one.vmpool.info", plist, &result);
 
         return 0;
     }
@@ -119,57 +133,73 @@ int VMPool::load_info(xmlrpc_c::value &result)
     }
 }
 
-
-int VMPool::dispatch(int vid, int hid, int dsid, bool resched) const
-{
-    xmlrpc_c::value deploy_result;
-
-    VirtualMachine* vm = get(vid);
-
-    if (vm != 0) // && vm->clear_log())
+bool VMPool::xml_parse(const string &xml_doc){
+ 
+    // copied from ONE ObjectXML
+    xmlDocPtr xml = xmlReadMemory (xml_doc.c_str(),xml_doc.length(),0,0,XML_PARSE_HUGE);
+    if (xml == 0)
     {
-        update(vm);
+        throw runtime_error("Error parsing XML Document");
+        return false;
     }
 
-    try
+    ctx = xmlXPathNewContext(xml);
+
+    if (ctx == 0)
     {
-        if (resched == true)
-        {
-            client->call("one.vm.migrate",// methodName
-                         "iibb",          // arguments format
-                         &deploy_result,  // resultP
-                         vid,             // argument 1 (VM)
-                         hid,             // argument 2 (HOST)
-                         live_resched,    // argument 3 (LIVE)
-                         false);          // argument 4 (ENFORCE)
-        }
-        else
-        {
-            client->call("one.vm.deploy", // methodName
-                         "iibi",          // arguments format
-                         &deploy_result,  // resultP
-                         vid,             // argument 1 (VM)
-                         hid,             // argument 2 (HOST)
-                         false,           // argument 3 (ENFORCE)
-                         dsid);           // argument 5 (SYSTEM SD)
-        }
-    }
-    catch (exception const& e)
+        xmlFreeDoc(xml);                                                              
+        throw runtime_error("Unable to create new XPath context");                    
+        return false;
+    }                                                                                 
+ 
+    return true;           
+
+};
+
+int VMPool::get_nodes(const string& xpath_expr, std::vector<xmlNodePtr>& content){
+    
+    // copied from ONE
+    xmlXPathObjectPtr obj;
+
+    obj = xmlXPathEvalExpression(
+        reinterpret_cast<const xmlChar *>(xpath_expr.c_str()), ctx);
+
+        if (obj == 0)
     {
-        ostringstream   oss;
-
-        oss << "Exception raised: " << e.what() << '\n';
-
-        FassLog::log("VM",Log::ERROR,oss);
-
-        return -1;
+        return 0;
     }
 
+    if (obj->nodesetval == 0)
+    {
+        xmlXPathFreeObject(obj);
+        return 0;
+    }
 
-    return 0;
+    xmlNodeSetPtr ns = obj->nodesetval;
+    int           size = ns->nodeNr;
+    int           num_nodes = 0;
+    xmlNodePtr    cur;
+
+    for(int i = 0; i < size; ++i)                                                     
+    {                                                                                 
+        cur = xmlCopyNode(ns->nodeTab[i],1);                                          
+                                                                                      
+        if ( cur == 0 || cur->type != XML_ELEMENT_NODE )                              
+        {                                                                             
+            xmlFreeNode(cur);                                                         
+            continue;                                                                 
+        }                                                                             
+                                                                                      
+        content.push_back(cur);                                                       
+        num_nodes++;                                                                  
+    }                                                                                 
+                                                                                      
+    xmlXPathFreeObject(obj);                                                          
+                                                                                      
+    return num_nodes;  
+
 }
-
-
+/*
 int VMPool::update(int vid) const //, const string &st) const
 {
     xmlrpc_c::value result;
@@ -185,3 +215,4 @@ int VMPool::update(int vid) const //, const string &st) const
     
 	return 0;
 }
+*/

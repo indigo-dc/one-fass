@@ -122,7 +122,7 @@ void Request::log_method_invoked(const RequestAttributes& att,
         }
     }
 
-    FassLog::log("REQUEST", Log::DEBUG, oss);
+    FassLog::log("REQUEST", Log::DDEBUG, oss);
 }
 
 void Request::log_xmlrpc_value(const xmlrpc_c::value& v, std::ostringstream& oss)
@@ -207,7 +207,7 @@ void Request::log_result(const RequestAttributes& att, const string& method_name
             log_xmlrpc_value(vvalue[i], oss);
         }
 
-        FassLog::log("REQUEST", Log::DEBUG, oss);
+        FassLog::log("REQUEST", Log::DDEBUG, oss);
     }
     else
     {

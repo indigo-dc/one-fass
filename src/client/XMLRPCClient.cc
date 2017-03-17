@@ -6,6 +6,7 @@
  */
 
 #include "XMLRPCClient.h"
+#include "FassLog.h"
 #include <xmlrpc-c/base.hpp>
 #include <xmlrpc-c/client_simple.hpp>
 #include <typeinfo>
@@ -47,6 +48,7 @@ XMLRPCClient::XMLRPCClient(const string& secret, const string& endpoint, size_t 
 
 void XMLRPCClient::call_async(const std::string& method, const xmlrpc_c::paramList& plist, xmlrpc_c::value * const result)
 {
+    
     xmlrpc_c::clientXmlTransport_curl ctrans;
     xmlrpc_c::client_xml              client(&ctrans);
 
@@ -83,5 +85,27 @@ void XMLRPCClient::call_sync(const std::string& method, const xmlrpc_c::paramLis
     xmlrpc_c::value res;
     myClient.call(_endpoint, method, plist, &res); 
     * result = res;
+
+};
+
+void XMLRPCClient::call(const std::string& method, const xmlrpc_c::paramList& plist, xmlrpc_c::value * const result)
+{
+
+    //FassLog::log("SARA", Log::INFO, _auth);
+    // appends the OpenNebula secret to the list of parameters
+    xmlrpc_c::paramList s_plist;
+    s_plist.add(xmlrpc_c::value_string(_auth));
+    
+    for(unsigned i=0; i < plist.size(); i++) {
+        ostringstream oss;
+        oss << xmlrpc_c::value_int(plist[i]) << "\n";
+        s_plist.addc(plist[i]);	
+    }
+
+
+    xmlrpc_c::value res;
+    XMLRPCClient::call_async(method, s_plist, result);
+    //XMLRPCClient::call_async(method, s_plist, &res);
+    //* result = res;
 
 };

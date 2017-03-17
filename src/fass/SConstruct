@@ -28,3 +28,4 @@ if not env.GetOption('clean'):
     env.ParseConfig(("LDFLAGS='%s'") % (os.environ['LDFLAGS'],))
 
 env.Program('fassd.cc')
+

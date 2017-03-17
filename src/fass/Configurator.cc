@@ -31,16 +31,15 @@ bool Configurator::load_configuration(){
     desc.add_options()
     		("help", "produce help message")
                 /// General 
-    		("fass.manager_timer", po::value<int>()->default_value(60), "managers period (s)")
      		("fass.one_port", po::value<string>()->default_value("2633"), "OpenNebula listen port")
     		("fass.one_endpoint", po::value<string>()->default_value("http://localhost"), "OpenNebula listen endpoint")
+    		("fass.one_secret", po::value<string>()->default_value("oneadmin:opennebula"), "OpenNebula authentication")
     		("fass.log_level", po::value<int>()->default_value(3), "log level common to all managers")
-		("fass.one_xmlrpc", po::value<string>()->default_value("http://localhost:2633/RPC2"), "URL to connect to the OpenNebula")
-		("fass.message_size", po::value<int>()->default_value(1073741824), "message size")
-		("fass.timeout", po::value<int>()->default_value(15), "timeout")	
 		/// RPC manager
     		("rpcm.listen_port", po::value<string>()->default_value("2634"), "listen port")
     		("rpcm.listen_address", po::value<string>()->default_value("127.0.0.1"), "listen address")
+		("rpcm.timeout", po::value<int>()->default_value(15), "timeout")	
+		("rpcm.message_size", po::value<int>()->default_value(1073741824), "message size")
     		("rpcm.max_conn", po::value<int>()->default_value(15), "max connections")
     		("rpcm.max_conn_backlog", po::value<int>()->default_value(15), "max connections backlog")
     		("rpcm.keepalive_timeout", po::value<int>()->default_value(15), "keepalive timeout")
@@ -53,9 +52,8 @@ bool Configurator::load_configuration(){
     		("database.port", po::value<int>()->default_value(8086), "DB listen port")
     		("database.name", po::value<string>()->default_value("fassdb"), "DB name")
     		/// Priority manager
+    		("pm.manager_timer", po::value<int>()->default_value(60), "manager period (s)")
     		("pm.max_vm", po::value<int>()->default_value(5000), "Maximum number of Virtual Machines scheduled in each scheduling action")
-		("pm.max_dispatch", po::value<int>()->default_value(30), "Maximum number of Virtual Machines actually dispatched to a host in each scheduling action")
-		("pm.live_resched", po::value<int>()->default_value(0), "Perform live (1) or cold migrations (0) when rescheduling a VM")
 		;
 
     /// Read the configuration file

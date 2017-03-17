@@ -8,8 +8,8 @@
 #include "Fass.h"
 #include "FassLog.h"
 #include "InitShares.h"
-//#include "PriorityManager.h"
-//#include "VMPool.h"
+#include "PriorityManager.h"
+#include "VMPool.h"
 #include "VirtualMachine.h"
 
 // booh #include <time.h>
@@ -24,62 +24,43 @@
 #include <cmath>
 #include <iomanip>
 #include <ctime>
+#include <climits>
+#include <errno.h>
 
 using namespace std;
 
 PriorityManager::PriorityManager(
-        const string _one_xmlrpc,
-	int _message_size,
-	int _timeout,
-	int _max_vm,
-	int _max_dispatch,
-	int _live_rescheds,
-	list<user> list_of_users):
+    const string _one_xmlrpc,
+    const string _one_secret,
+	  int _message_size,
+	  int _timeout,
+    unsigned int _max_vm,
+	  list<user> list_of_users,
+    int _manager_timer):
+
 		one_xmlrpc(_one_xmlrpc),
+		one_secret(_one_secret),
 		message_size(_message_size),
 		timeout(_timeout),
-		max_vm(_max_vm),
-		max_dispatch(_max_dispatch),
-		live_rescheds(_live_rescheds),
-		list_of_users(_list_of_users)
-
+    max_vm(_max_vm),
+    list_of_users(_list_of_users),
+		manager_timer(_manager_timer),
+    stop_manager(false)
 {
-
-    xmlrpc_limit_set(XMLRPC_XML_SIZE_LIMIT_ID, message_size);
-
-};
-
-
-
-
-bool PriorityManager::start()
-{
-    int rc;
-
-    ifstream      file;
+    // initialize XML-RPC Client
     ostringstream oss;
-
-    string etc_path;
-    //unsigned int machines_limit;
-    //unsigned int live_rescheds;
-
-    //pthread_attr_t pattr;
-    FassLog::log("PM",Log::INFO,"Starting Priority Manager...");
-  
-    XMLRPCClient * client = XMLRPCClient::client();
- 
-    // XML-RPC Client
+    
     try
     {
 
-        XMLRPCClient::initialize("", one_xmlrpc, message_size, timeout);
+    XMLRPCClient::initialize(one_secret, one_xmlrpc, message_size, timeout);
 
-        oss.str("");
+    client = XMLRPCClient::client();
 
-        oss << "XML-RPC client using " << (XMLRPCClient::client())->get_message_size()
-            << " bytes for response buffer.\n";
+    oss << "XML-RPC client using " << (XMLRPCClient::client())->get_message_size()
+    << " bytes for response buffer.\n";
 
-        FassLog::log("PM", Log::INFO, oss);
+    FassLog::log("PM", Log::INFO, oss);
 
     }
     catch(runtime_error &)
@@ -87,56 +68,117 @@ bool PriorityManager::start()
         throw;
     }
 
-       // Get oned configuration
-        try
-        {
-            xmlrpc_c::value result;
-            vector<xmlrpc_c::value> values;
+};
 
-            client->call("one.system.config", "", &result);
+extern "C" void * pm_loop(void *arg)
+{
 
+    PriorityManager * pm;
+
+    if ( arg == 0 )
+    {
+        return 0;
+    }
+
+    FassLog::log("PM",Log::INFO,"Priority Manager started.");
+
+    pm = static_cast<PriorityManager *>(arg);
+
+    // set thread cancel state
+    pthread_setcancelstate(PTHREAD_CANCEL_ENABLE,0);
+    pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS,0);
+ 
+    // here the actual loop happens
+    //pm->loop(pm->manager_timer);
+    int rc;
+    struct timespec timeout;
+    
+
+    ostringstream oss;
+    oss << "Manager timer is: " << pm->manager_timer;
+    FassLog::log("SARA",Log::INFO, oss);
+
+    // actual loop
+    while (!pm->stop_manager)
+    {
+        bool wait = true;
+    	timeout.tv_sec  = time(NULL) + pm->manager_timer;
+    	timeout.tv_nsec = 0; 
+
+        pm->lock();
+        while ( wait && !pm->stop_manager){ // block for manager_timer seconds
+        	rc = pthread_cond_timedwait(&pm->cond,&pm->mutex, &timeout);
+    		//ostringstream oss;
+    		//oss << "Timedwait return value: " << rc;
+    		//FassLog::log("SARA",Log::INFO, oss);
+
+                if ( rc == ETIMEDOUT ) wait = false;
         }
-        catch (exception const& e)
-        {
-            ostringstream oss;
 
-            oss << "Cannot contact oned, will retry... Error: " << e.what();
+        pm->unlock();
 
-            FassLog::log("PM", Log::ERROR, oss);
-        }
+        pm->loop();
+    }
 
-        FassLog::log("PM", Log::INFO, "oned successfully contacted.");
+    FassLog::log("PM",Log::INFO,"Priority Manager stopped.");
+   
+    return 0;
 
-    rc = set_up_pools();
+};
+
+void PriorityManager::loop(){
+
+
+    FassLog::log("SARA",Log::INFO,"PRIORITY MANAGER LOOP");
+
+    int rc;
+    // let's get the list of pending VMs from ONE
+    rc = get_queue();
 
     if ( rc != 0 )
     {
-	//ostringstream oss;
-
-        //oss << "Cannot get the VM pool: " << strerror(errno);
-        //FassLog::log("PM",Log::ERROR,oss);
-        return false; 
+        FassLog::log("PM",Log::ERROR, "Cannot get the VM pool!");
     }
+
    
- do_prioritize();
-
-return true;
-
+    // do_prioritize();
+    
 };
 
-bool PriorityManager::set_up_pools()
+int PriorityManager::start()
 {
-    int rc;
-    XMLRPCClient * client = XMLRPCClient::client();
-    // VM pool
-    vmpool = new VMPool(client, max_vm, live_rescheds==1);
+    pthread_attr_t  pattr;
+    ostringstream oss;
 
-    //Cleans the cache and gets the VM pool
-    rc = vmpool->set_up();
 
-    return 0;
+    FassLog::log("PM",Log::INFO,"Starting Priority Manager...");
+    
+    pthread_attr_init (&pattr);
+    pthread_attr_setdetachstate (&pattr, PTHREAD_CREATE_JOINABLE);
+                                                                                      
+    pthread_create(&pm_thread,&pattr,pm_loop,(void *)this);    
+
+    return true;
+  
 };
 
+int PriorityManager::get_queue()
+{
+    
+    FassLog::log("PM",Log::DEBUG, "Executing get_queue...");
+    int rc;
+    // VM pool
+    bool live_resched = true; // TODO: non sono sicura che ci serva
+    vmpool = new VMPool(client, max_vm, live_resched);
+
+    // cleans the cache and gets the VM pool
+    rc = vmpool->set_up();
+    // TODO: real return code
+    return rc;
+    
+};
+
+/*
 void PriorityManager::do_prioritize()
 {
  VirtualMachine * vm;
@@ -191,6 +233,7 @@ void PriorityManager::do_prioritize()
          vm = static_cast<VirtualMachine*>(vm_it->second);
  
          vm->get_requirements(vm_cpu, vm_memory);
+
 	 vm->get_oid(); 
 	 vm->get_uid();
 	 vm->get_gid();
@@ -215,4 +258,5 @@ void PriorityManager::do_prioritize()
  PluginBasic::update_prio(oid, uid, gid, vm_cpu, vm_memory, list_of_users, &vm_prio); // TODO we miss historical usage U
 
 }
+*/
 
