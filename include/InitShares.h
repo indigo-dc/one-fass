@@ -8,6 +8,7 @@
 #ifndef INITSHARES_H_
 #define INITSHARES_H_
 
+//#include "User.h"
 #include "FassLog.h"
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/split.hpp>
@@ -21,11 +22,32 @@
 using namespace std;
 namespace po = boost::program_options;
  
+struct user
+{
+public:
+      unsigned short userID;
+      unsigned short groupID;
+      unsigned short share;
+
+      user (unsigned short userID,
+        unsigned short groupID,
+        unsigned short share )
+        : userID(userID),
+          groupID(groupID),                                                               
+          share (share)                                                                   
+          {}                                                                                  
+
+};  
+
+
+
 /** This class provides the basic abstraction for Fass configuration files */
 
 class InitShares 
 {
 public:
+
+
     InitShares(const string& etc_location, const char * _shares_name)
     {
         initset_file = etc_location + _shares_name;

@@ -16,21 +16,6 @@ boost::program_options::typed_value<T>* make_value(T* store_to)
   return boost::program_options::value<T>(store_to);
 }
 
-struct user 
-{
-  unsigned short userID;
-  unsigned short groudID;
-  unsigned short share;
-
- user (unsigned short userID,
-       unsigned short groupID, 
-       unsigned short share )
-    : userID(userID),
-      groupID(groupID),
-      share (share)
-  {}
-};
-
 user make_user( const std::string& user_group_share )
 {
   std::vector< std::string > tokens;

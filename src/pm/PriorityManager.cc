@@ -7,7 +7,7 @@
 
 #include "Fass.h"
 #include "FassLog.h"
-#include "InitShares.h"
+//#include "InitShares.h"
 #include "PriorityManager.h"
 #include "VMPool.h"
 #include "VirtualMachine.h"
@@ -34,18 +34,18 @@ PriorityManager::PriorityManager(
     const string _one_secret,
 	  int _message_size,
 	  int _timeout,
-    unsigned int _max_vm,
-	  list<user> list_of_users,
+          unsigned int _max_vm,
+	  //list<user> _list_of_users,
     int _manager_timer):
 
 		one_xmlrpc(_one_xmlrpc),
 		one_secret(_one_secret),
 		message_size(_message_size),
 		timeout(_timeout),
-    max_vm(_max_vm),
-    list_of_users(_list_of_users),
+    		max_vm(_max_vm),
+    		//list_of_users(_list_of_users),
 		manager_timer(_manager_timer),
-    stop_manager(false)
+    		stop_manager(false)
 {
     // initialize XML-RPC Client
     ostringstream oss;

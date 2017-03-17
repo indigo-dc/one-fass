@@ -61,14 +61,14 @@ void Fass::start(bool bootstrap_only)
     }
 
     /** Initial shares system */
-    initial_shares = new FassInitShares(etc_location, var_location);
+    //initial_shares = new FassInitShares(etc_location, var_location);
 
-    rc = initial_shares->load_shares();
+    //rc = initial_shares->load_shares();
 
-    if ( !rc )
-    {
-        throw runtime_error("Could not load initial shares file.");
-    }
+    //if ( !rc )
+    //{
+    //    throw runtime_error("Could not load initial shares file.");
+    //}
 
     /** Log system */
 
@@ -165,21 +165,33 @@ void Fass::start(bool bootstrap_only)
     fass_configuration->get_single_option("pm", "max_vm", machines_limit);
     fass_configuration->get_single_option("pm", "manager_timer", manager_timer); 
 
-    std::vector<user> users;
-    std::list<users> list_of_users;
+
+    // Read initial shares from separate file
+    //initial_shares = new FassConfigurator(etc_location, var_location);
+
+    //rc = initial_shares->load_configuration();
+
+    //if ( !rc )
+    //{
+    //    throw runtime_error("Could not load Initial Shares file.");
+    //}
+
+    //std::vector<user> users;
+    //std::list<users> list_of_users;
 
 // TODO add the shares vector
 
-    initial_shares->get_single_option("users", "user", user);
+    //initial_shares->get_single_option("users", "user", user);
 
-    list_of_users::iterator list_it;
+    //list_of_users::iterator list_it;
 
-    for (list_it = users.begin(); list_it != users.end(); ++list_it)
-    {
-        list_of_users.insert(list_it,users);
-    }
+    //for (list_it = users.begin(); list_it != users.end(); ++list_it)
+    //{
+    //    list_of_users.insert(list_it,users);
+    //}
  
-    pm = new PriorityManager(one_endpoint, one_secret, message_size, timeout, manager_timer, machines_limit, list_of_users);
+    //pm = new PriorityManager(one_endpoint, one_secret, message_size, timeout, machines_limit, manager_timer, list_of_users);
+    pm = new PriorityManager(one_endpoint, one_secret, message_size, timeout, machines_limit, manager_timer);
 
     }
 

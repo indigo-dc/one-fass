@@ -132,6 +132,7 @@ private:
     ~Fass()
     {
         delete fass_configuration;
+        //delete initial_shares;
         delete rpcm;
         delete database;
 	delete pm;
@@ -150,6 +151,7 @@ private:
     /// Configuration 
 
     FassConfigurator * fass_configuration;
+    //FassConfigurator * initial_shares;
 
     /// Database
     FassDb * database;

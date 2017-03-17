@@ -10,7 +10,7 @@
 #define PRIORITY_MANAGER_H_
 
 #include "VMPool.h"
-#include "InitShares.h"
+//#include "InitShares.h"
 #include "XMLRPCClient.h"
 #include <time.h>
 #include <pthread.h>
@@ -28,7 +28,7 @@ public:
         int _message_size,
         int _timeout,
         unsigned int _max_vm,
-	      list<user> list_of_users,
+	//list<user> _list_of_users,
         int _manager_timer);
 
 	~PriorityManager(){
@@ -76,7 +76,7 @@ private:
 	int timeout;
 
 	unsigned int max_vm;
-	list<user> list_of_users;	
+	//list<user> list_of_users;	
   int manager_timer; 
   bool stop_manager;
   
