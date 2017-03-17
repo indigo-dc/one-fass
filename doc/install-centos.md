@@ -6,9 +6,9 @@ OpenNebula must be insalled, following ONE documentation [OpenNebula documentati
 ### Required packages
 TODO
 
-### Installation of FaSS 
+## Installation of FaSS 
 
-#### Manually
+### Manually
 Once OpenNebula and the required packages have been installed, you can install FaSS as follows (as root user):
 
 ```bash
