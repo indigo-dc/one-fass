@@ -7,6 +7,7 @@
 #include "Fass.h"
 #include "FassLog.h"
 #include "Configurator.h"
+#include "InitShares.h"
 #include "FassDb.h"
 //#include "Log.h"
 //#include "RPCManager.h"
@@ -57,6 +58,16 @@ void Fass::start(bool bootstrap_only)
     if ( !rc )
     {
         throw runtime_error("Could not load Fass configuration file.");
+    }
+
+    /** Initial shares system */
+    initial_shares = new FassInitShares(etc_location, var_location);
+
+    rc = initial_shares->load_shares();
+
+    if ( !rc )
+    {
+        throw runtime_error("Could not load initial shares file.");
     }
 
     /** Log system */
@@ -152,9 +163,24 @@ void Fass::start(bool bootstrap_only)
     int machines_limit;
 
     fass_configuration->get_single_option("pm", "max_vm", machines_limit);
-    fass_configuration->get_single_option("pm", "manager_timer", manager_timer);
+    fass_configuration->get_single_option("pm", "manager_timer", manager_timer); 
+
+    std::vector<user> users;
+    std::list<users> list_of_users;
+
+// TODO add the shares vector
+
+    initial_shares->get_single_option("users", "user", user);
+
+    list_of_users::iterator list_it;
+
+    for (list_it = users.begin(); list_it != users.end(); ++list_it)
+    {
+        list_of_users.insert(list_it,users);
+    }
  
-    pm = new PriorityManager(one_endpoint, one_secret, message_size, timeout, manager_timer, machines_limit);
+    pm = new PriorityManager(one_endpoint, one_secret, message_size, timeout, manager_timer, machines_limit, list_of_users);
+
     }
 
     catch (bad_alloc&)

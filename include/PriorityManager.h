@@ -10,6 +10,7 @@
 #define PRIORITY_MANAGER_H_
 
 #include "VMPool.h"
+#include "InitShares.h"
 #include "XMLRPCClient.h"
 #include <time.h>
 #include <pthread.h>
@@ -26,8 +27,9 @@ public:
         const string _one_string,
         int _message_size,
         int _timeout,
-        int _manager_timer,
-        unsigned int _max_vm);
+        unsigned int _max_vm,
+	      list<user> list_of_users,
+        int _manager_timer);
 
 	~PriorityManager(){
             delete client;
@@ -72,13 +74,17 @@ private:
 	string one_secret;
 	int message_size;
 	int timeout;
-	int manager_timer;
-	unsigned int max_vm;
-        bool stop_manager;
 
-        XMLRPCClient *client;
+	unsigned int max_vm;
+	list<user> list_of_users;	
+  int manager_timer; 
+  bool stop_manager;
+  
+	bool set_up_pools();
+	void do_prioritize();
+
+  XMLRPCClient *client;
 	int get_queue();
-//	void do_schedule();
 
 };
 

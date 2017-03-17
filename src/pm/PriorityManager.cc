@@ -7,6 +7,7 @@
 
 #include "Fass.h"
 #include "FassLog.h"
+#include "InitShares.h"
 #include "PriorityManager.h"
 #include "VMPool.h"
 #include "VirtualMachine.h"
@@ -29,19 +30,22 @@
 using namespace std;
 
 PriorityManager::PriorityManager(
-        const string _one_xmlrpc,
-        const string _one_secret,
-	int _message_size,
-	int _timeout,
-	int _manager_timer,
-	unsigned int _max_vm):
+    const string _one_xmlrpc,
+    const string _one_secret,
+	  int _message_size,
+	  int _timeout,
+    unsigned int _max_vm,
+	  list<user> list_of_users,
+    int _manager_timer):
+
 		one_xmlrpc(_one_xmlrpc),
 		one_secret(_one_secret),
 		message_size(_message_size),
 		timeout(_timeout),
+    max_vm(_max_vm),
+    list_of_users(_list_of_users),
 		manager_timer(_manager_timer),
-		max_vm(_max_vm),
-                stop_manager(false)
+    stop_manager(false)
 {
     // initialize XML-RPC Client
     ostringstream oss;
@@ -124,6 +128,7 @@ extern "C" void * pm_loop(void *arg)
 
 void PriorityManager::loop(){
 
+
     FassLog::log("SARA",Log::INFO,"PRIORITY MANAGER LOOP");
 
     int rc;
@@ -135,7 +140,8 @@ void PriorityManager::loop(){
         FassLog::log("PM",Log::ERROR, "Cannot get the VM pool!");
     }
 
-//   do_schedule();
+   
+    // do_prioritize();
     
 };
 
@@ -143,6 +149,7 @@ int PriorityManager::start()
 {
     pthread_attr_t  pattr;
     ostringstream oss;
+
 
     FassLog::log("PM",Log::INFO,"Starting Priority Manager...");
     
@@ -172,12 +179,16 @@ int PriorityManager::get_queue()
 };
 
 /*
-void PriorityManager::do_schedule()
+void PriorityManager::do_prioritize()
 {
  VirtualMachine * vm;
-
+    
+    int oid;
+    int uid;
+    int gid;    
     int vm_memory;
     int vm_cpu;
+    list<user> list_of_users;
 
     const map<int, VirtualMachine*> pending_vms = vmpool->get_objects();
     int rc;
@@ -190,8 +201,10 @@ void PriorityManager::do_schedule()
 
  tm tmp_tm = *localtime(&time_start);
 
- int start_month;
- int start_year;
+ int start_month = 1;   // January
+ int start_year = 2016; // TODO Make this number settable in the config file 
+ 
+ float vm_prio = 1.0; // value from 0 to 1
 
  tmp_tm.tm_sec  = 0;
  tmp_tm.tm_min  = 0;
@@ -203,34 +216,47 @@ void PriorityManager::do_schedule()
 
  time_start = mktime(&tmp_tm);
 
+ // first param is the filter flag: 
+ // -3: Connected user resources
+ // -2: All resources
+ // -1: Connected user and his group resources 
+ // 0: UID User Resources
+ //client->call("one.vmpool.accounting", "iii", &result, 0, time_start, time_end); // how to use this info?  TODO with Sara
+
+
  map<int, VirtualMachine*>::const_iterator  vm_it;
+
+ oss << "Scheduling Results:" << endl;
 
  for (vm_it=pending_vms.begin(); vm_it != pending_vms.end(); vm_it++)
      {
          vm = static_cast<VirtualMachine*>(vm_it->second);
  
          vm->get_requirements(vm_cpu, vm_memory);
-     }
 
-        oss    << "\tNumber of VMs:            "
-            << pending_vms.size() << endl;
+	 vm->get_oid(); 
+	 vm->get_uid();
+	 vm->get_gid();
+	 vm->get_state(); 
+ // I think that this is not relevant 
+ //         vm->get_rank();  
+ 	       
+        oss << *vm;
+    }
+  FassLog::log("PM", Log::INFO, oss);
 
-        FassLog::log("PM", Log::DDEBUG, oss);
+ 
+  oss    << "\tNumber of VMs:            "
+         << pending_vms.size() << endl;
 
-        oss << "Scheduling Results:" << endl;
+ FassLog::log("PM", Log::INFO, oss);
 
-        for (map<int, VirtualMachine*>::const_iterator vm_it=pending_vms.begin();
-            vm_it != pending_vms.end(); vm_it++)
-        {
-            vm = static_cast<VirtualMachine*>(vm_it->second);
 
-            oss << *vm;
-        }
+ //shares retrieved in Fass class and passed into pm 
 
-        FassLog::log("PM", Log::DDDEBUG, oss);
 
-// TODO call the plugin basic + save the age from one.vmpool.accounting info
-
+ PluginBasic::update_prio(oid, uid, gid, vm_cpu, vm_memory, list_of_users, &vm_prio); // TODO we miss historical usage U
 
 }
 */
+
