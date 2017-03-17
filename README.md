@@ -10,7 +10,7 @@ The current [OpenNebula](http://www.opennebula.org/) scheduler is first-in-first
 FaSS grants fair access to dynamic resources prioritizing tasks assigned according to an initial weight and to the historical resource usage.
 
 ## How can I install FaSS?
-See [installation](https://indigo-dc.gitbooks.io/one-fass/content/doc/install.html) for details.
+See [installation](doc/install.md) for details.
 
 ## Is it difficult to use?
-No, usage description can be found in the section [using FaSS](https://indigo-dc.gitbooks.io/one-fass/content/doc/using-fass.html)
+No, usage description can be found in the section [using FaSS](doc/using-fass.md)
