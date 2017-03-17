@@ -4,4 +4,5 @@ src/*/*.a
 src/fass/fassd
 src/database/test
 src/rpcm/test_queue
+src/rpcm/test_queue.cc.bkp
 src/rpcm/tree1.c

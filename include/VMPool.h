@@ -34,13 +34,11 @@ public:
     };
 
 
-/*    
    const map<int, VirtualMachine*>& get_objects() const
     {
         return objects;
     };
 
-*/
     /**
      * Retrieves the pending and rescheduling VMs
      *

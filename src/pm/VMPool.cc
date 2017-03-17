@@ -30,7 +30,7 @@ void VMPool::add_object(xmlNodePtr node){
 
         ostringstream   oss;
         oss << "Inserting VM object with ID: " << vm->get_oid() << "\n";
-        FassLog::log("VMPOOL",Log::DEBUG, oss);
+        FassLog::log("VMPOOL",Log::DDEBUG, oss);
 };
 
 void VMPool::flush(){

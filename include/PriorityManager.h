@@ -68,16 +68,16 @@ private:
         pthread_mutex_t mutex;
         pthread_cond_t  cond;
 
-        bool stop_manager;
 	string one_xmlrpc;
 	string one_secret;
 	int message_size;
 	int timeout;
 	int manager_timer;
 	unsigned int max_vm;
+        bool stop_manager;
 
         XMLRPCClient *client;
-	bool get_queue();
+	int get_queue();
 //	void do_schedule();
 
 };

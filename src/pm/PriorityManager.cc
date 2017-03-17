@@ -125,6 +125,17 @@ extern "C" void * pm_loop(void *arg)
 void PriorityManager::loop(){
 
     FassLog::log("SARA",Log::INFO,"PRIORITY MANAGER LOOP");
+
+    int rc;
+    // let's get the list of pending VMs from ONE
+    rc = get_queue();
+
+    if ( rc != 0 )
+    {
+        FassLog::log("PM",Log::ERROR, "Cannot get the VM pool!");
+    }
+
+//   do_schedule();
     
 };
 
@@ -142,26 +153,9 @@ int PriorityManager::start()
 
     return true;
   
-// ------- parte di VALE -------------------
-
-    //int rc;
-    // let's get the list of pending VMs from ONE
-/*    rc = get_queue();
-
-    if ( rc != 0 )
-    {
-        FassLog::log("PM",Log::ERROR, "Cannot get the VM pool!");
-        return false; 
-    }
-*/
-//
-//   do_schedule();
-//
-//return true;
-
 };
 
-bool PriorityManager::get_queue()
+int PriorityManager::get_queue()
 {
     
     FassLog::log("PM",Log::DEBUG, "Executing get_queue...");
@@ -173,7 +167,8 @@ bool PriorityManager::get_queue()
     // cleans the cache and gets the VM pool
     rc = vmpool->set_up();
     // TODO: real return code
-    return 0;
+    return rc;
+    
 };
 
 /*
