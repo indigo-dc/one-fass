@@ -1,16 +1,17 @@
-# SConstruct for src/rpcm
+# SConstruct for src/pm
 
 import os
 Import('env')
 
-lib_name='fass_rpcm'
+lib_name='fass_pm'
 
 # Sources to generate the library
 source_files=[
-    'Request.cc',
-    'RequestSystem.cc',
-    'RequestOneProxy.cc',
-    'RPCManager.cc'
+    'PriorityManager.cc',
+    'VMPool.cc',
+    'VirtualMachine.cc',
+    'InitialShares.cc',
+    'BasicPlugin.cc'
 ]
 
 # Build library
@@ -22,11 +23,8 @@ env.Prepend(LIBS=[
     'fass_rpcm',
     'fass_log',
     'fass_client',
-    'fass_pm',
-    'xml2'
+    'fass_pm'
 ])
 
 if not env.GetOption('clean'):
     env.ParseConfig(("LDFLAGS='%s'") % (os.environ['LDFLAGS'],))
-
-env.Program('test_queue.cc');

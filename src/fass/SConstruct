@@ -20,10 +20,12 @@ env.Prepend(LIBS=[
     'fass_log',
     'fass_rpcm',
     'fass_client',
-    'fass_db'
+    'fass_db',
+    'fass_pm'
 ])
 
 if not env.GetOption('clean'):
     env.ParseConfig(("LDFLAGS='%s'") % (os.environ['LDFLAGS'],))
 
 env.Program('fassd.cc')
+

@@ -1,4 +1,5 @@
 #!/bin/sh
+rm -rf /var/lock/fass/fass
 echo "Stopping fass..."
 sudo systemctl stop fass
 echo "Building..."
