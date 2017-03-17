@@ -19,7 +19,8 @@ $ ./install.sh
 ```
 
 FaSS will be installed. 
-Then you should adjust the OpenNebula configuration file ```/etc/one/oned.conf``` adding FaSS endpoint instead of the OpenNebula one.
+Then you should adjust the OpenNebula configuration file ```/etc/one/oned.conf``` adding FaSS endpoint instead of the OpenNebula one:
+```PORT = 2633``` -> ```PORT = 2637```
 
 ## Logs
 The log file for FaSS can be found in `/var/log/fass/fass.log`.
