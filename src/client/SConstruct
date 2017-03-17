@@ -18,7 +18,8 @@ env.Prepend(LIBS=[
     'fass_core',
     'fass_rpcm',
     'fass_log',
-    'fass_client'
+    'fass_client',
+    'fass_pm'
 ])
 
 if not env.GetOption('clean'):
