@@ -48,7 +48,7 @@ RPCManager::RPCManager(
         const string call_log_format,
         const string _listen_address,
         int _message_size):
-            one_endpoint(_one_endpoint), 
+            one_endpoint(_one_endpoint),
             port(_port),
             socket_fd(-1),
             max_conn(_max_conn),
@@ -58,33 +58,27 @@ RPCManager::RPCManager(
             timeout(_timeout),
             xml_log_file(_xml_log_file),
             listen_address(_listen_address),
-            message_size(_message_size)
-
-{
+            message_size(_message_size) {
     Request::set_call_log_format(call_log_format);
 
     xmlrpc_limit_set(XMLRPC_XML_SIZE_LIMIT_ID, message_size);
 
     /// No Action Manager class, by now. Think if needed in the future
-    //am.addListener(this);
+    // am.addListener(this);
 };
 
-extern "C" void * rm_xml_server_loop(void *arg)
-{
+extern "C" void * rm_xml_server_loop(void *arg) {
     RPCManager *    rm;
 
-    if ( arg == 0 )
-    {
+    if ( arg == 0 ) {
         return 0;
     }
 
     rm = static_cast<RPCManager *>(arg);
-    
     /// Set cancel state for the thread
-    
-    pthread_setcancelstate(PTHREAD_CANCEL_ENABLE,0);
+    pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, 0);
 
-    pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS,0);
+    pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, 0);
 
     /// Start the server
 
@@ -96,8 +90,7 @@ extern "C" void * rm_xml_server_loop(void *arg)
     opt.timeout(rm->timeout);
     opt.socketFd(rm->socket_fd);
 
-    if (!rm->xml_log_file.empty())
-    {
+    if (!rm->xml_log_file.empty()) {
         opt.logFileName(rm->xml_log_file);
     }
 
@@ -109,94 +102,84 @@ extern "C" void * rm_xml_server_loop(void *arg)
     rm->AbyssServer->run();
 
     return 0;
-}    
-
+}
 
 void RPCManager::register_xml_methods(){
-
-    //Fass& fass = Fass::instance();
+    // Fass& fass = Fass::instance();
 
     /// methods go here
-    // TODO: new methods
+    // TODO(valzacc or svallero): new methods
 
-    /// System Methods  
+    /// System Methods
     xmlrpc_c::methodPtr system_version(new SystemVersion());
-    
     /// ONE Proxy Methods
-    xmlrpc_c::defaultMethodPtr one_proxy(new RequestOneProxy(one_endpoint, message_size, timeout));
-    
+    xmlrpc_c::defaultMethodPtr one_proxy(new RequestOneProxy(one_endpoint, 
+                                                             message_size, 
+                                                             timeout));
     // add to registry
     RPCManagerRegistry.addMethod("fass.system.version", system_version);
     RPCManagerRegistry.setDefaultMethod(one_proxy);
-
-
 };
 
 bool RPCManager::start(){
-
-    //cout << "Starting RPC Manager..." << endl;
+    // cout << "Starting RPC Manager..." << endl;
 
     pthread_attr_t  pattr;
     ostringstream   oss;
 
-    FassLog::log("RPCM",Log::INFO,"Starting RPC Manager...");
+    FassLog::log("RPCM", Log::INFO, "Starting RPC Manager...");
 
     int rc = setup_socket();
 
-    if ( rc != 0 )
-    {
+    if ( rc != 0 ) {
         return false;
     }
 
     register_xml_methods();
 
     // Action loop
-    //pthread_attr_init (&pattr);
-    //pthread_attr_setdetachstate (&pattr, PTHREAD_CREATE_JOINABLE);
+    // pthread_attr_init (&pattr);
+    // pthread_attr_setdetachstate (&pattr, PTHREAD_CREATE_JOINABLE);
 
-    //pthread_create(&rm_thread,&pattr,rm_action_loop,(void *)this);
+    // pthread_create(&rm_thread,&pattr,rm_action_loop,(void *)this);
 
     /// Server loop
-    pthread_attr_init (&pattr);
-    pthread_attr_setdetachstate (&pattr, PTHREAD_CREATE_JOINABLE);
+    pthread_attr_init(&pattr);
+    pthread_attr_setdetachstate(&pattr, PTHREAD_CREATE_JOINABLE);
 
     oss << "Starting XML-RPC server, port " << port << " ...";
-    FassLog::log("RPCM",Log::INFO,oss);
+    FassLog::log("RPCM", Log::INFO, oss);
 
-    pthread_create(&rm_xml_server_thread,&pattr,rm_xml_server_loop,(void *)this);
-
-
+    pthread_create(&rm_xml_server_thread, &pattr, rm_xml_server_loop, 
+                   reinterpret_cast<void *>(this));
 
     return true;
 };
 
 
-bool RPCManager::setup_socket()
-{
+bool RPCManager::setup_socket() {
     int                 rc;
     int                 yes = 1;
     struct sockaddr_in  rm_addr;
 
     socket_fd = socket(AF_INET, SOCK_STREAM, 0);
 
-    if ( socket_fd == -1 )
-    {
+    if ( socket_fd == -1 ) {
         ostringstream oss;
 
         oss << "Cannot open server socket: " << strerror(errno);
-        FassLog::log("RPCM",Log::ERROR,oss);
+        FassLog::log("RPCM", Log::ERROR, oss);
 
         return false;
     }
 
     rc = setsockopt(socket_fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int));
 
-    if ( rc == -1 )
-    {
+    if ( rc == -1 ) {
         ostringstream oss;
 
         oss << "Cannot set socket options: " << strerror(errno);
-        FassLog::log("RPCM",Log::ERROR,oss);
+        FassLog::log("RPCM", Log::ERROR, oss);
 
         close(socket_fd);
 
@@ -205,19 +188,20 @@ bool RPCManager::setup_socket()
     fcntl(socket_fd,F_SETFD,FD_CLOEXEC); // set close-on-exec
 
     rm_addr.sin_family      = AF_INET;
-    // converts the unsigned short integer hostshort from host byte order to network byte order
+    // converts the unsigned short integer hostshort
+    // from host byte order to network byte order
     rm_addr.sin_port        = htons(atoi(port.c_str()));
 
-    // converts the Internet host address cp from IPv4 numbers-and-dots notation 
+    // converts the Internet host address cp
+    // from IPv4 numbers-and-dots notation
     // into binary data in network byte order
     rc = inet_aton(listen_address.c_str(), &rm_addr.sin_addr);
 
-    if ( rc == 0 )
-    {
+    if ( rc == 0 ) {
         ostringstream oss;
 
         oss << "Invalid listen address: " << listen_address;
-        FassLog::log("RPCM",Log::ERROR,oss);
+        FassLog::log("RPCM", Log::ERROR, oss);
 
         close(socket_fd);
 
@@ -225,14 +209,14 @@ bool RPCManager::setup_socket()
     }
 
 
-    rc = bind(socket_fd,(struct sockaddr *) &(rm_addr),sizeof(struct sockaddr));
+    rc = bind(socket_fd, (struct sockaddr *) &(rm_addr), sizeof(struct sockaddr));
 
-    if ( rc == -1)
-    {
+    if ( rc == -1) {
         ostringstream oss;
 
-        oss << "Cannot bind to " << listen_address << ":" << port << " : " << strerror(errno);
-        FassLog::log("RPCM",Log::ERROR,oss);
+        oss << "Cannot bind to " << listen_address 
+            << ":" << port << " : " << strerror(errno);
+        FassLog::log("RPCM", Log::ERROR, oss);
 
         close(socket_fd);
 
