@@ -65,7 +65,7 @@ RPCManager::RPCManager(
 
     /// No Action Manager class, by now. Think if needed in the future
     // am.addListener(this);
-};
+}
 
 extern "C" void * rm_xml_server_loop(void *arg) {
     RPCManager *    rm;
@@ -113,13 +113,13 @@ void RPCManager::register_xml_methods(){
     /// System Methods
     xmlrpc_c::methodPtr system_version(new SystemVersion());
     /// ONE Proxy Methods
-    xmlrpc_c::defaultMethodPtr one_proxy(new RequestOneProxy(one_endpoint, 
-                                                             message_size, 
+    xmlrpc_c::defaultMethodPtr one_proxy(new RequestOneProxy(one_endpoint,
+                                                             message_size,
                                                              timeout));
     // add to registry
     RPCManagerRegistry.addMethod("fass.system.version", system_version);
     RPCManagerRegistry.setDefaultMethod(one_proxy);
-};
+}
 
 bool RPCManager::start(){
     // cout << "Starting RPC Manager..." << endl;
@@ -150,12 +150,11 @@ bool RPCManager::start(){
     oss << "Starting XML-RPC server, port " << port << " ...";
     FassLog::log("RPCM", Log::INFO, oss);
 
-    pthread_create(&rm_xml_server_thread, &pattr, rm_xml_server_loop, 
+    pthread_create(&rm_xml_server_thread, &pattr, rm_xml_server_loop,
                    reinterpret_cast<void *>(this));
 
     return true;
-};
-
+}
 
 bool RPCManager::setup_socket() {
     int                 rc;
@@ -185,8 +184,7 @@ bool RPCManager::setup_socket() {
 
         return false;
     }
-    fcntl(socket_fd,F_SETFD,FD_CLOEXEC); // set close-on-exec
-
+    fcntl(socket_fd, F_SETFD, FD_CLOEXEC);  // set close-on-exec
     rm_addr.sin_family      = AF_INET;
     // converts the unsigned short integer hostshort
     // from host byte order to network byte order
@@ -213,7 +211,7 @@ bool RPCManager::setup_socket() {
 
     if ( rc == -1) {
         ostringstream oss;
-
+            
         oss << "Cannot bind to " << listen_address 
             << ":" << port << " : " << strerror(errno);
         FassLog::log("RPCM", Log::ERROR, oss);
@@ -224,4 +222,4 @@ bool RPCManager::setup_socket() {
     }
 
     return 0;
-};
+}
