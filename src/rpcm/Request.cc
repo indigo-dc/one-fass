@@ -25,55 +25,44 @@
 #include "FassLog.h"
 
 string Request::format_str;
- 
-using namespace std;
 
 void Request::execute(
         xmlrpc_c::paramList const& _paramList,
-        xmlrpc_c::value *   const  _retval)
-{
+        xmlrpc_c::value *   const  _retval) {
     RequestAttributes att;
     // user attributes
     struct passwd *pw;
     uid_t uid;
     gid_t gid;
-    uid = geteuid (); 
-    gid = getegid ();
-    pw = getpwuid (uid);
+    uid = geteuid();
+    gid = getegid();
+    pw = getpwuid(uid);
     att.uid = uid;
     att.gid = gid;
-    att.uname = pw->pw_name; 
-    
+    att.uname = pw->pw_name;
     att.retval  = _retval;
-    att.session = xmlrpc_c::value_string (_paramList.getString(0));
+    att.session = xmlrpc_c::value_string(_paramList.getString(0));
 
-    att.req_id = (reinterpret_cast<uintptr_t>(this) * rand()) % 10000;
+    att.req_id = (reinterpret_cast<uintptr_t>(this) * rand_r(0)) % 10000;
 
 
     log_method_invoked(att, _paramList, format_str, method_name, hidden_params);
-   
-    request_execute(_paramList, att);  
+    request_execute(_paramList, att);
     log_result(att, method_name);
 };
 
 void Request::log_method_invoked(const RequestAttributes& att,
         const xmlrpc_c::paramList&  paramList, const string& format_str,
-        const std::string& method_name, const std::set<int>& hidden_params)
-{
+        const std::string& method_name, const std::set<int>& hidden_params){
     std::ostringstream oss;
 
-    for (unsigned int j = 0 ;j < format_str.length() - 1; j++ )
-    {
-        if (format_str[j] != '%')
-        {
+    for (unsigned int j = 0 ; j < format_str.length() - 1; j++ ) {
+        if (format_str[j] != '%') {
             oss << format_str[j];
-        }
-        else
-        {
+        } else {
             char mod = format_str[j+1];
-
-            switch(mod)
-            {
+         
+            switch (mod) {
                 case '%':
                     oss << "%";
                 break;
@@ -111,14 +100,10 @@ void Request::log_method_invoked(const RequestAttributes& att,
                 break;
 
                 case 'l':
-                    for (unsigned int i=1; i<paramList.size(); i++)
-                    {
-                        if ( hidden_params.count(i) == 1 )
-                        {
+                    for (unsigned int i = 1; i < paramList.size(); i++) {
+                        if ( hidden_params.count(i) == 1 ) {
                             oss << ", ****";
-                        }
-                        else
-                        {
+                        } else {
                             log_xmlrpc_value(paramList[i], oss);
                         }
                     }
@@ -136,25 +121,21 @@ void Request::log_method_invoked(const RequestAttributes& att,
     FassLog::log("REQUEST", Log::DDEBUG, oss);
 }
 
-void Request::log_xmlrpc_value(const xmlrpc_c::value& v, std::ostringstream& oss)
-{
+void Request::log_xmlrpc_value(const xmlrpc_c::value& v,
+                               std::ostringstream& oss) {
     size_t st_limit = 20;
     size_t st_newline;
 
-    switch (v.type())
-    {
+    switch (v.type()) {
         case xmlrpc_c::value::TYPE_INT:
             oss << ", " << static_cast<int>(xmlrpc_c::value_int(v));
             break;
         case xmlrpc_c::value::TYPE_BOOLEAN:
             oss << ", ";
 
-            if ( static_cast<bool>(xmlrpc_c::value_boolean(v)) )
-            {
+            if ( static_cast<bool>(xmlrpc_c::value_boolean(v)) ) {
                 oss << "true";
-            }
-            else
-            {
+            } else {
                 oss << "false";
             }
 
@@ -163,16 +144,16 @@ void Request::log_xmlrpc_value(const xmlrpc_c::value& v, std::ostringstream& oss
             st_newline =
                     static_cast<string>(xmlrpc_c::value_string(v)).find("\n");
 
-            if ( st_newline < st_limit )
-            {
+            if ( st_newline < st_limit ) {
                 st_limit = st_newline;
             }
 
-            oss << ", \"" <<
-                static_cast<string>(xmlrpc_c::value_string(v)).substr(0,st_limit);
+            oss << ", \"" 
+                << static_cast<string>(xmlrpc_c::value_string(v)).substr(0,
+                                                                         st_limit);
 
-            if ( static_cast<string>(xmlrpc_c::value_string(v)).size() > st_limit )
-            {
+            if (static_cast<string>(xmlrpc_c::value_string(v)).size()
+                > st_limit) {
                 oss << "...";
             }
 
@@ -188,20 +169,20 @@ void Request::log_xmlrpc_value(const xmlrpc_c::value& v, std::ostringstream& oss
     }
 }
 
-void Request::log_result(const RequestAttributes& att, const string& method_name)
-{
+void Request::log_result(const RequestAttributes& att,
+                         const string& method_name) {
     std::ostringstream oss;
 
     oss << "Req:" << att.req_id << " UNAME:";
 
-    //if ( att.uid != -1 )
-    //{
+    // if ( att.uid != -1 )
+    // {
     //    oss << att.uid;
-    //}
-    //else
-    //{
+    // }
+    // else
+    // {
     //    oss << "-";
-    //}
+    // }
 
     oss << att.uname;
     oss << " " << method_name << " result ";
@@ -209,19 +190,15 @@ void Request::log_result(const RequestAttributes& att, const string& method_name
     xmlrpc_c::value_array array1(*att.retval);
     vector<xmlrpc_c::value> const vvalue(array1.vectorValueValue());
 
-    if ( static_cast<bool>(xmlrpc_c::value_boolean(vvalue[0])) )
-    {
+    if ( static_cast<bool>(xmlrpc_c::value_boolean(vvalue[0]))){
         oss << "SUCCESS";
 
-        for (unsigned int i=1; i<vvalue.size()-1; i++)
-        {
+        for (unsigned int i = 1; i < vvalue.size()-1; i++) {
             log_xmlrpc_value(vvalue[i], oss);
         }
 
         FassLog::log("REQUEST", Log::DDEBUG, oss);
-    }
-    else
-    {
+    } else {
         oss << "FAILURE "
             << static_cast<string>(xmlrpc_c::value_string(vvalue[1]));
 
@@ -230,8 +207,7 @@ void Request::log_result(const RequestAttributes& att, const string& method_name
 }
 
 
-void Request::success_response(const string& val, RequestAttributes& att)
-{
+void Request::success_response(const string& val, RequestAttributes& att) {
     vector<xmlrpc_c::value> arrayData;
 
     arrayData.push_back(xmlrpc_c::value_boolean(true));
@@ -243,8 +219,7 @@ void Request::success_response(const string& val, RequestAttributes& att)
     *(att.retval) = arrayresult;
 }
 
-void Request::success_response(const int& val, RequestAttributes& att)
-{
+void Request::success_response(const int& val, RequestAttributes& att) {
     vector<xmlrpc_c::value> arrayData;
 
     arrayData.push_back(xmlrpc_c::value_boolean(true));
@@ -256,8 +231,7 @@ void Request::success_response(const int& val, RequestAttributes& att)
     *(att.retval) = arrayresult;
 }
 
-void Request::success_response(const bool& val, RequestAttributes& att)
-{
+void Request::success_response(const bool& val, RequestAttributes& att) {
     vector<xmlrpc_c::value> arrayData;
 
     arrayData.push_back(xmlrpc_c::value_boolean(true));
@@ -269,8 +243,7 @@ void Request::success_response(const bool& val, RequestAttributes& att)
     *(att.retval) = arrayresult;
 }
 
-void Request::failure_response(ErrorCode ec, RequestAttributes& att)
-{
+void Request::failure_response(ErrorCode ec, RequestAttributes& att) {
     vector<xmlrpc_c::value> arrayData;
 
     arrayData.push_back(xmlrpc_c::value_boolean(false));
