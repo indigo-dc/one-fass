@@ -68,7 +68,7 @@ void RequestOneProxy::execute(
         // FassLog::log("SARA", Log::DEBUG, oss);
 
         XMLRPCClient *myClient = XMLRPCClient::client();
-        // first argument is auth, 
+        // first argument is auth,
         // but it is passed in the scheduler request
         // and we do not need to add it
         // FassLog::log("ONEPROXY", Log::DEBUG, "Done.");
@@ -107,13 +107,13 @@ void RequestOneProxy::execute(
         const xmlrpc_c::value::type_t type = values[1].type();
 
         switch (type) {
-            case xmlrpc_c::value::TYPE_STRING: //  string
+            case xmlrpc_c::value::TYPE_STRING:  // string
                success_response(xmlrpc_c::value_string(values[1]), att);
             break;
-            case xmlrpc_c::value::TYPE_INT: //  int
+            case xmlrpc_c::value::TYPE_INT:  // int
                success_response(xmlrpc_c::value_int(values[1]), att);
             break;
-            case xmlrpc_c::value::TYPE_BOOLEAN: //  bool
+            case xmlrpc_c::value::TYPE_BOOLEAN:  // bool
                success_response(xmlrpc_c::value_boolean(values[1]), att);
             break;
             default:
