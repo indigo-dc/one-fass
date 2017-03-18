@@ -35,7 +35,7 @@ void Request::execute(
     gid_t gid;
     uid = geteuid();
     gid = getegid();
-    //pw = getpwuid(uid);
+    // pw = getpwuid(uid);
     char buf[1024];
     getpwuid_r(uid, &pwd, buf, sizeof buf, &pw);
     att.uid = uid;
