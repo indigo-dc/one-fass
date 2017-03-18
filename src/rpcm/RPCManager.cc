@@ -13,17 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-#include "Fass.h"
-#include "FassLog.h"
 #include "RPCManager.h"
-#include "RequestSystem.h"
-#include "RequestOneProxy.h"
-#include "Request.h"
-
-#include <cerrno>
-#include <cstring>
-#include <iostream>
 
 #include <fcntl.h>
 #include <netinet/in.h>
@@ -35,6 +25,16 @@
 #include <unistd.h>
 #include <xmlrpc-c/registry.hpp>
 #include <xmlrpc-c/server_abyss.hpp>
+
+#include <cerrno>
+#include <cstring>
+#include <iostream>
+
+#include "Fass.h"
+#include "FassLog.h"
+#include "RequestSystem.h"
+#include "RequestOneProxy.h"
+#include "Request.h"
 
 RPCManager::RPCManager(
         const string& _one_endpoint,
