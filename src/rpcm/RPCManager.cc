@@ -21,19 +21,19 @@
 #include "RequestOneProxy.h"
 #include "Request.h"
 
-#include <cerrno>
 #include <fcntl.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 #include <arpa/inet.h>
-#include <iostream>
 #include <string.h>
-#include <cstring>
 #include <sys/signal.h>
 #include <sys/socket.h>
 #include <unistd.h>
 #include <xmlrpc-c/registry.hpp>
 #include <xmlrpc-c/server_abyss.hpp>
+#include <cerrno>
+#include <cstring>
+#include <iostream>
 
 RPCManager::RPCManager(
         const string& _one_endpoint,
