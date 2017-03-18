@@ -17,8 +17,6 @@
 #include "RequestSystem.h"
 #include "Fass.h"
 
-using namespace std;
-
 void SystemVersion::request_execute(xmlrpc_c::paramList const& paramList,
                                  RequestAttributes& att)
 {
