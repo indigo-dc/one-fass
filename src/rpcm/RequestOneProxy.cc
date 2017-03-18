@@ -24,17 +24,15 @@
 #include "FassLog.h"
 #include "XMLRPCClient.h"
 
-using namespace std;
-
-void RequestOneProxy::execute(                                                                
-        const string& _method_name,                                                    
+void RequestOneProxy::execute(
+        const string& _method_name,
         xmlrpc_c::paramList const& _paramList,
 	xmlrpc_c::value * const _retval) {
 
-    RequestAttributes att;                                                                 
-                                                                                           
-    att.retval  = _retval;                                                                 
-    att.session = xmlrpc_c::value_string (_paramList.getString(0));                        
+    RequestAttributes att;
+
+    att.retval  = _retval; 
+    att.session = xmlrpc_c::value_string (_paramList.getString(0));
     
     string  uname("null");
     att.uname = uname;
@@ -51,11 +49,11 @@ void RequestOneProxy::execute(
     // FassLog::log("ONEPROXY", Log::ERROR, oss);
     // att.uname = xmlrpc_c::value_string (_paramList.getString(0));
     att.req_id = (reinterpret_cast<uintptr_t>(this) * rand()) % 10000;
-  
+
     string format_str;
     log_method_invoked(att, _paramList, format_str, _method_name, hidden_params);
     vector<xmlrpc_c::value> values;
-   
+
     try {
         // client initialization
         // xmlrpc_c::clientSimple myClient;
@@ -72,7 +70,7 @@ void RequestOneProxy::execute(
         // first argument is auth, but it is passed in the scheduler request and we do not need to add it
         // FassLog::log("ONEPROXY", Log::DEBUG, "Done.");
     	xmlrpc_c::value result;
- 
+
         // FassLog::log("ONEPROXY", Log::INFO, this->one_endpoint);
         // myClient.call(one_endpoint, _method_name,_paramList, &result);
         try {
@@ -89,18 +87,18 @@ void RequestOneProxy::execute(
         // myClient.call(serverUrl, _method_name,_paramList, &result);
     	values = xmlrpc_c::value_array(result).vectorValueValue();
     	bool   success = xmlrpc_c::value_boolean(values[0]);
-        
+
         // one says failure
 	if (!success) {
     	    string message = xmlrpc_c::value_string(values[1]);
             ostringstream oss;
 
             oss << "Oned returned failure... Error: " << message;
-            
+
             FassLog::log("ONEPROXY", Log::ERROR, oss);
             failure_response(XML_RPC_API, att);
             }
-        
+
         // one says success
         xmlrpc_c::value val;
         const xmlrpc_c::value::type_t type = values[1].type();
@@ -111,7 +109,7 @@ void RequestOneProxy::execute(
             break;
             case xmlrpc_c::value::TYPE_INT: // int
                success_response(xmlrpc_c::value_int(values[1]), att);
-            break; 
+            break;
             case xmlrpc_c::value::TYPE_BOOLEAN: // bool
                success_response(xmlrpc_c::value_boolean(values[1]), att);
             break; 
@@ -126,12 +124,12 @@ void RequestOneProxy::execute(
 
         oss << "Cannot contact oned... Error: " << e.what();
         FassLog::log("ONEPROXY", Log::ERROR, oss);
-        
+
         ostringstream oss2;
         oss2 << "Message type is: " << values[1].type();
         FassLog::log("ONEPROXY", Log::INFO, oss2);
         failure_response(INTERNAL, att);
         }
-           
-    log_result(att, _method_name);
+
+log_result(att, _method_name);
 };
