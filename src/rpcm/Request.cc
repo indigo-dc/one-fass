@@ -53,15 +53,14 @@ void Request::execute(
 
 void Request::log_method_invoked(const RequestAttributes& att,
         const xmlrpc_c::paramList&  paramList, const string& format_str,
-        const std::string& method_name, const std::set<int>& hidden_params){
+        const std::string& method_name, const std::set<int>& hidden_params) {
     std::ostringstream oss;
 
-    for (unsigned int j = 0 ; j < format_str.length() - 1; j++ ) {
+    for (unsigned int j = 0; j < format_str.length() - 1; j++ ) {
         if (format_str[j] != '%') {
             oss << format_str[j];
         } else {
             char mod = format_str[j+1];
-         
             switch (mod) {
                 case '%':
                     oss << "%";
@@ -148,12 +147,12 @@ void Request::log_xmlrpc_value(const xmlrpc_c::value& v,
                 st_limit = st_newline;
             }
 
-            oss << ", \"" 
-                << static_cast<string>(xmlrpc_c::value_string(v)).substr(0,
-                                                                         st_limit);
+            oss << ", \""
+                << static_cast<string>
+                    (xmlrpc_c::value_string(v)).substr(0, st_limit);
 
-            if (static_cast<string>(xmlrpc_c::value_string(v)).size()
-                > st_limit) {
+            if (static_cast<string>
+                (xmlrpc_c::value_string(v)).size() > st_limit) {
                 oss << "...";
             }
 
