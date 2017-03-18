@@ -50,7 +50,8 @@ main_env.Append(LIBPATH=[
     cwd+'/src/logger',
     cwd+'/src/rpcm', 
     cwd+'/src/client',
-    cwd+'/src/database'
+    cwd+'/src/database',
+    cwd+'/src/pm'
 ])
 
 # Compile flags
@@ -159,7 +160,7 @@ if not main_env.GetOption('clean'):
 
 
 # libxml2
-#main_env.ParseConfig('xml2-config --libs --cflags')
+main_env.ParseConfig('xml2-config --libs --cflags')
 
 
 # SCONS scripts to build
@@ -168,7 +169,8 @@ build_scripts=[
     'src/logger/SConstruct',
     'src/rpcm/SConstruct',
     'src/client/SConstruct',
-    'src/database/SConstruct'
+    'src/database/SConstruct',
+    'src/pm/SConstruct'
 ]
 
 for script in build_scripts:

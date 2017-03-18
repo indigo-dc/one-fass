@@ -38,7 +38,7 @@ RPCManager::RPCManager(
         const string _xml_log_file,
         const string call_log_format,
         const string _listen_address,
-        int message_size):
+        int _message_size):
             one_endpoint(_one_endpoint), 
             port(_port),
             socket_fd(-1),
@@ -48,7 +48,9 @@ RPCManager::RPCManager(
             keepalive_max_conn(_keepalive_max_conn),
             timeout(_timeout),
             xml_log_file(_xml_log_file),
-            listen_address(_listen_address)
+            listen_address(_listen_address),
+            message_size(_message_size)
+
 {
     Request::set_call_log_format(call_log_format);
 
@@ -112,7 +114,7 @@ void RPCManager::register_xml_methods(){
     xmlrpc_c::methodPtr system_version(new SystemVersion());
     
     /// ONE Proxy Methods
-    xmlrpc_c::defaultMethodPtr one_proxy(new RequestOneProxy(one_endpoint));
+    xmlrpc_c::defaultMethodPtr one_proxy(new RequestOneProxy(one_endpoint, message_size, timeout));
     
     // add to registry
     RPCManagerRegistry.addMethod("fass.system.version", system_version);

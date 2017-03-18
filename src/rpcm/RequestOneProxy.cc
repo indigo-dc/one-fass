@@ -9,6 +9,7 @@
 #include "RequestOneProxy.h"
 #include "Fass.h"
 #include "FassLog.h"
+#include "XMLRPCClient.h"
 #include <xmlrpc-c/base.hpp>
 #include <xmlrpc-c/client_simple.hpp>
 #include <typeinfo>
@@ -40,7 +41,7 @@ void RequestOneProxy::execute(
        att.uname = "wrong format";
     }                                                                                       
     //oss << "Cannot contact oned... Error: " << e.what();
-    //FassLog::log("RPCM", Log::ERROR, oss); 
+    //FassLog::log("ONEPROXY", Log::ERROR, oss); 
     //att.uname = xmlrpc_c::value_string (_paramList.getString(0));
     att.req_id = (reinterpret_cast<uintptr_t>(this) * rand()) % 10000;                     
                                                                                            
@@ -50,13 +51,36 @@ void RequestOneProxy::execute(
     vector<xmlrpc_c::value> values;
    
     try{
-        // TODO: do not hardcode server url 
-        //string const serverUrl("http://localhost:2633/RPC2");
-        xmlrpc_c::clientSimple myClient;
+        // client initialization
+        //xmlrpc_c::clientSimple myClient;
+        //FassLog::log("ONEPROXY", Log::DEBUG, "Initializing client.");
+        // initialize chiama il costruttore... ma si puo'?
+        XMLRPCClient::initialize("", one_endpoint, message_size, timeout);
+        ostringstream   oss;
+        //oss << "XML-RPC client using " << (XMLRPCClient::client())->get_message_size()
+        //    << " bytes for response buffer.\n";
+
+        //FassLog::log("SARA", Log::DEBUG, oss);
+
+        XMLRPCClient *myClient = XMLRPCClient::client();
+        // firts argument is auth, but it is passed in the scheduler request and we do not need to add it
+        //FassLog::log("ONEPROXY", Log::DEBUG, "Done.");
     	xmlrpc_c::value result;
  
-        FassLog::log("ONEPROXY", Log::INFO, this->one_endpoint);
-        myClient.call(one_endpoint, _method_name,_paramList, &result);
+        //FassLog::log("ONEPROXY", Log::INFO, this->one_endpoint);
+        //myClient.call(one_endpoint, _method_name,_paramList, &result);
+        try{
+                //FassLog::log("ONEPROXY", Log::DEBUG, "Calling client.");
+        	//myClient->call_sync(_method_name,_paramList, &result);
+        	myClient->call_async(_method_name,_paramList, &result);
+       		//FassLog::log("ONEPROXY", Log::DEBUG, "Done.");
+        } catch (exception const& e)
+        {
+                ostringstream   oss;
+                oss << "Exception raised: " << e.what();
+
+                FassLog::log("ONEPROXY", Log::ERROR, oss);
+        } 
         //myClient.call(serverUrl, _method_name,_paramList, &result);
     	values = xmlrpc_c::value_array(result).vectorValueValue();
     	bool   success = xmlrpc_c::value_boolean(values[0]);
@@ -68,7 +92,7 @@ void RequestOneProxy::execute(
 
             oss << "Oned returned failure... Error: " << message;
             
-            FassLog::log("RPCM", Log::ERROR, oss);
+            FassLog::log("ONEPROXY", Log::ERROR, oss);
             failure_response(XML_RPC_API, att);
             }
         
@@ -91,20 +115,21 @@ void RequestOneProxy::execute(
             break; 
         } 
 
+    //delete myClient;                                                     
     } catch (exception const& e){
         ostringstream oss;
 
         oss << "Cannot contact oned... Error: " << e.what();
-        FassLog::log("RPCM", Log::ERROR, oss);
+        FassLog::log("ONEPROXY", Log::ERROR, oss);
         
         ostringstream oss2;
         oss2 << "Message type is: " << values[1].type();
-        FassLog::log("RPCM", Log::INFO, oss2);
+        FassLog::log("ONEPROXY", Log::INFO, oss2);
         failure_response(INTERNAL, att);
         }
 
 
-                                                            
+           
     log_result(att, _method_name);                                                           
 
 };   

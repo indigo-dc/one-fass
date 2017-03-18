@@ -85,7 +85,7 @@ if [ -z "$ROOT" ] ; then
 
     DELETE_DIRS="$ETC_LOCATION $LOG_LOCATION $RUN_LOCATION"
                 # $LIB_LOCATION $VAR_LOCATION" 
-    CHOWN_DIRS="$LOG_LOCATION $RUN_LOCATION $LOCK_LOCATION"
+    CHOWN_DIRS="$ETC_LOCATION $LOG_LOCATION $RUN_LOCATION $LOCK_LOCATION"
                # $VAR_LOCATION 
 
     # systemd
@@ -186,6 +186,10 @@ if [ "$INSTALL_ETC" = "yes" ] ; then
 fi
 
 # Set ownership or remove Fass directories
+
+# confog file should not be readable outside the group 
+# (it contains the ONE password)
+chmod 640 $ETC_LOCATION/fassd.conf
 
 if [ "$UNINSTALL" = "no" ] ; then
     echo "Setting dir ownership..."

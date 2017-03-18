@@ -12,6 +12,8 @@
 #include "Log.h"
 //#include "PriorityManager.h"
 #include "RPCManager.h"
+#include "XMLRPCClient.h"
+#include "PriorityManager.h"
 
 #include <stdlib.h>
 #include <string>
@@ -130,8 +132,10 @@ private:
     ~Fass()
     {
         delete fass_configuration;
+        //delete initial_shares;
         delete rpcm;
         delete database;
+	delete pm;
     };
 
     Fass& operator=(Fass const&){return *this;};
@@ -147,6 +151,7 @@ private:
     /// Configuration 
 
     FassConfigurator * fass_configuration;
+    //FassConfigurator * initial_shares;
 
     /// Database
     FassDb * database;
@@ -154,8 +159,9 @@ private:
     ///  Fass Managers 
 
     RPCManager *        rpcm;
-    //PriorityManager *   pm;
+    XMLRPCClient *      rpccli;
 
+    PriorityManager *   pm;
 /**
     /// Implementation functions 
     /// Is this needed? 
