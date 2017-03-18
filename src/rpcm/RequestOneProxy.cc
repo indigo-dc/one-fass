@@ -51,7 +51,7 @@ void RequestOneProxy::execute(
 
     string format_str;
     log_method_invoked(att, _paramList, format_str,
-		       _method_name, hidden_params);
+                       _method_name, hidden_params);
     vector<xmlrpc_c::value> values;
 
     try {
@@ -61,16 +61,16 @@ void RequestOneProxy::execute(
         // initialize chiama il costruttore... ma si puo'?
         XMLRPCClient::initialize("", one_endpoint, message_size, timeout);
         ostringstream   oss;
-        // oss << "XML-RPC client using " << 
-	// (XMLRPCClient::client())->get_message_size()
+        // oss << "XML-RPC client using " <<
+        // (XMLRPCClient::client())->get_message_size()
         //    << " bytes for response buffer.\n";
 
         // FassLog::log("SARA", Log::DEBUG, oss);
 
         XMLRPCClient *myClient = XMLRPCClient::client();
         // first argument is auth, 
-	// but it is passed in the scheduler request 
-	// and we do not need to add it
+        // but it is passed in the scheduler request
+        // and we do not need to add it
         // FassLog::log("ONEPROXY", Log::DEBUG, "Done.");
         xmlrpc_c::value result;
 
