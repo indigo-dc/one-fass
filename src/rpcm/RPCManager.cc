@@ -210,7 +210,7 @@ bool RPCManager::setup_socket() {
     rc = bind(socket_fd, (struct sockaddr *) &(rm_addr),
               sizeof(struct sockaddr));
 
-    if ( rc == -1) {
+    if ( rc == -1 ) {
         ostringstream oss;
         oss << "Cannot bind to " << listen_address
             << ":" << port << " : " << strerror(errno);
