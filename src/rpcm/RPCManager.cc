@@ -104,7 +104,7 @@ extern "C" void * rm_xml_server_loop(void *arg) {
     return 0;
 }
 
-void RPCManager::register_xml_methods(){
+void RPCManager::register_xml_methods() {
     // Fass& fass = Fass::instance();
 
     /// methods go here
@@ -121,7 +121,7 @@ void RPCManager::register_xml_methods(){
     RPCManagerRegistry.setDefaultMethod(one_proxy);
 }
 
-bool RPCManager::start(){
+bool RPCManager::start() {
     // cout << "Starting RPC Manager..." << endl;
 
     pthread_attr_t  pattr;
@@ -207,12 +207,12 @@ bool RPCManager::setup_socket() {
     }
 
 
-    rc = bind(socket_fd, (struct sockaddr *) &(rm_addr), sizeof(struct sockaddr));
+    rc = bind(socket_fd, (struct sockaddr *) &(rm_addr),
+              sizeof(struct sockaddr));
 
     if ( rc == -1) {
         ostringstream oss;
-            
-        oss << "Cannot bind to " << listen_address 
+        oss << "Cannot bind to " << listen_address
             << ":" << port << " : " << strerror(errno);
         FassLog::log("RPCM", Log::ERROR, oss);
 
