@@ -1,11 +1,3 @@
-#
-# SConstruct
-#	
-#      Author: Sara Vallero
-#      Author: Valentina Zaccolo
-#
-#
-
 import os
 import sys
 import shutil
