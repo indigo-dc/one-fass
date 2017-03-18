@@ -49,14 +49,14 @@ void Request::execute(
     log_method_invoked(att, _paramList, format_str, method_name, hidden_params);
     request_execute(_paramList, att);
     log_result(att, method_name);
-};
+}
 
 void Request::log_method_invoked(const RequestAttributes& att,
         const xmlrpc_c::paramList&  paramList, const string& format_str,
         const std::string& method_name, const std::set<int>& hidden_params) {
     std::ostringstream oss;
 
-    for (unsigned int j = 0; j < format_str.length() - 1; j++ ) {
+    for (unsigned int j = 0; j < format_str.length() - 1; j++) {
         if (format_str[j] != '%') {
             oss << format_str[j];
         } else {
@@ -189,7 +189,7 @@ void Request::log_result(const RequestAttributes& att,
     xmlrpc_c::value_array array1(*att.retval);
     vector<xmlrpc_c::value> const vvalue(array1.vectorValueValue());
 
-    if ( static_cast<bool>(xmlrpc_c::value_boolean(vvalue[0]))){
+    if (static_cast<bool>(xmlrpc_c::value_boolean(vvalue[0]))) {
         oss << "SUCCESS";
 
         for (unsigned int i = 1; i < vvalue.size()-1; i++) {
