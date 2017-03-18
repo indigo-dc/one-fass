@@ -54,7 +54,8 @@ void RequestOneProxy::execute(
     att.req_id = (reinterpret_cast<uintptr_t>(this) * rand()) % 10000;                     
                                                                                            
     // TODO: autenticazione, solo user oneadmin -> deleghiamo tutto ad ON                  
-    //  
+    
+    string format_str;
     log_method_invoked(att, _paramList, format_str, _method_name, hidden_params);           
     vector<xmlrpc_c::value> values;
    
