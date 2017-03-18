@@ -30,11 +30,14 @@ void Request::execute(
     RequestAttributes att;
     // user attributes
     struct passwd *pw;
+    struct passwd pwd;
     uid_t uid;
     gid_t gid;
     uid = geteuid();
     gid = getegid();
-    pw = getpwuid(uid);
+    //pw = getpwuid(uid);
+    char buf[1024];
+    getpwuid_r(uid, &pwd, buf, sizeof buf, &pw);
     att.uid = uid;
     att.gid = gid;
     att.uname = pw->pw_name;
