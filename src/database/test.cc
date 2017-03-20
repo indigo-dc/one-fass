@@ -42,13 +42,13 @@ using boost::asio::ip::tcp;
 int main(int argc, char **argv) {
   printf("This is a test to query InfluxDb!!!\n");
 
- // curl -G 'http://localhost:8086/query?pretty=true' 
- // --data-urlencode "db=mydb" --data-urlencode 
- // "q=SELECT \"value\" FROM \"cpu_load_short\"
- // WHERE \"region\"='us-west'"
+  // curl -G 'http://localhost:8086/query?pretty=true'
+  // --data-urlencode "db=mydb" --data-urlencode
+  // "q=SELECT \"value\" FROM \"cpu_load_short\"
+  // WHERE \"region\"='us-west'"
 
- try {
-   boost::asio::io_service io_service;
+  try {
+    boost::asio::io_service io_service;
 
   // Get a list of endpoints corresponding to the server name.
   tcp::resolver resolver(io_service);
@@ -66,8 +66,8 @@ int main(int argc, char **argv) {
   boost::asio::streambuf request;
   std::ostream request_stream(&request);
   request_stream << "GET " << "/ping" << " HTTP/1.0\r\n";
-  // request_stream << "GET " << 
-  // "/query?pretty=true&db=mydb&q=show%20databases" 
+  // request_stream << "GET " <<
+  // "/query?pretty=true&db=mydb&q=show%20databases"
   // << " HTTP/1.0\r\n";
   request_stream << "Host: " << "localhost" << "\r\n";
   request_stream << "Accept: */*\r\n";
@@ -114,7 +114,7 @@ int main(int argc, char **argv) {
 
   // Read until EOF, writing data to output as we go.
   boost::system::error_code error;
-  while (boost::asio::read(socket, response, 
+  while (boost::asio::read(socket, response,
                             boost::asio::transfer_at_least(1), error))
            std::cout << &response;
   if (error != boost::asio::error::eof) {
