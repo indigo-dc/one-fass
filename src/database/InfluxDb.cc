@@ -85,7 +85,7 @@ bool InfluxDb::query_db(string method, string q, string &retval) {
        // request_stream << "GET " << "/ping" << " HTTP/1.0\r\n";
        // request_stream << method << " " << "/ping" << " HTTP/1.0\r\n";
        // string search = "show%20databases";
-       // request_stream << method << " " << "/query?pretty=true&db=" 
+       // request_stream << method << " " << "/query?pretty=true&db="
        // << _dbname << "&q=" << search << " " << protocol << "\r\n";
        request_stream << method << " " << q << " " << protocol << "\r\n";
        request_stream << "Host: " << _endpoint << "\r\n";
@@ -129,7 +129,8 @@ bool InfluxDb::query_db(string method, string q, string &retval) {
        }
        if (status_code == 204) {
                // ping success results in 204
-               FassLog::log("DB-QUERY", Log::DDEBUG, "Success pinging InfluxDb!");
+               FassLog::log("DB-QUERY", Log::DDEBUG,
+                            "Success pinging InfluxDb!");
                return true;
        }
 
@@ -183,8 +184,10 @@ bool InfluxDb::create_db() {
     return retval;
 }
 
-bool InfluxDb::write_initial_shares(const float share, const string user,
-                                    const string group, const int64_t timestamp) {
+bool InfluxDb::write_initial_shares(const float share,
+                                    const string user,
+                                    const string group,
+                                    const int64_t timestamp) {
     FassLog::log("INFLUXDB", Log::INFO, "Writing initial shares.");
 
     return true;
