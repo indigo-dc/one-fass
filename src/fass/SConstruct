@@ -8,6 +8,8 @@ lib_name='fass_core'
 # Sources to generate the library
 source_files=[
     'Configurator.cc',
+    'FassConfigurator.cc',
+    'SharesConfigurator.cc',
     'Fass.cc'
 ]
 

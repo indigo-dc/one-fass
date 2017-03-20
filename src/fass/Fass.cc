@@ -172,9 +172,9 @@ void Fass::start(bool bootstrap_only) {
          ("pm", "manager_timer", manager_timer);
 
     // Read initial shares from separate file
-    // initial_shares = new FassConfigurator(etc_location, var_location);
+    initial_shares = new SharesConfigurator(etc_location);
 
-    // rc = initial_shares->load_configuration();
+    rc = initial_shares->load_shares();
 
     // if ( !rc )
     // {

@@ -40,8 +40,6 @@ public:
 
     virtual ~Configurator(){};
    
-    /** Parse and loads the configuration */
-    bool load_configuration();
 
     /** Get the configuration filename */
     string get_conf_fname(){ return conf_file; };
@@ -101,6 +99,9 @@ public:
 
     ~FassConfigurator(){};
 
+    /** Parse and loads the configuration */
+    bool load_configuration();
+
     /** Gets the single option value */ 
     template<class T> 
     bool get_single_option(const string section, const string name, T& value) const {
@@ -113,6 +114,25 @@ private:
     static const char * conf_name;
     /** Path for the var directory, for defaults */
     string var_location;
+};
+
+// -----------------------------------------------------------------------------
+
+class SharesConfigurator : public Configurator
+{
+public:
+
+    SharesConfigurator(const string& etc_location):
+        Configurator(etc_location, conf_name)
+        {};
+
+    ~SharesConfigurator(){};
+
+    /** Parse and loads the configuration */
+    bool load_shares();
+
+private:
+    static const char * conf_name;
 };
 
 /// TODO: classes to configure algorithms, quotas etc... 

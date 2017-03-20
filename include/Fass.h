@@ -161,7 +161,7 @@ private:
     /// Configuration 
 
     FassConfigurator * fass_configuration;
-    //FassConfigurator * initial_shares;
+    SharesConfigurator * initial_shares;
 
     /// Database
     FassDb * database;
