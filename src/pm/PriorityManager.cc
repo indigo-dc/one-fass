@@ -38,44 +38,42 @@
 // #include "InitShares.h"
 
 PriorityManager::PriorityManager(
-    const string _one_xmlrpc,
-    const string _one_secret,
-	  int _message_size,
-	  int _timeout,
+          const string _one_xmlrpc,
+          const string _one_secret,
+          int _message_size,
+          int _timeout,
           unsigned int _max_vm,
-	  //list<user> _list_of_users,
+          // list<user> _list_of_users,
           int _manager_timer):
 
-		one_xmlrpc(_one_xmlrpc),
-		one_secret(_one_secret),
-		message_size(_message_size),
-		timeout(_timeout),
-    		max_vm(_max_vm),
-    		//list_of_users(_list_of_users),
-		manager_timer(_manager_timer),
-    		stop_manager(false) {
+                one_xmlrpc(_one_xmlrpc),
+                one_secret(_one_secret),
+                message_size(_message_size),
+                timeout(_timeout),
+                max_vm(_max_vm),
+                // list_of_users(_list_of_users),
+                manager_timer(_manager_timer),
+                stop_manager(false) {
     // initialize XML-RPC Client
     ostringstream oss;
 
     try {
-
     XMLRPCClient::initialize(one_secret, one_xmlrpc, message_size, timeout);
 
     client = XMLRPCClient::client();
 
-    oss << "XML-RPC client using " << (XMLRPCClient::client())->get_message_size()
+    oss << "XML-RPC client using "
+        << (XMLRPCClient::client())->get_message_size()
     << " bytes for response buffer.\n";
 
     FassLog::log("PM", Log::INFO, oss);
-
     }
     catch(runtime_error &) {
         throw;
     }
-};
+}
 
 extern "C" void * pm_loop(void *arg) {
-
     PriorityManager * pm;
 
     if ( arg == 0 ) {
@@ -102,15 +100,15 @@ extern "C" void * pm_loop(void *arg) {
     // actual loop
     while (!pm->stop_manager) {
         bool wait = true;
-    	timeout.tv_sec  = time(NULL) + pm->manager_timer;
-    	timeout.tv_nsec = 0; 
+        timeout.tv_sec  = time(NULL) + pm->manager_timer;
+        timeout.tv_nsec = 0;
 
         pm->lock();
-        while ( wait && !pm->stop_manager) { // block for manager_timer seconds
-        	rc = pthread_cond_timedwait(&pm->cond,&pm->mutex, &timeout);
-    		// ostringstream oss;
-    		// oss << "Timedwait return value: " << rc;
-    		// FassLog::log("SARA",Log::INFO, oss);
+        while (wait && !pm->stop_manager) {  // block for manager_timer seconds
+                rc = pthread_cond_timedwait(&pm->cond, &pm->mutex, &timeout);
+                // ostringstream oss;
+                // oss << "Timedwait return value: " << rc;
+                // FassLog::log("SARA",Log::INFO, oss);
 
                 if ( rc == ETIMEDOUT ) wait = false;
         }
@@ -122,7 +120,7 @@ extern "C" void * pm_loop(void *arg) {
     FassLog::log("PM", Log::INFO, "Priority Manager stopped.");
 
     return 0;
-};
+}
 
 void PriorityManager::loop() {
     FassLog::log("SARA", Log::INFO, "PRIORITY MANAGER LOOP");
@@ -136,8 +134,7 @@ void PriorityManager::loop() {
     }
 
     // do_prioritize();
-
-};
+}
 
 int PriorityManager::start() {
     pthread_attr_t  pattr;
@@ -145,26 +142,27 @@ int PriorityManager::start() {
 
     FassLog::log("PM", Log::INFO, "Starting Priority Manager...");
 
-    pthread_attr_init (&pattr);
-    pthread_attr_setdetachstate (&pattr, PTHREAD_CREATE_JOINABLE);
+    pthread_attr_init(&pattr);
+    pthread_attr_setdetachstate(&pattr, PTHREAD_CREATE_JOINABLE);
 
-    pthread_create(&pm_thread, &pattr, pm_loop, (void *)this);
+    pthread_create(&pm_thread, &pattr, pm_loop, reinterpret_cast(void *)this);
 
     return true;
-};
+}
 
 int PriorityManager::get_queue() {
-    FassLog::log("PM",Log::DEBUG, "Executing get_queue...");
+    FassLog::log("PM", Log::DEBUG, "Executing get_queue...");
     int rc;
     // VM pool
-    bool live_resched = true; // TODO(valzacc or svallero): non sono sicura che ci serva
+    // TODO(valzacc or svallero): is it needed?
+    bool live_resched = true;
     vmpool = new VMPool(client, max_vm, live_resched);
 
     // cleans the cache and gets the VM pool
     rc = vmpool->set_up();
     // TODO(svallero): real return code
     return rc;
-};
+}
 
 /*
 void PriorityManager::do_prioritize()
