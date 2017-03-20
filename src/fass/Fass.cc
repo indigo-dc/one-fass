@@ -121,7 +121,8 @@ void Fass::start(bool bootstrap_only) {
     fass_configuration->get_single_option("database", "endpoint", dbendpoint);
     fass_configuration->get_single_option("database", "port", dbport);
     fass_configuration->get_single_option("database", "name", dbname);
-    if ( dbtype == "influxdb" ) { // TODO(svallero): should be done with a switch and enum, not critical
+    if ( dbtype == "influxdb" ) {
+    // TODO(svallero): should be done with a switch and enum, not critical
        database = new InfluxDb(dbendpoint, dbport, dbname);
     } else {
        FassLog::log("FASS", Log::ERROR, "Unknown database type!");
@@ -167,8 +168,7 @@ void Fass::start(bool bootstrap_only) {
     fass_configuration->get_single_option
          ("pm", "max_vm", machines_limit);
     fass_configuration->get_single_option
-         ("pm", "manager_timer", manager_timer); 
-
+         ("pm", "manager_timer", manager_timer);
 
     // Read initial shares from separate file
     // initial_shares = new FassConfigurator(etc_location, var_location);
@@ -184,8 +184,7 @@ void Fass::start(bool bootstrap_only) {
     // std::list<users> list_of_users;
 
     // TODO(valzacc or svallero) add the init shares vector
-	   
-	   
+
     // initial_shares->get_single_option("users", "user", user);
 
     // list_of_users::iterator list_it;
@@ -196,7 +195,7 @@ void Fass::start(bool bootstrap_only) {
     // }
 
     // pm = new PriorityManager(one_endpoint, one_secret, message_size,
-    //	                        timeout, machines_limit, manager_timer, list_of_users);
+    // timeout, machines_limit, manager_timer, list_of_users);
     pm = new PriorityManager(one_endpoint, one_secret, message_size,
                              timeout, machines_limit, manager_timer);
     }
