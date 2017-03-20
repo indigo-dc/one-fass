@@ -15,49 +15,46 @@
  */
 
 #include "XMLRPCClient.h"
-#include "FassLog.h"
-#include <xmlrpc-c/base.hpp>
-#include <xmlrpc-c/client_simple.hpp>
-#include <typeinfo>
 
-#include <fstream>
 #include <pwd.h>
 #include <stdlib.h>
-#include <stdexcept>
-#include <set>
-
 #include <limits.h>
 #include <string.h>
 #include <stdlib.h>
-
-#include <sstream>
-
 #include <unistd.h>
 #include <sys/types.h>
+#include <fstream>
+#include <stdexcept>
+#include <set>
+#include <sstream>
+#include <typeinfo>
+#include <xmlrpc-c/base.hpp>
+#include <xmlrpc-c/client_simple.hpp>
+
+#include "FassLog.h"
 
 XMLRPCClient * XMLRPCClient::_client = 0;
 
-XMLRPCClient::XMLRPCClient(const string& secret, const string& endpoint, size_t message_size, unsigned int tout)
-{
-    //string error;
-    //char * xmlrpc_env;
+XMLRPCClient::XMLRPCClient(const string& secret,
+                           const string& endpoint, size_t message_size, unsigned int tout) {
+    // string error;
+    // char * xmlrpc_env;
 
     _auth = secret;
 
     _endpoint = endpoint;
 
-    //xmlrpc_limit_set(XMLRPC_XML_SIZE_LIMIT_ID, message_size);
+    // xmlrpc_limit_set(XMLRPC_XML_SIZE_LIMIT_ID, message_size);
 
     _timeout = tout * 1000;
 
-    //FassLog::log("CLIENT", Log::DDDEBUG, _endpoint);
+    // FassLog::log("CLIENT", Log::DDDEBUG, _endpoint);
 };
 
 
 
-void XMLRPCClient::call_async(const std::string& method, const xmlrpc_c::paramList& plist, xmlrpc_c::value * const result)
-{
-    
+void XMLRPCClient::call_async(const std::string& method,
+                              const xmlrpc_c::paramList& plist, xmlrpc_c::value * const result) { 
     xmlrpc_c::clientXmlTransport_curl ctrans;
     xmlrpc_c::client_xml              client(&ctrans);
 
@@ -68,53 +65,44 @@ void XMLRPCClient::call_async(const std::string& method, const xmlrpc_c::paramLi
 
     client.finishAsync(xmlrpc_c::timeout(_timeout));
 
-    if (!rpc->isFinished())
-    {
+    if (!rpc->isFinished()) {
         rpc->finishErr(girerr::error("XMLRPC method " + method +
             " timeout, resetting call"));
     }
-
-    if (rpc->isSuccessful())
-    {
+    if (rpc->isSuccessful()) {
         *result = rpc->getResult();
-    }
-    else
-    {
+    } else {
         xmlrpc_c::fault failure = rpc->getFault();
 
         girerr::error(failure.getDescription());
     }
-
 };
 
-void XMLRPCClient::call_sync(const std::string& method, const xmlrpc_c::paramList& plist, xmlrpc_c::value  * const result)
-{
+void XMLRPCClient::call_sync(const std::string& method,
+                             const xmlrpc_c::paramList& plist, xmlrpc_c::value  * const result) {
     FassLog::log("CLIENT", Log::INFO, _endpoint);
     xmlrpc_c::clientSimple myClient;
     xmlrpc_c::value res;
-    myClient.call(_endpoint, method, plist, &res); 
+    myClient.call(_endpoint, method, plist, &res);
     * result = res;
-
 };
 
-void XMLRPCClient::call(const std::string& method, const xmlrpc_c::paramList& plist, xmlrpc_c::value * const result)
-{
-
-    //FassLog::log("SARA", Log::INFO, _auth);
+void XMLRPCClient::call(const std::string& method,
+                        const xmlrpc_c::paramList& plist, xmlrpc_c::value * const result) {
+    // FassLog::log("SARA", Log::INFO, _auth);
     // appends the OpenNebula secret to the list of parameters
     xmlrpc_c::paramList s_plist;
     s_plist.add(xmlrpc_c::value_string(_auth));
-    
-    for(unsigned i=0; i < plist.size(); i++) {
+
+    for (unsigned i = 0; i < plist.size(); i++) {
         ostringstream oss;
         oss << xmlrpc_c::value_int(plist[i]) << "\n";
-        s_plist.addc(plist[i]);	
+        s_plist.addc(plist[i]);
     }
 
 
     xmlrpc_c::value res;
     XMLRPCClient::call_async(method, s_plist, result);
-    //XMLRPCClient::call_async(method, s_plist, &res);
-    //* result = res;
-
+    // XMLRPCClient::call_async(method, s_plist, &res);
+    // * result = res;
 };
