@@ -20,7 +20,6 @@
 #include <stdlib.h>
 #include <limits.h>
 #include <string.h>
-#include <stdlib.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <fstream>
@@ -36,7 +35,9 @@
 XMLRPCClient * XMLRPCClient::_client = 0;
 
 XMLRPCClient::XMLRPCClient(const string& secret,
-                           const string& endpoint, size_t message_size, unsigned int tout) {
+                           const string& endpoint,
+                           size_t message_size,
+                           unsigned int tout) {
     // string error;
     // char * xmlrpc_env;
 
@@ -49,12 +50,11 @@ XMLRPCClient::XMLRPCClient(const string& secret,
     _timeout = tout * 1000;
 
     // FassLog::log("CLIENT", Log::DDDEBUG, _endpoint);
-};
-
-
+}
 
 void XMLRPCClient::call_async(const std::string& method,
-                              const xmlrpc_c::paramList& plist, xmlrpc_c::value * const result) { 
+                              const xmlrpc_c::paramList& plist,
+                              xmlrpc_c::value * const result) {
     xmlrpc_c::clientXmlTransport_curl ctrans;
     xmlrpc_c::client_xml              client(&ctrans);
 
@@ -76,19 +76,21 @@ void XMLRPCClient::call_async(const std::string& method,
 
         girerr::error(failure.getDescription());
     }
-};
+}
 
 void XMLRPCClient::call_sync(const std::string& method,
-                             const xmlrpc_c::paramList& plist, xmlrpc_c::value  * const result) {
+                             const xmlrpc_c::paramList& plist,
+                             xmlrpc_c::value  * const result) {
     FassLog::log("CLIENT", Log::INFO, _endpoint);
     xmlrpc_c::clientSimple myClient;
     xmlrpc_c::value res;
     myClient.call(_endpoint, method, plist, &res);
     * result = res;
-};
+}
 
 void XMLRPCClient::call(const std::string& method,
-                        const xmlrpc_c::paramList& plist, xmlrpc_c::value * const result) {
+                        const xmlrpc_c::paramList& plist,
+                        xmlrpc_c::value * const result) {
     // FassLog::log("SARA", Log::INFO, _auth);
     // appends the OpenNebula secret to the list of parameters
     xmlrpc_c::paramList s_plist;
@@ -105,4 +107,4 @@ void XMLRPCClient::call(const std::string& method,
     XMLRPCClient::call_async(method, s_plist, result);
     // XMLRPCClient::call_async(method, s_plist, &res);
     // * result = res;
-};
+}
