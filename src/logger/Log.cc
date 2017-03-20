@@ -34,8 +34,7 @@ FileLog::FileLog(const string&   file_name,
 
     file.open(log_file_name.c_str(), mode);
 
-    if (file.fail() == true)
-    {
+    if (file.fail() == true) {
         throw runtime_error("Could not open log file");
     }
 
