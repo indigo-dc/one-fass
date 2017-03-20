@@ -34,7 +34,7 @@ using boost::asio::ip::tcp;
 bool InfluxDb::init_db() {
     ostringstream oss;
     oss << "Initializing database \"" << _dbname << "\" at http://"
-	<< _endpoint << ":" << _port;
+        << _endpoint << ":" << _port;
     FassLog::log("INFLUXDB", Log::INFO, oss);
 
     string response;
@@ -67,13 +67,13 @@ bool InfluxDb::query_db(string method, string q, string &retval) {
        // Get a list of endpoints corresponding to the server name
        tcp::resolver resolver(io_service);
        tcp::resolver::query query(_endpoint,
-				  boost::lexical_cast<string>(_port));
+                                  boost::lexical_cast<string>(_port));
        tcp::resolver::iterator endpoint_iterator = resolver.resolve(query);
 
 
        // Try each endpoint until we successfully establish a connection
        tcp::socket socket(io_service);
-       boost::asio::connect(socket, endpoint_iterator);     
+       boost::asio::connect(socket, endpoint_iterator);
 
        // Form the request. We specify the "Connection: close" header
        // so that the server will close the socket
@@ -85,7 +85,8 @@ bool InfluxDb::query_db(string method, string q, string &retval) {
        // request_stream << "GET " << "/ping" << " HTTP/1.0\r\n";
        // request_stream << method << " " << "/ping" << " HTTP/1.0\r\n";
        // string search = "show%20databases";
-       // request_stream << method << " " << "/query?pretty=true&db=" << _dbname << "&q=" << search << " " << protocol << "\r\n";
+       // request_stream << method << " " << "/query?pretty=true&db=" 
+       // << _dbname << "&q=" << search << " " << protocol << "\r\n";
        request_stream << method << " " << q << " " << protocol << "\r\n";
        request_stream << "Host: " << _endpoint << "\r\n";
        request_stream << "Accept: */*\r\n";
@@ -95,8 +96,10 @@ bool InfluxDb::query_db(string method, string q, string &retval) {
        // Send the request
        boost::asio::write(socket, request);
 
-       // Read the response status line. The response streambuf will automatically
-       // grow to accommodate the entire line. The growth may be limited by passing
+       // Read the response status line.
+       // The response streambuf will automatically
+       // grow to accommodate the entire line.
+       // The growth may be limited by passing
        // a maximum size to the streambuf constructor
        boost::asio::streambuf response;
        boost::asio::read_until(socket, response, "\r\n");
@@ -110,35 +113,35 @@ bool InfluxDb::query_db(string method, string q, string &retval) {
        std::string status_message;
        std::getline(response_stream, status_message);
        if (!response_stream
-	   || http_version.substr(0, 5) != "HTTP/") {
+           || http_version.substr(0, 5) != "HTTP/") {
                 retval = "Invalid response.";
                 FassLog::log("DB-QUERY", Log::ERROR, retval);
                 return false;
        }
        if (status_code != 200 && status_code != 204) {
-	       // ping success results in 204
+               // ping success results in 204
                ostringstream oss_sc;
                oss_sc << "Response returned with status code " << status_code;
                // retval=oss_sc.str();
-               retval = status_message; 
+               retval = status_message;
                FassLog::log("DB_QUERY", Log::ERROR, retval);
-	       return false;                                                              
+               return false;
        }
        if (status_code == 204) {
-	       // ping success results in 204
-	       FassLog::log("DB-QUERY", Log::DDEBUG, "Success pinging InfluxDb!");
-               return true;                                                              
+               // ping success results in 204
+               FassLog::log("DB-QUERY", Log::DDEBUG, "Success pinging InfluxDb!");
+               return true;
        }
 
        // Read the response headers, which are terminated by a blank line
-       boost::asio::read_until(socket, response, "\r\n\r\n");  
+       boost::asio::read_until(socket, response, "\r\n\r\n");
 
        // Process the response headers
        ostringstream oss_h;
        std::string header;
        while (std::getline(response_stream, header)
-	      && header != "\r")
-	       oss_h  << header << "\n";
+              && header != "\r")
+                oss_h  << header << "\n";
        oss_h << "\n";
 
        // Write whatever content we already have to output
@@ -149,10 +152,10 @@ bool InfluxDb::query_db(string method, string q, string &retval) {
        boost::system::error_code error;
        ostringstream oss_r;
        while (boost::asio::read(socket, response,
-				boost::asio::transfer_at_least(1), error))
-	       oss_r << &response;                                                
+                                boost::asio::transfer_at_least(1), error))
+              oss_r << &response;
        if (error != boost::asio::error::eof)
-	       throw boost::system::system_error(error);
+             throw boost::system::system_error(error);
        retval = oss_r.str();
        FassLog::log("DB-QUERY", Log::DDEBUG, oss_r);
     } catch (std::exception& e) {
@@ -181,24 +184,24 @@ bool InfluxDb::create_db() {
 }
 
 bool InfluxDb::write_initial_shares(const float share, const string user,
-				    const string group, const long timestamp) {  
+                                    const string group, const int64_t timestamp) {
     FassLog::log("INFLUXDB", Log::INFO, "Writing initial shares.");
 
     return true;
 }
 
 bool InfluxDb::write_queue(const int priority, const string user,
-			   const string group, const int vmid,
-			   const float cpus, const float memory,
-			   const long starttime, const long timestamp) {
+                           const string group, const int vmid,
+                           const float cpus, const float memory,
+                           const int64_t starttime, const int64_t timestamp) {
     FassLog::log("INFLUXDB", Log::INFO, "Writing queue.");
 
     return true;
 }
 
 bool InfluxDb::write_usage(const float cpu_usage, const float memory_usage,
-			   const string user, const string group,
-			   const long since, const long timestamp) {
+                           const string user, const string group,
+                           const int64_t since, const int64_t timestamp) {
     FassLog::log("INFLUXDB", Log::INFO, "Writing usage records.");
 
     return true;
