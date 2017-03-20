@@ -26,9 +26,9 @@
 #include <vector>
 
 void VMPool::add_object(xmlNodePtr node) {
-
-        if ( node == 0 || node->children == 0 || node->children->next==0 ) {
-              FassLog::log("VMPOOL",Log::ERROR, "XML Node does not represent a valid Virtual Machine");
+        if ( node == 0 || node->children == 0 || node->children->next == 0 ) {
+              FassLog::log("VMPOOL", Log::ERROR,
+                           "XML Node does not represent a valid Virtual Machine");
               return;
         }
 
@@ -38,22 +38,22 @@ void VMPool::add_object(xmlNodePtr node) {
 
         ostringstream   oss;
         oss << "Inserting VM object with ID: " << vm->get_oid() << "\n";
-        FassLog::log("VMPOOL",Log::DDEBUG, oss);
-};
+        FassLog::log("VMPOOL", Log::DDEBUG, oss);
+}
 
 void VMPool::flush() {
-        map<int,VirtualMachine*>::iterator it;
+        map<int, VirtualMachine*>::iterator it;
 
         for (it = objects.begin(); it != objects.end(); it++) {
             delete it->second;
         }
 
         objects.clear();
-};
+}
 
 int VMPool::set_up() {
-	int rc;
-	ostringstream   oss;
+        int rc;
+        ostringstream   oss;
 
         // clean the pool to get updated data from OpenNebula
         VMPool::flush();
@@ -70,7 +70,8 @@ int VMPool::set_up() {
         }
 
         // read the response
-        vector<xmlrpc_c::value> values = xmlrpc_c::value_array(result).vectorValueValue();
+        vector<xmlrpc_c::value> values = 
+               xmlrpc_c::value_array(result).vectorValueValue();
         bool   success = xmlrpc_c::value_boolean(values[0]);
 
         // OpenNebula says failure
@@ -89,10 +90,12 @@ int VMPool::set_up() {
         xml_parse(vmlist);
         std::vector<xmlNodePtr> nodes;
         int n_nodes;
-        n_nodes = get_nodes("/VM_POOL/VM[STATE=1 or ((LCM_STATE=3 or LCM_STATE=16) and RESCHED=1)]", nodes);
+        n_nodes = get_nodes
+                ("/VM_POOL/VM[STATE=1 or ((LCM_STATE=3 or LCM_STATE=16) and RESCHED=1)]",
+                 nodes);
 
         oss << "I got " << n_nodes << " pending VMs!";
-        FassLog::log("VMPOOL",Log::DEBUG, oss);
+        FassLog::log("VMPOOL", Log::DEBUG, oss);
 
          for (unsigned int i = 0 ; i < nodes.size(); i++) {
             VMPool::add_object(nodes[i]);
@@ -130,7 +133,8 @@ int VMPool::load_vms(xmlrpc_c::value &result) {
 
 bool VMPool::xml_parse(const string &xml_doc) {
     // copied from ONE ObjectXML
-    xmlDocPtr xml = xmlReadMemory (xml_doc.c_str(),xml_doc.length(),0,0,XML_PARSE_HUGE);
+    xmlDocPtr xml = xmlReadMemory(xml_doc.c_str(), xml_doc.length(),
+                                  0, 0, XML_PARSE_HUGE);
     if (xml == 0) {
         throw runtime_error("Error parsing XML Document");
         return false;
@@ -145,9 +149,10 @@ bool VMPool::xml_parse(const string &xml_doc) {
     }
 
     return true;
-};
+}
 
-int VMPool::get_nodes(const string& xpath_expr, std::vector<xmlNodePtr>& content) {
+int VMPool::get_nodes(const string& xpath_expr,
+                      std::vector<xmlNodePtr>& content) {
     // copied from ONE
     xmlXPathObjectPtr obj;
 
@@ -168,7 +173,7 @@ int VMPool::get_nodes(const string& xpath_expr, std::vector<xmlNodePtr>& content
     int           num_nodes = 0;
     xmlNodePtr    cur;
 
-    for(int i = 0; i < size; ++i) {
+    for (int i = 0; i < size; ++i) {
         cur = xmlCopyNode(ns->nodeTab[i], 1);
 
         if ( cur == 0 || cur->type != XML_ELEMENT_NODE ) {
@@ -182,7 +187,7 @@ int VMPool::get_nodes(const string& xpath_expr, std::vector<xmlNodePtr>& content
 
     xmlXPathFreeObject(obj);
 
-    return num_nodes;  
+    return num_nodes;
 }
 /*
 int VMPool::update(int vid) const //, const string &st) const
