@@ -14,7 +14,15 @@
  * limitations under the License.
  */
 
-#include "FassLog.h"
-#include "Log.h"
+#include "BasicPlugin.h"
 
-Log * FassLog::logger;
+void BasicPlugin::update_prio(int oid, int uid,
+                              int gid, int vm_cpu,
+                              int vm_memory, list<user>list_of_users,
+                              float &vm_prio) {
+// Insert algorithm for recomputation fo vm_prio here
+}
+
+
+
+

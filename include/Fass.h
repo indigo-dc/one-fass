@@ -1,9 +1,19 @@
-/*
- * Fass.h
+/**
+ * Copyright © 2017 INFN Torino - INDIGO-DataCloud
  *
- *      Author: Sara Vallero 
- *      Author: Valentina Zaccolo
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
+
 #ifndef FASS_H_
 #define FASS_H_
 
@@ -12,6 +22,8 @@
 #include "Log.h"
 //#include "PriorityManager.h"
 #include "RPCManager.h"
+#include "XMLRPCClient.h"
+#include "PriorityManager.h"
 
 #include <stdlib.h>
 #include <string>
@@ -130,8 +142,10 @@ private:
     ~Fass()
     {
         delete fass_configuration;
+        //delete initial_shares;
         delete rpcm;
         delete database;
+	delete pm;
     };
 
     Fass& operator=(Fass const&){return *this;};
@@ -147,6 +161,7 @@ private:
     /// Configuration 
 
     FassConfigurator * fass_configuration;
+    SharesConfigurator * initial_shares;
 
     /// Database
     FassDb * database;
@@ -154,8 +169,9 @@ private:
     ///  Fass Managers 
 
     RPCManager *        rpcm;
-    //PriorityManager *   pm;
+    XMLRPCClient *      rpccli;
 
+    PriorityManager *   pm;
 /**
     /// Implementation functions 
     /// Is this needed? 

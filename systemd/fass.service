@@ -22,6 +22,7 @@ ExecStartPre=/bin/chown fassadmin:fassadmin /var/log/fass
 ExecStartPre=/bin/chown fassadmin:fassadmin /var/run/fass
 ExecStartPre=/bin/chown fassadmin:fassadmin /var/lock/fass
 ExecStartPre=/bin/chown fassadmin:fassadmin /var/lib/fass
+ExecStartPre=/bin/chown fassadmin:fassadmin /var/etc/fass/fass.conf
 ExecStartPre=/usr/sbin/logrotate -s /tmp/logrotate.state -f /etc/logrotate.d/fass
 ExecStop=/bin/kill -TERM $MAINPID
 PIDFile=/var/run/fass/fass.pid

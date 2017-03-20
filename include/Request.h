@@ -1,8 +1,17 @@
 /**
- * Request.h
+ * Copyright © 2017 INFN Torino - INDIGO-DataCloud
  *
- *      Author: Sara Vallero 
- *      Author: Valentina Zaccolo
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 #ifndef REQUEST_H_
@@ -63,22 +72,21 @@ public:
     };
 
 
-
-    static void set_call_log_format(const string& log_format)
-    {
-        format_str = log_format;
-    }
+    //static void set_call_log_format(const string& log_format)
+    //{
+    //    format_str = log_format;
+    //}
 
 
 protected:
 
     string    method_name;
-
+    string    format_str;
     set<int> hidden_params;
-    static string format_str;
 
-    Request(const string& mn, const string& signature, const string& help):
-        method_name(mn)
+
+    Request(const string& mn, const string& fs, const string& signature, const string& help):
+        method_name(mn),format_str(fs)
     {
         _signature = signature;
         _help      = help;
@@ -159,6 +167,7 @@ virtual void execute(std::string _method_name,
     static void log_result(const RequestAttributes& att,
             const std::string& method_name);
 private:
+
 
     /** Formats and adds a xmlrpc_c::value to oss.
        @param v value to format

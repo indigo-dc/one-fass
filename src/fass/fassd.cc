@@ -1,45 +1,50 @@
 /**
- * fassd.cc
+ * Copyright © 2017 INFN Torino - INDIGO-DataCloud
  *
- *      Author: Sara Vallero 
- *      Author: Valentina Zaccolo
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
+
 #include <fcntl.h>
 #include <getopt.h>
-#include <iostream>
-#include <ostream>
 #include <stdlib.h>
 #include <unistd.h>
-//#include <time.h>
-//#include <sys/types.h>
-//#include <sys/stat.h>
+#include <iostream>
+#include <ostream>
+// #include <time.h>
+// #include <sys/types.h>
+// #include <sys/stat.h>
 
 #include "Fass.h"
 
-using namespace std;
-
 /* -------------------------------------------------------------------------- */
 
-static void print_license()
-{
-    cout<< "Some INDIGO stuff should go here!\n"
+static void print_license() {
+    std::cout<< "Some INDIGO stuff should go here!\n"
         << Fass::version() << " TODO. \n";
 }
 
 /* -------------------------------------------------------------------------- */
 
-static void print_usage(ostream& str)
-{
+static void print_usage(ostream& str) {
     str << "Usage: fassd [-h] [-v] [-f] [-i]\n";
 }
 
 /* -------------------------------------------------------------------------- */
 
-static void print_help()
-{
+static void print_help() {
     print_usage(cout);
 
-    cout << "\n"
+    std::cout << "\n"
          << "SYNOPSIS\n"
          << "  Starts the One Fass daemon\n\n"
          << "OPTIONS\n"
@@ -51,16 +56,13 @@ static void print_help()
 
 /* ------------------------------------------------------------------------- */
 
-static void fassd_init()
-{
-    try
-    {
+static void fassd_init() {
+    try {
         Fass& fd  = Fass::instance();
         fd.bootstrap_db();
     }
-    catch (exception &e)
-    {
-        cerr << e.what() << endl;
+    catch (exception &e) {
+        std::cerr << e.what() << std::endl;
 
         return;
     }
@@ -68,16 +70,13 @@ static void fassd_init()
 
 /* -------------------------------------------------------------------------- */
 
-static void fassd_main()
-{
-    try
-    {
+static void fassd_main() {
+    try {
         Fass& fd  = Fass::instance();
         fd.start();
     }
-    catch (exception &e)
-    {
-        cerr << e.what() << endl;
+    catch (exception &e) {
+        std::cerr << e.what() << std::endl;
 
         return;
     }
@@ -85,13 +84,12 @@ static void fassd_main()
 
 /* -------------------------------------------------------------------------- */
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
     int             opt;
     bool            foreground = false;
     const char *    fl;
     int             fd;
-    pid_t           pid,sid;
+    pid_t           pid, sid;
     string          wd;
     int             rc;
 
@@ -106,10 +104,8 @@ int main(int argc, char **argv)
     int long_index = 0;
 
     while ((opt = getopt_long(argc, argv, "vhif",
-                    long_options, &long_index)) != -1)
-    {
-        switch(opt)
-        {
+                    long_options, &long_index)) != -1) {
+        switch (opt) {
             case 'v':
                 print_license();
                 exit(0);
@@ -138,13 +134,10 @@ int main(int argc, char **argv)
 
     fl = getenv("FASS_LOCATION");
 
-    if (fl == 0) /// Fass in root of FSH
-    {
+    if (fl == 0) {  /// Fass in root of FSH
         var_location = "/var/lib/fass/";
         lockfile     = "/var/lock/fass/fass";
-    }
-    else
-    {
+    } else {
         var_location = fl;
         var_location += "/var/";
 
@@ -153,10 +146,9 @@ int main(int argc, char **argv)
 
     fd = open(lockfile.c_str(), O_CREAT|O_EXCL, 0640);
 
-    if( fd == -1)
-    {
-        cerr<< "Error: Cannot start fassd, opening lock file " << lockfile
-            << endl;
+    if (fd == -1) {
+        std::cerr<< "Error: Cannot start fassd, opening lock file " << lockfile
+            << std::endl;
 
         exit(-1);
     }
@@ -164,62 +156,56 @@ int main(int argc, char **argv)
     close(fd);
 
     /// Fork & exit main process
-    if (foreground == true)
-    {
-        pid = 0; /// do not fork
-    }
-    else
-    {
+    if (foreground == true) {
+        pid = 0;  /// do not fork
+    } else {
         /// this call returns zero in child and PID of child in the parent
         pid = fork();
     }
 
 
-    switch (pid){
-        case -1: /// Error
-            cerr << "Error: Unable to fork.\n";
+    switch (pid) {
+        case -1:  /// Error
+            std::cerr << "Error: Unable to fork.\n";
             exit(-1);
 
 
-        case 0: /// Child process
+        case 0:  /// Child process
 
             rc  = chdir(var_location.c_str());
 
-            if (rc != 0)
-            {
+            if (rc != 0) {
                 goto error_chdir;
             }
 
-            if (foreground == false)
-            {
+            if (foreground == false) {
                 /// to run the process in new session and have a new group
                 sid = setsid();
 
-                if (sid == -1)
-                {
+                if (sid == -1) {
                     goto error_sid;
                 }
             }
 
             fassd_main();
-            
+
             /// delete the file if no process has it open
             unlink(lockfile.c_str());
             break;
 
-        default: /// Parent process
+        default:  /// Parent process
             break;
     }
 
     return 0;
 
 error_chdir:
-    cerr << "Error: cannot change to dir " << wd << "\n";
+    std::cerr << "Error: cannot change to dir " << wd << "\n";
     unlink(lockfile.c_str());
     exit(-1);
 
 error_sid:
-    cerr << "Error: creating new session\n";
+    std::cerr << "Error: creating new session\n";
     unlink(lockfile.c_str());
     exit(-1);
 }

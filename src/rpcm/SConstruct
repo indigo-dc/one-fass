@@ -21,8 +21,12 @@ env.Prepend(LIBS=[
     'fass_core',
     'fass_rpcm',
     'fass_log',
-    'fass_client'
+    'fass_client',
+    'fass_pm',
+    'xml2'
 ])
 
 if not env.GetOption('clean'):
     env.ParseConfig(("LDFLAGS='%s'") % (os.environ['LDFLAGS'],))
+
+env.Program('test_queue.cc');

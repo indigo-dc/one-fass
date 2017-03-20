@@ -14,7 +14,25 @@
  * limitations under the License.
  */
 
-#include "FassLog.h"
-#include "Log.h"
+#include "InitialShares.h"
 
-Log * FassLog::logger;
+using namespace std;
+
+class BasicPlugin
+{
+public:
+	BasicPlugin(){};
+	
+	~BasicPlugin(){};
+
+protected:
+	
+	void update_prio(int oid, int uid, int gid, int vm_cpu, int vm_memory, list<user >list_of_users, float &vm_prio);
+}
+
+
+
+
+
+
+
