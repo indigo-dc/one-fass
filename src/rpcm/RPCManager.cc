@@ -60,7 +60,6 @@ RPCManager::RPCManager(
             call_log_format(_call_log_format),
             listen_address(_listen_address),
             message_size(_message_size) {
-
     xmlrpc_limit_set(XMLRPC_XML_SIZE_LIMIT_ID, message_size);
 
     // No Action Manager class, by now. Think if needed in the future
