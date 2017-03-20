@@ -21,7 +21,7 @@
 #include <iostream>
 #include <sstream>
 #include <algorithm>
-#include <string> 
+#include <string>
 #include <vector>
 
 VirtualMachine::VirtualMachine(const xmlNodePtr node):
@@ -52,9 +52,10 @@ VirtualMachine::VirtualMachine(const xmlNodePtr node):
 
     // initialize VM attributes
     init_attributes();
-};
+}
 
-void VirtualMachine::xpaths(std::vector<std::string>& content, const char * expr) {
+void VirtualMachine::xpaths(std::vector<std::string>& content,
+                            const char * expr) {
     xmlXPathObjectPtr obj;
 
     std::ostringstream oss;
@@ -75,7 +76,7 @@ void VirtualMachine::xpaths(std::vector<std::string>& content, const char * expr
             break;
 
         case XPATH_NODESET:
-            for(int i = 0; i < obj->nodesetval->nodeNr; ++i) {
+            for (int i = 0; i < obj->nodesetval->nodeNr; ++i) {
                 cur = obj->nodesetval->nodeTab[i];
 
                 if ( cur == 0 || cur->type != XML_ELEMENT_NODE ) {
@@ -103,12 +104,13 @@ void VirtualMachine::xpaths(std::vector<std::string>& content, const char * expr
         case XPATH_USERS:
         case XPATH_XSLT_TREE:
             break;
-
     }
     xmlXPathFreeObject(obj);
-};
+}
 
-int VirtualMachine::xpath(string& value, const char * xpath_expr, const char * def) {
+int VirtualMachine::xpath(string& value,
+                          const char * xpath_expr,
+                          const char * def) {
     vector<string> values;
     int rc = 0;
 
@@ -205,7 +207,7 @@ void VirtualMachine::init_attributes() {
 
     xpath(action, "/VM/HISTORY_RECORDS/HISTORY/ACTION", -1);
 
-    //resume = (action == History::STOP_ACTION ||
+    // resume = (action == History::STOP_ACTION ||
     //          action == History::UNDEPLOY_ACTION ||
     //          action == History::UNDEPLOY_HARD_ACTION );
 /*
@@ -306,18 +308,19 @@ void VirtualMachine::add_requirements(float c, int m) {  // , long long d)
 //    system_ds_usage += d;
 }
 
-void VirtualMachine::reset_requirements(float& c, int& m) {  // , long long& d) {
+void VirtualMachine::reset_requirements(float& c, int& m) {  
+    // , long long& d) {
     c = cpu;
     m = memory;
-    //d = system_ds_usage;
+    // d = system_ds_usage;
 
     cpu    = 0;
     memory = 0;
 //    system_ds_usage = 0;
 }
 
-void VirtualMachine::get_requirements (int& cpu, int& memory) {  // ,
-//    long long& disk, vector<VectorAttribute *> &pci) 
+void VirtualMachine::get_requirements(int& cpu, int& memory) {  // ,
+//    long long& disk, vector<VectorAttribute *> &pci)
 //    pci.clear();
 
 //    if (vm_template != 0)
@@ -328,20 +331,20 @@ void VirtualMachine::get_requirements (int& cpu, int& memory) {  // ,
     if (this->memory == 0 || this->cpu == 0) {
         cpu    = 0;
         memory = 0;
- //       disk   = 0;
+        // disk   = 0;
 
         return;
     }
 
-    cpu    = (int) (this->cpu * 100);  // now in 100%
-    memory = this->memory * 1024;      //now in Kilobytes
+    cpu    = static_cast<int>(this->cpu * 100);  // now in 100%
+    memory = this->memory * 1024;      // now in Kilobytes
     // disk   = this->system_ds_usage;  // MB
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-// TODO: use VirtualMachine::isVolatile(disk)
+// TODO(svallero): use VirtualMachine::isVolatile(disk)
 /*
 bool isVolatile(const VectorAttribute * disk)
 {
@@ -484,7 +487,8 @@ bool VirtualMachineXML::clear_log()
 /* -------------------------------------------------------------------------- */
 
 int VirtualMachine::parse_action_name(string& action_st) {
-    transform(action_st.begin(), action_st.end(), action_st.begin(), (int(*)(int))std::tolower);
+    transform(action_st.begin(), action_st.end(),
+              action_st.begin(), (int(*)(int))std::tolower);
 
     if (action_st != "terminate"
         && action_st != "terminate-hard"
@@ -508,7 +512,7 @@ int VirtualMachine::parse_action_name(string& action_st) {
         return -1;
     }
     return 0;
-};
+}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
