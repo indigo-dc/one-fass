@@ -90,9 +90,9 @@ int VMPool::set_up() {
         xml_parse(vmlist);
         std::vector<xmlNodePtr> nodes;
         int n_nodes;
-        n_nodes = get_nodes
-        ("/VM_POOL/VM[STATE=1 or ((LCM_STATE=3 or LCM_STATE=16) and RESCHED=1)]",
-        nodes);
+  n_nodes = get_nodes
+  ("/VM_POOL/VM[STATE=1 or ((LCM_STATE=3 or LCM_STATE=16) and RESCHED=1)]",
+  nodes);
 
         oss << "I got " << n_nodes << " pending VMs!";
         FassLog::log("VMPOOL", Log::DEBUG, oss);
