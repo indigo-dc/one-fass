@@ -146,7 +146,7 @@ int main(int argc, char **argv) {
 
     fd = open(lockfile.c_str(), O_CREAT|O_EXCL, 0640);
 
-    if( fd == -1) {
+    if (fd == -1) {
         std::cerr<< "Error: Cannot start fassd, opening lock file " << lockfile
             << std::endl;
 
