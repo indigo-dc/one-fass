@@ -28,7 +28,7 @@
 void VMPool::add_object(xmlNodePtr node) {
         if ( node == 0 || node->children == 0 || node->children->next == 0 ) {
               FassLog::log("VMPOOL", Log::ERROR,
-                           "XML Node does not represent a valid Virtual Machine");
+              "XML Node does not represent a valid Virtual Machine");
               return;
         }
 
@@ -70,7 +70,7 @@ int VMPool::set_up() {
         }
 
         // read the response
-        vector<xmlrpc_c::value> values = 
+        vector<xmlrpc_c::value> values =
                xmlrpc_c::value_array(result).vectorValueValue();
         bool   success = xmlrpc_c::value_boolean(values[0]);
 
@@ -91,8 +91,8 @@ int VMPool::set_up() {
         std::vector<xmlNodePtr> nodes;
         int n_nodes;
         n_nodes = get_nodes
-                ("/VM_POOL/VM[STATE=1 or ((LCM_STATE=3 or LCM_STATE=16) and RESCHED=1)]",
-                 nodes);
+        ("/VM_POOL/VM[STATE=1 or ((LCM_STATE=3 or LCM_STATE=16) and RESCHED=1)]",
+        nodes);
 
         oss << "I got " << n_nodes << " pending VMs!";
         FassLog::log("VMPOOL", Log::DEBUG, oss);
