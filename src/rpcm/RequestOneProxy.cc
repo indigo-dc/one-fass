@@ -28,7 +28,6 @@ void RequestOneProxy::execute(
         const string& _method_name,
         xmlrpc_c::paramList const& _paramList,
         xmlrpc_c::value * const _retval) {
-    
     RequestAttributes att;
 
     att.retval  = _retval;

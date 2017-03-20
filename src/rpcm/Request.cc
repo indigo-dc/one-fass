@@ -24,8 +24,6 @@
 
 #include "FassLog.h"
 
-//string  Request::format_str;
-
 void Request::execute(
         xmlrpc_c::paramList const& _paramList,
         xmlrpc_c::value *   const  _retval) {
@@ -46,7 +44,7 @@ void Request::execute(
     att.retval  = _retval;
     att.session = xmlrpc_c::value_string(_paramList.getString(0));
 
-    //att.req_id = (reinterpret_cast<uintptr_t>(this) * rand_r(0)) % 10000;
+    // att.req_id = (reinterpret_cast<uintptr_t>(this) * rand_r(0)) % 10000;
     unsigned int seed = time(NULL);
     att.req_id = (reinterpret_cast<uintptr_t>(this) * rand_r(&seed)) % 10000;
 
