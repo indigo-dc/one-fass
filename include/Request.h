@@ -71,11 +71,10 @@ public:
         //ALLOCATE       = 0x4000
     };
 
-    static string format_str;
 
     static void set_call_log_format(const string& log_format)
     {
-        string format_str = log_format;
+        format_str = log_format;
     }
 
 
@@ -84,6 +83,8 @@ protected:
     string    method_name;
 
     set<int> hidden_params;
+
+    static string format_str;
 
     Request(const string& mn, const string& signature, const string& help):
         method_name(mn)

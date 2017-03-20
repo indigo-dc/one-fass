@@ -48,8 +48,11 @@ void RequestOneProxy::execute(
     // FassLog::log("ONEPROXY", Log::ERROR, oss);
     // att.uname = xmlrpc_c::value_string (_paramList.getString(0));
     att.req_id = (reinterpret_cast<uintptr_t>(this) * rand_r(0)) % 10000;
+    //att.req_id = (reinterpret_cast<uintptr_t>(this) * rand()) % 10000;
+    //unsigned int seed = time(NULL);
+    //att.req_id = (reinterpret_cast<uintptr_t>(this) * rand_r(&seed)) % 10000;
 
-    string format_str;
+    //string format_str;
     log_method_invoked(att, _paramList, format_str,
                        _method_name, hidden_params);
     vector<xmlrpc_c::value> values;
