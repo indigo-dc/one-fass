@@ -23,9 +23,9 @@ boost::program_options::typed_value<T>* make_value(T* store_to) {
   return boost::program_options::value<T>(store_to);
 }
 
-user make_user( const std::string& user_group_share ) {
+user make_user(const std::string& user_group_share) {
   std::vector< std::string > tokens;
-  boost::split( tokens, user_group_share, boost::is_any_of( ":" ) );
+  boost::split(tokens, user_group_share, boost::is_any_of(":"));
 
   if ( 3 != tokens.size() ) {
      using boost::program_options::validation_error;
@@ -34,7 +34,7 @@ user make_user( const std::string& user_group_share ) {
                             user_group_share);
   }
   return user(boost::lexical_cast<int16_t>(tokens[0]),
-	      boost::lexical_cast<int16_t>(tokens[1]),
+              boost::lexical_cast<int16_t>(tokens[1]),
               boost::lexical_cast<int16_t>(tokens[2]));
 }
 
@@ -45,7 +45,7 @@ bool InitShares::load_shares() {
     po::options_description desc("Allowed options");
 
     desc.add_options()
-		("users.user", make_value(&user_configs), "initial shares");
+         ("users.user", make_value(&user_configs), "initial shares");
 
     /// Read the initial shares file
     ifstream settings_file(shares_file.c_str());
