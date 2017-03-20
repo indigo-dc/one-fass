@@ -1,38 +1,45 @@
 /**
- * Request.h
+ * Copyright © 2017 INFN Torino - INDIGO-DataCloud
  *
- *      Author: Sara Vallero 
- *      Author: Valentina Zaccolo
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
-#include "Fass.h"
-#include "FassLog.h"
-#include "Configurator.h"
-#include "FassDb.h"
-//#include "Log.h"
-//#include "RPCManager.h"
 
-#include <fstream>
+#include "Fass.h"
+
+// #include <stdlib.h>
+// #include <libxml/parser.h>
+// #include <fcntl.h>
+// #include <sys/types.h>
+// #include <sys/stat.h>
+// #include <pthread.h>
 #include <signal.h>
+#include <unistd.h>
+#include <fstream>
 #include <sstream>
 #include <stdexcept>
-#include <unistd.h>
-//#include <stdlib.h>
-//#include <libxml/parser.h>
-
-//#include <fcntl.h>
-//#include <sys/types.h>
-//#include <sys/stat.h>
-//#include <pthread.h>
 #include <iostream>
 
-using namespace std;
+// #include "Log.h"
+// #include "RPCManager.h"
+// #include "PriorityManager.h"
+#include "FassLog.h"
+#include "Configurator.h"
+#include "InitShares.h"
+#include "FassDb.h"
 
-
-void Fass::start(bool bootstrap_only)
-{
-
+void Fass::start(bool bootstrap_only) {
     bool             rc;
-    //int             fd;
+    // int             fd;
     sigset_t        mask;
     int             signal;
     char            hn[80];
@@ -40,8 +47,7 @@ void Fass::start(bool bootstrap_only)
     /// returns the null-terminated hostname in the character
     /// array hn, which has a length of 79 bytes.
     /// is hostname used somewhere?
-    if ( gethostname(hn,79) != 0 )
-    {
+    if ( gethostname(hn, 79) != 0 ) {
         throw runtime_error("Error getting hostname");
     }
 
@@ -52,16 +58,25 @@ void Fass::start(bool bootstrap_only)
 
     rc = fass_configuration->load_configuration();
 
-    if ( !rc )
-    {
+    if ( !rc ) {
         throw runtime_error("Could not load Fass configuration file.");
     }
+
+    /** Initial shares system */
+    // initial_shares = new FassInitShares(etc_location, var_location);
+
+    // rc = initial_shares->load_shares();
+
+    // if ( !rc )
+    // {
+    //    throw runtime_error("Could not load initial shares file.");
+    // }
 
     /** Log system */
 
     ostringstream os;
 
-    try{
+    try {
         Log::MessageType   clevel;
 
         clevel     = get_debug_level();
@@ -73,7 +88,7 @@ void Fass::start(bool bootstrap_only)
                            log_fname.c_str(),
                            ios_base::trunc,
                            "fassd");
-        
+
 
         os << "Starting " << version() << endl;
         os << "----------------------------------------\n";
@@ -81,11 +96,10 @@ void Fass::start(bool bootstrap_only)
         os << "----------------------------------------\n";
         os << fass_configuration->get_conf_fname()  << " \n";
         os << "----------------------------------------";
-       
-        FassLog::log("FASS",Log::INFO,os);
-        fass_configuration->print_loaded_options(); 
-    } catch(runtime_error&){
 
+        FassLog::log("FASS", Log::INFO, os);
+        fass_configuration->print_loaded_options();
+    } catch(runtime_error&) {
         throw;
     }
 
@@ -107,13 +121,15 @@ void Fass::start(bool bootstrap_only)
     fass_configuration->get_single_option("database", "endpoint", dbendpoint);
     fass_configuration->get_single_option("database", "port", dbport);
     fass_configuration->get_single_option("database", "name", dbname);
-    if ( dbtype == "influxdb" ){ // TODO: should be done with a switch and enum, not critical
-       database = new InfluxDb(dbendpoint, dbport, dbname);
+
+    // TODO(svallero): should be done with a switch and enum, not critical
+    if ( dbtype == "influxdb" ) {
+        database = new InfluxDb(dbendpoint, dbport, dbname);
     } else {
        FassLog::log("FASS", Log::ERROR, "Unknown database type!");
-       throw; 
+       throw;
     }
-   
+
     // FOR VALE: database should be passed as argument to the Priority Manager
 
     /** Block all signals before creating any thread */
@@ -122,61 +138,123 @@ void Fass::start(bool bootstrap_only)
 
     pthread_sigmask(SIG_BLOCK, &mask, NULL);
 
-    /** Get manager timer from config */
-    int  manager_timer;
-    fass_configuration->get_single_option("fass", "manager_timer",manager_timer);
-
     /** Managers */
+    // some config variables are used both by the RPCManager
+    // and the XMLRPCClient (called by the PM)
+    // we use the same valuse for both server/client,
+    // these should be consistent with the OpenNebula ones
+    int  message_size;
+    int  timeout;
+    // OpenNebula xml-rpc endpoint
+    string one_endpoint;
+    string one_port;
+    fass_configuration->get_single_option("fass", "one_endpoint", one_endpoint);
+    fass_configuration->get_single_option("fass", "one_port", one_port);
+    one_endpoint.append(":");
+    one_endpoint.append(one_port);
+    one_endpoint.append("/RPC2");
+    // FassLog::log("FASS", Log::DEBUG, one_endpoint);
+    // OpenNebula authentication
+    string one_secret;
+    fass_configuration->get_single_option("fass", "one_secret", one_secret);
+    // xml-rpc config
+    fass_configuration->get_single_option("rpcm", "message_size", message_size);
+    fass_configuration->get_single_option("rpcm", "timeout", timeout);
+
+  /// ---- Priority Manager ----
+  try {
+    int  manager_timer;
+    int machines_limit;
+
+    fass_configuration->get_single_option
+         ("pm", "max_vm", machines_limit);
+    fass_configuration->get_single_option
+         ("pm", "manager_timer", manager_timer);
+
+    // Read initial shares from separate file
+    initial_shares = new SharesConfigurator(etc_location);
+
+    rc = initial_shares->load_shares();
+
+    // if ( !rc )
+    // {
+    //    throw runtime_error("Could not load Initial Shares file.");
+    // }
+
+    // std::vector<user> users;
+    // std::list<users> list_of_users;
+
+    // TODO(valzacc or svallero) add the init shares vector
+
+    // initial_shares->get_single_option("users", "user", user);
+
+    // list_of_users::iterator list_it;
+
+    // for (list_it = users.begin(); list_it != users.end(); ++list_it)
+    // {
+    //    list_of_users.insert(list_it,users);
+    // }
+
+    // pm = new PriorityManager(one_endpoint, one_secret, message_size,
+    // timeout, machines_limit, manager_timer, list_of_users);
+    pm = new PriorityManager(one_endpoint, one_secret, message_size,
+                             timeout, machines_limit, manager_timer);
+    }
+
+    catch (bad_alloc&) {
+        FassLog::log("FASS", Log::ERROR, "Error creating Priority Manager");
+        throw;
+    }
+
+    /// ---- Start the Priority Manager ----
+
+    rc = pm->start();
+
+    if ( !rc ) {
+       throw runtime_error("Could not start the Priority Manager");
+    }
+
 
     /// ---- Request Manager ----
-    try
-    {
-        string one_endpoint;
-        string one_port;
-        fass_configuration->get_single_option("fass", "one_endpoint", one_endpoint);
-        fass_configuration->get_single_option("fass", "one_port", one_port);
-        one_endpoint.append(":");
-        one_endpoint.append(one_port);
-        one_endpoint.append("/RPC2");
-        FassLog::log("FASS", Log::DEBUG, one_endpoint);
-
-        //int  rm_port = 0;
+    try {
+        // int  rm_port = 0;
         string rm_port = "";
-	int  max_conn;
+        int  max_conn;
         int  max_conn_backlog;
         int  keepalive_timeout;
         int  keepalive_max_conn;
-        int  timeout;
         bool rpc_log;
         string log_call_format;
         string rpc_filename = "";
-        int  message_size;
-        string rm_listen_address; //= "0.0.0.0";
+        string rm_listen_address;  // = "0.0.0.0";
 
-        fass_configuration->get_single_option("rpcm", "listen_port", rm_port);
-        fass_configuration->get_single_option("rpcm", "listen_address", rm_listen_address);
-        fass_configuration->get_single_option("rpcm", "max_conn", max_conn);
-        fass_configuration->get_single_option("rpcm", "max_conn_backlog", max_conn_backlog);
-        fass_configuration->get_single_option("rpcm", "keepalive_timeout", keepalive_timeout);
-        fass_configuration->get_single_option("rpcm", "keepalive_max_conn", keepalive_max_conn);
-        fass_configuration->get_single_option("rpcm", "timeout", timeout);
-        fass_configuration->get_single_option("rpcm", "rpc_log", rpc_log);
-        fass_configuration->get_single_option("rpcm", "message_size", message_size);
-        fass_configuration->get_single_option("rpcm", "log_call_format", log_call_format);
+        fass_configuration->get_single_option
+             ("rpcm", "listen_port", rm_port);
+        fass_configuration->get_single_option
+             ("rpcm", "listen_address", rm_listen_address);
+        fass_configuration->get_single_option
+             ("rpcm", "max_conn", max_conn);
+        fass_configuration->get_single_option
+             ("rpcm", "max_conn_backlog", max_conn_backlog);
+        fass_configuration->get_single_option
+             ("rpcm", "keepalive_timeout", keepalive_timeout);
+        fass_configuration->get_single_option
+             ("rpcm", "keepalive_max_conn", keepalive_max_conn);
+        fass_configuration->get_single_option
+             ("rpcm", "rpc_log", rpc_log);
+        fass_configuration->get_single_option
+             ("rpcm", "log_call_format", log_call_format);
 
-        if (rpc_log)
-        {
+        if (rpc_log) {
             rpc_filename = log_location + "fass_xmlrpc.log";
         }
 
-        rpcm = new RPCManager(one_endpoint,rm_port, max_conn, max_conn_backlog,
+        rpcm = new RPCManager(one_endpoint, rm_port, max_conn, max_conn_backlog,
             keepalive_timeout, keepalive_max_conn, timeout, rpc_filename,
             log_call_format, rm_listen_address, message_size);
-
     }
 
-    catch (bad_alloc&)
-    {
+    catch (bad_alloc&) {
         FassLog::log("FASS", Log::ERROR, "Error creating RPC Manager");
         throw;
     }
@@ -186,10 +264,11 @@ void Fass::start(bool bootstrap_only)
 
     rc = rpcm->start();
 
-    if ( !rc )
-    {
+    if ( !rc ) {
        throw runtime_error("Could not start the RPC Manager");
     }
+
+
 
     /** Wait for a SIGTERM or SIGINT signal */
 
@@ -202,45 +281,37 @@ void Fass::start(bool bootstrap_only)
 
     /** Stop the managers and free resources */
 
-    //rpcm->finalize(); we are not using action manager now 
+    pm->finalize();
 
-    //sleep to wait drivers???
+    // sleep to wait drivers???
 
-    pthread_join(rpcm->get_thread_id(),0);
+    pthread_join(rpcm->get_thread_id(), 0);
+    pthread_join(pm->get_thread_id(), 0);
 
-    //XML Library
-//    xmlCleanupParser();
+    // XML Library
+    // xmlCleanupParser();
 
     FassLog::log("FASS", Log::INFO, "All modules finalized, exiting.\n");
 
     return;
 
-//error_mad:
-//    Log::log("FASS", Log::ERROR, "Could not load driver");
-//    throw runtime_error("Could not load a Fass driver");
+// error_mad:
+// Log::log("FASS", Log::ERROR, "Could not load driver");
+// throw runtime_error("Could not load a Fass driver");
 }
 
-Log::MessageType Fass::get_debug_level() const
-{
-    //Log::MessageType clevel = Log::ERROR;
-    Log::MessageType clevel = Log::DDDEBUG;
-    
-/* TODO 
-    int              log_level_int;
+Log::MessageType Fass::get_debug_level() const {
+    Log::MessageType clevel = Log::ERROR;
 
-    const VectorAttribute * log = nebula_configuration->get("LOG");
+    int log_level_int;
 
-    if ( log != 0 )
-    {
-        string value = log->vector_value("DEBUG_LEVEL");
+    fass_configuration->get_single_option("fass", "log_level", log_level_int);
 
-        log_level_int = atoi(value.c_str());
-
-        if ( Log::ERROR <= log_level_int && log_level_int <= Log::DDDEBUG )
-        {
+    if ( log_level_int != 0 ) {
+        if ( Log::ERROR <= log_level_int && log_level_int <= Log::DDDEBUG ) {
             clevel = static_cast<Log::MessageType>(log_level_int);
         }
     }
-*/
+
     return clevel;
 }

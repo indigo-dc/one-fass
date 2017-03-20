@@ -1,6 +1,3 @@
-# Author: Sara Vallero 
-# Author: Valentina Zaccolo
-
 Name: one-fass
 Version: systemd_devel
 Summary: A FairShare Scheduling Service for Opennebula 

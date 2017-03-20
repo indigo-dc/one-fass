@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
-#ifndef CONFIGURATOR_H_
-#define CONFIGURATOR_H_
+#ifndef INITSHARES_H_
+#define INITSHARES_H_
 
+//#include "User.h"
 #include "FassLog.h"
+#include <boost/algorithm/string/classification.hpp>
+#include <boost/algorithm/string/split.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/program_options.hpp>
 #include <exception>
@@ -28,41 +31,57 @@
 using namespace std;
 namespace po = boost::program_options;
  
-/** This class provides the basic abstraction for Fass configuration files */
-
-class Configurator
+struct user
 {
 public:
-    Configurator(const string& etc_location, const char * _conf_name)
+      unsigned short userID;
+      unsigned short groupID;
+      unsigned short share;
+
+      user (unsigned short userID,
+        unsigned short groupID,
+        unsigned short share )
+        : userID(userID),
+          groupID(groupID),                                                               
+          share (share)                                                                   
+          {}                                                                                  
+
+};  
+
+
+
+/** This class provides the basic abstraction for Fass configuration files */
+
+class InitShares 
+{
+public:
+
+
+    InitShares(const string& etc_location, const char * _shares_name)
     {
-        conf_file = etc_location + _conf_name;
+        initset_file = etc_location + _shares_name;
     }
 
-    virtual ~Configurator(){};
+    virtual ~InitShares(){};
    
+    /** Parse and loads the configuration */
+    bool load_shares();
 
     /** Get the configuration filename */
-    string get_conf_fname(){ return conf_file; };
+    string get_shares_fname(){ return initset_file; };
 
-    /** Prints loaded configuration*/
-    void print_loaded_options(); 
  
 protected:
     /** Name for the configuration file, fassd.conf */
-    string conf_file;
+    string initset_file;
 
     /** Map containing configuration variables */
     po::variables_map   vm;
 
-    /** Allowed option types */
-    enum allowed_types {is_string, is_int, is_double, is_bool, is_unkn};
-
-    /** Gets the option value type */
-    allowed_types get_option_type(boost::any value);
-
     /** Gets a single configuration value from specified section*/
     /** REMEMBER: methods with templates must be 
        declared and implemented IN THE SAME FILE! */
+
 
     template<typename T> 
     bool get_option(const string section, const string name, T& value) const {
@@ -89,18 +108,15 @@ private:
 
 // -----------------------------------------------------------------------------
 
-class FassConfigurator : public Configurator
+class FassInitShares : public InitShares
 {
 public:
 
-    FassConfigurator(const string& etc_location, const string& _var_location):
-        Configurator(etc_location, conf_name), var_location(_var_location)
+    FassInitShares(const string& etc_location, const string& _var_location):
+        InitShares(etc_location, initset_name), var_location(_var_location)
         {};
 
-    ~FassConfigurator(){};
-
-    /** Parse and loads the configuration */
-    bool load_configuration();
+    ~FassInitShares(){};
 
     /** Gets the single option value */ 
     template<class T> 
@@ -111,30 +127,11 @@ public:
    }
 
 private:
-    static const char * conf_name;
+    static const char * initset_name;
     /** Path for the var directory, for defaults */
     string var_location;
 };
 
-// -----------------------------------------------------------------------------
-
-class SharesConfigurator : public Configurator
-{
-public:
-
-    SharesConfigurator(const string& etc_location):
-        Configurator(etc_location, conf_name)
-        {};
-
-    ~SharesConfigurator(){};
-
-    /** Parse and loads the configuration */
-    bool load_shares();
-
-private:
-    static const char * conf_name;
-};
-
 /// TODO: classes to configure algorithms, quotas etc... 
 
-#endif /*CONFIGURATOR_H_*/
+#endif 

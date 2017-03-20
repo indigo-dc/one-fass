@@ -1,7 +1,19 @@
 #!/bin/bash
-
-# Author: Sara Vallero 
-# Author: Valentina Zaccolo
+#
+# Copyright © 2017 INFN Torino - INDIGO-DataCloud
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
 
 #-------------------------------------------------------------------------------
 # Install program for Fass. It will install it relative to $FASS_LOCATION 
@@ -85,7 +97,7 @@ if [ -z "$ROOT" ] ; then
 
     DELETE_DIRS="$ETC_LOCATION $LOG_LOCATION $RUN_LOCATION"
                 # $LIB_LOCATION $VAR_LOCATION" 
-    CHOWN_DIRS="$LOG_LOCATION $RUN_LOCATION $LOCK_LOCATION"
+    CHOWN_DIRS="$ETC_LOCATION $LOG_LOCATION $RUN_LOCATION $LOCK_LOCATION"
                # $VAR_LOCATION 
 
     # systemd
@@ -186,6 +198,10 @@ if [ "$INSTALL_ETC" = "yes" ] ; then
 fi
 
 # Set ownership or remove Fass directories
+
+# confog file should not be readable outside the group 
+# (it contains the ONE password)
+chmod 640 $ETC_LOCATION/fassd.conf
 
 if [ "$UNINSTALL" = "no" ] ; then
     echo "Setting dir ownership..."
