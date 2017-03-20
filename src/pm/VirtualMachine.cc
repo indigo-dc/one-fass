@@ -15,37 +15,34 @@
  */
 
 #include "VirtualMachine.h"
+
 #include <stdexcept>
 #include <cstring>
 #include <iostream>
 #include <sstream>
-
 #include <algorithm>
 #include <string> 
 #include <vector>
 
-VirtualMachine::VirtualMachine(const xmlNodePtr node):paths(0),num_paths(0),xml(0),ctx(0){
-
+VirtualMachine::VirtualMachine(const xmlNodePtr node):
+                paths(0), num_paths(0), xml(0), ctx(0) {
     // constructs the object
     xml = xmlNewDoc(reinterpret_cast<const xmlChar *>("1.0"));
 
-    if (xml == 0)
-    {
+    if (xml == 0) {
         throw("Error allocating XML Document");
     }
 
     ctx = xmlXPathNewContext(xml);
 
-    if (ctx == 0)
-    {
+    if (ctx == 0) {
         xmlFreeDoc(xml);
         throw("Unable to create new XPath context");
     }
 
-    xmlNodePtr root_node = xmlDocCopyNode(node,xml,1);
+    xmlNodePtr root_node = xmlDocCopyNode(node, xml, 1);
 
-    if (root_node == 0)
-    {
+    if (root_node == 0) {
         xmlXPathFreeContext(ctx);
         xmlFreeDoc(xml);
         throw("Unable to allocate node");
@@ -55,11 +52,9 @@ VirtualMachine::VirtualMachine(const xmlNodePtr node):paths(0),num_paths(0),xml(
 
     // initialize VM attributes
     init_attributes();
-
 };
 
-void VirtualMachine::xpaths(std::vector<std::string>& content, const char * expr)
-{
+void VirtualMachine::xpaths(std::vector<std::string>& content, const char * expr) {
     xmlXPathObjectPtr obj;
 
     std::ostringstream oss;
@@ -68,13 +63,11 @@ void VirtualMachine::xpaths(std::vector<std::string>& content, const char * expr
 
     obj = xmlXPathEvalExpression(reinterpret_cast<const xmlChar *>(expr), ctx);
 
-    if (obj == 0)
-    {
+    if (obj == 0) {
         return;
     }
 
-    switch (obj->type)
-    {
+    switch (obj->type) {
         case XPATH_NUMBER:
             oss << obj->floatval;
 
@@ -82,19 +75,16 @@ void VirtualMachine::xpaths(std::vector<std::string>& content, const char * expr
             break;
 
         case XPATH_NODESET:
-            for(int i = 0; i < obj->nodesetval->nodeNr ; ++i)
-            {
+            for(int i = 0; i < obj->nodesetval->nodeNr; ++i) {
                 cur = obj->nodesetval->nodeTab[i];
 
-                if ( cur == 0 || cur->type != XML_ELEMENT_NODE )
-                {
+                if ( cur == 0 || cur->type != XML_ELEMENT_NODE ) {
                     continue;
                 }
 
                 str_ptr = xmlNodeGetContent(cur);
 
-                if (str_ptr != 0)
-                {
+                if (str_ptr != 0) {
                     std::string ncontent = reinterpret_cast<char *>(str_ptr);
 
                     content.push_back(ncontent);
@@ -115,34 +105,25 @@ void VirtualMachine::xpaths(std::vector<std::string>& content, const char * expr
             break;
 
     }
-
     xmlXPathFreeObject(obj);
 };
 
-int VirtualMachine::xpath(string& value, const char * xpath_expr, const char * def)
-{
+int VirtualMachine::xpath(string& value, const char * xpath_expr, const char * def) {
     vector<string> values;
     int rc = 0;
 
     xpaths(values, xpath_expr);
 
-    if ( values.empty() == true )
-    {
+    if ( values.empty() == true ) {
         value = def;
         rc    = -1;
-    }
-    else
-    {
+    } else {
         value = values[0];
     }
-
     return rc;
 }
 
-
-
-void VirtualMachine::init_attributes()
-{
+void VirtualMachine::init_attributes() {
     vector<xmlNodePtr> nodes;
 
     int rc;
@@ -164,8 +145,7 @@ void VirtualMachine::init_attributes()
 
     rc = xpath(rank, "/VM/USER_TEMPLATE/SCHED_RANK", "");
 
-    if (rc != 0)
-    {
+    if (rc != 0) {
         // Compatibility with previous versions
         xpath(rank, "/VM/USER_TEMPLATE/RANK", "");
     }
@@ -320,16 +300,13 @@ ostream& operator<<(ostream& os, VirtualMachine& vm)
 };
 */
 
-void VirtualMachine::add_requirements(float c, int m)// , long long d)
-{
+void VirtualMachine::add_requirements(float c, int m) {  // , long long d)
     cpu    += c;
     memory += m;
 //    system_ds_usage += d;
 }
 
-
-void VirtualMachine::reset_requirements(float& c, int& m) //, long long& d)
-{
+void VirtualMachine::reset_requirements(float& c, int& m) {  // , long long& d) {
     c = cpu;
     m = memory;
     //d = system_ds_usage;
@@ -339,10 +316,8 @@ void VirtualMachine::reset_requirements(float& c, int& m) //, long long& d)
 //    system_ds_usage = 0;
 }
 
-
-void VirtualMachine::get_requirements (int& cpu, int& memory)//,
-//    long long& disk, vector<VectorAttribute *> &pci)
-{
+void VirtualMachine::get_requirements (int& cpu, int& memory) {  // ,
+//    long long& disk, vector<VectorAttribute *> &pci) 
 //    pci.clear();
 
 //    if (vm_template != 0)
@@ -350,8 +325,7 @@ void VirtualMachine::get_requirements (int& cpu, int& memory)//,
 //        vm_template->get("PCI", pci);
 //    }
 
-    if (this->memory == 0 || this->cpu == 0)
-    {
+    if (this->memory == 0 || this->cpu == 0) {
         cpu    = 0;
         memory = 0;
  //       disk   = 0;
@@ -359,11 +333,10 @@ void VirtualMachine::get_requirements (int& cpu, int& memory)//,
         return;
     }
 
-    cpu    = (int) (this->cpu * 100);//now in 100%
-    memory = this->memory * 1024;    //now in Kilobytes
-//    disk   = this->system_ds_usage;  // MB
+    cpu    = (int) (this->cpu * 100);  // now in 100%
+    memory = this->memory * 1024;      //now in Kilobytes
+    // disk   = this->system_ds_usage;  // MB
 }
-
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -510,11 +483,10 @@ bool VirtualMachineXML::clear_log()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::parse_action_name(string& action_st)
-{
-    transform(action_st.begin(),action_st.end(),action_st.begin(),(int(*)(int))std::tolower);
-    
-    if (   action_st != "terminate"
+int VirtualMachine::parse_action_name(string& action_st) {
+    transform(action_st.begin(), action_st.end(), action_st.begin(), (int(*)(int))std::tolower);
+
+    if (action_st != "terminate"
         && action_st != "terminate-hard"
         && action_st != "undeploy"
         && action_st != "undeploy-hard"
@@ -532,11 +504,9 @@ int VirtualMachine::parse_action_name(string& action_st)
         // Compatibility with 4.x
         && action_st != "shutdown"
         && action_st != "shutdown-hard"
-        && action_st != "delete")
-    {
+        && action_st != "delete") {
         return -1;
     }
-
     return 0;
 };
 
