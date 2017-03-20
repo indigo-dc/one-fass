@@ -145,7 +145,7 @@ int PriorityManager::start() {
     pthread_attr_init(&pattr);
     pthread_attr_setdetachstate(&pattr, PTHREAD_CREATE_JOINABLE);
 
-    pthread_create(&pm_thread, &pattr, pm_loop, reinterpret_cast(void *)this);
+    pthread_create(&pm_thread, &pattr, pm_loop, reinterpret_cast<void *>(this));
 
     return true;
 }
