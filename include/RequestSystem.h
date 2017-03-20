@@ -25,9 +25,10 @@ class RequestSystem: public Request
 {
 protected:
     RequestSystem( const string& method_name,
+                       const string& format_str,
                        const string& help,
                        const string& params)
-        :Request(method_name,params,help)
+        :Request(method_name,format_str,params,help)
     {};
 
     ~RequestSystem(){};
@@ -40,8 +41,9 @@ protected:
 class SystemVersion : public RequestSystem
 {
 public:
-    SystemVersion():
+    SystemVersion( const string& format_str ):
         RequestSystem("SystemVersion",
+                          format_str, 
                           "Returns the FASS version",
                           "A:s"){};
 

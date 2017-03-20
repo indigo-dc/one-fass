@@ -35,11 +35,13 @@ class RequestOneProxy: public Request
 
 public:
 
-    RequestOneProxy( const string& _one_endpoint, const long int _message_size, const int _timeout,
+    RequestOneProxy( const string& _one_endpoint, const long int _message_size, 
+                     const string& _format_str, 
+                     const int _timeout,
                      const string& method_name = "OneProxy",
                      const string& help = "Forwards all unhandled methods to ONE endpoint",
                      const string& params = "")
-        :Request(method_name,params,help),one_endpoint(_one_endpoint),message_size(_message_size),timeout(_timeout)
+        :Request(method_name,_format_str,params,help),one_endpoint(_one_endpoint),message_size(_message_size),format_str(_format_str),timeout(_timeout)
     {};
     
 
@@ -48,6 +50,7 @@ public:
 private:
     string one_endpoint;    
     long int message_size;
+    string format_str;    
     int timeout;
   
 protected:

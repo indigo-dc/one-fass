@@ -122,7 +122,7 @@ void Fass::start(bool bootstrap_only) {
     fass_configuration->get_single_option("database", "port", dbport);
     fass_configuration->get_single_option("database", "name", dbname);
     if ( dbtype == "influxdb" ) { // TODO(svallero): should be done with a switch and enum, not critical
-       database = new InfluxDb(dbendpoint, dbport, dbname);
+        database = new InfluxDb(dbendpoint, dbport, dbname);
     } else {
        FassLog::log("FASS", Log::ERROR, "Unknown database type!");
        throw;

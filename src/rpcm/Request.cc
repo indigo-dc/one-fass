@@ -24,7 +24,7 @@
 
 #include "FassLog.h"
 
-string  Request::format_str;
+//string  Request::format_str;
 
 void Request::execute(
         xmlrpc_c::paramList const& _paramList,
@@ -46,11 +46,12 @@ void Request::execute(
     att.retval  = _retval;
     att.session = xmlrpc_c::value_string(_paramList.getString(0));
 
-    att.req_id = (reinterpret_cast<uintptr_t>(this) * rand_r(0)) % 10000;
-    //unsigned int seed = time(NULL);
-    //att.req_id = (reinterpret_cast<uintptr_t>(this) * rand_r(&seed)) % 10000;
+    //att.req_id = (reinterpret_cast<uintptr_t>(this) * rand_r(0)) % 10000;
+    unsigned int seed = time(NULL);
+    att.req_id = (reinterpret_cast<uintptr_t>(this) * rand_r(&seed)) % 10000;
 
-    //string format_str;
+    // string format_str = get_format_string();
+    // FassLog::log("*******", Log::INFO, format_str);
     log_method_invoked(att, _paramList, format_str, method_name, hidden_params);
     request_execute(_paramList, att);
     log_result(att, method_name);

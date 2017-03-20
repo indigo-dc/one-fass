@@ -45,7 +45,7 @@ RPCManager::RPCManager(
         int _keepalive_max_conn,
         int _timeout,
         const string _xml_log_file,
-        const string call_log_format,
+        const string _call_log_format,
         const string _listen_address,
         int _message_size):
             one_endpoint(_one_endpoint),
@@ -57,13 +57,17 @@ RPCManager::RPCManager(
             keepalive_max_conn(_keepalive_max_conn),
             timeout(_timeout),
             xml_log_file(_xml_log_file),
+            call_log_format(_call_log_format),
             listen_address(_listen_address),
             message_size(_message_size) {
-    Request::set_call_log_format(call_log_format);
+
+    // Request::set_call_log_format(call_log_format);
+
+    // FassLog::log("********", Log::INFO, call_log_format);
 
     xmlrpc_limit_set(XMLRPC_XML_SIZE_LIMIT_ID, message_size);
 
-    /// No Action Manager class, by now. Think if needed in the future
+    // No Action Manager class, by now. Think if needed in the future
     // am.addListener(this);
 }
 
@@ -111,13 +115,15 @@ void RPCManager::register_xml_methods() {
     // TODO(valzacc or svallero): new methods
 
     /// System Methods
-    xmlrpc_c::methodPtr system_version(new SystemVersion());
+    //xmlrpc_c::methodPtr system_version(new SystemVersion(call_log_format));
     /// ONE Proxy Methods
+    // FassLog::log("********", Log::INFO, call_log_format);
     xmlrpc_c::defaultMethodPtr one_proxy(new RequestOneProxy(one_endpoint,
                                                              message_size,
+  							     call_log_format,			
                                                              timeout));
     // add to registry
-    RPCManagerRegistry.addMethod("fass.system.version", system_version);
+    //RPCManagerRegistry.addMethod("fass.system.version", system_version);
     RPCManagerRegistry.setDefaultMethod(one_proxy);
 }
 

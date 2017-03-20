@@ -28,6 +28,7 @@ void RequestOneProxy::execute(
         const string& _method_name,
         xmlrpc_c::paramList const& _paramList,
         xmlrpc_c::value * const _retval) {
+    
     RequestAttributes att;
 
     att.retval  = _retval;
@@ -44,17 +45,20 @@ void RequestOneProxy::execute(
     } catch (exception) {
        att.uname = "wrong format";
     }
+    // FassLog::log("******", Log::INFO, "Pippo!");
     // oss << "Cannot contact oned... Error: " << e.what();
     // FassLog::log("ONEPROXY", Log::ERROR, oss);
     // att.uname = xmlrpc_c::value_string (_paramList.getString(0));
-    att.req_id = (reinterpret_cast<uintptr_t>(this) * rand_r(0)) % 10000;
-    //att.req_id = (reinterpret_cast<uintptr_t>(this) * rand()) % 10000;
-    //unsigned int seed = time(NULL);
-    //att.req_id = (reinterpret_cast<uintptr_t>(this) * rand_r(&seed)) % 10000;
+    // att.req_id = (reinterpret_cast<uintptr_t>(this) * rand_r(0)) % 10000;
+    // att.req_id = (reinterpret_cast<uintptr_t>(this) * rand()) % 10000;
+     unsigned int seed = time(NULL);
+     att.req_id = (reinterpret_cast<uintptr_t>(this) * rand_r(&seed)) % 10000;
 
-    //string format_str;
+    // FassLog::log("******", Log::INFO, "Pluto!");
+    // string format_str = get_format_string();
     log_method_invoked(att, _paramList, format_str,
                        _method_name, hidden_params);
+    // FassLog::log("******", Log::INFO, "Paperino!");
     vector<xmlrpc_c::value> values;
 
     try {

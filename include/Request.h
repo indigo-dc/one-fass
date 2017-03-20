@@ -72,22 +72,21 @@ public:
     };
 
 
-    static void set_call_log_format(const string& log_format)
-    {
-        format_str = log_format;
-    }
+    //static void set_call_log_format(const string& log_format)
+    //{
+    //    format_str = log_format;
+    //}
 
 
 protected:
 
     string    method_name;
-
+    string    format_str;
     set<int> hidden_params;
 
-    static string format_str;
 
-    Request(const string& mn, const string& signature, const string& help):
-        method_name(mn)
+    Request(const string& mn, const string& fs, const string& signature, const string& help):
+        method_name(mn),format_str(fs)
     {
         _signature = signature;
         _help      = help;
@@ -168,6 +167,7 @@ virtual void execute(std::string _method_name,
     static void log_result(const RequestAttributes& att,
             const std::string& method_name);
 private:
+
 
     /** Formats and adds a xmlrpc_c::value to oss.
        @param v value to format

@@ -41,7 +41,7 @@ public:
             int _keepalive_max_conn,
             int _timeout,
             const string _xml_log_file,
-            const string call_log_format,
+            const string _call_log_format,
             const string _listen_address,
             int _message_size);
 
@@ -81,6 +81,7 @@ private:
     int timeout;
     
     string xml_log_file;
+    string call_log_format;
     string listen_address;
     int message_size;
    
