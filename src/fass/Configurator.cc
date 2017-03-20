@@ -39,9 +39,11 @@ bool Configurator::load_configuration() {
       /// General
       ("fass.one_port", po::value<string>()->default_value("2633"),
        "OpenNebula listen port")
-      ("fass.one_endpoint", po::value<string>()->default_value("http://localhost"),
+      ("fass.one_endpoint", po::value<string>()
+       ->default_value("http://localhost"),
        "OpenNebula listen endpoint")
-      ("fass.one_secret", po::value<string>()->default_value("oneadmin:opennebula"),
+      ("fass.one_secret", po::value<string>()
+       ->default_value("oneadmin:opennebula"),
        "OpenNebula authentication")
       ("fass.log_level", po::value<int>()->default_value(3),
        "log level common to all managers")
@@ -51,7 +53,7 @@ bool Configurator::load_configuration() {
       ("rpcm.listen_address", po::value<string>()->default_value("127.0.0.1"),
        "listen address")
       ("rpcm.timeout", po::value<int>()->default_value(15),
-       "timeout")	
+       "timeout")
       ("rpcm.message_size", po::value<int>()->default_value(1073741824),
        "message size")
       ("rpcm.max_conn", po::value<int>()->default_value(15),
@@ -64,9 +66,10 @@ bool Configurator::load_configuration() {
        "keepalive max connections")
       ("rpcm.rpc_log", po::value<bool>()->default_value(true),
        "separate rpc log")
-      ("rpcm.log_call_format", po::value<string>()->default_value("Req:%i UID:%u %m invoked %l"),
+      ("rpcm.log_call_format", po::value<string>()
+       ->default_value("Req:%i UID:%u %m invoked %l"),
        "log call format")
-      // Database 
+      // Database
       ("database.type", po::value<string>()->default_value("influxdb"),
        "DB back-end")
       ("database.endpoint", po::value<string>()->default_value("localhost"),
@@ -79,7 +82,7 @@ bool Configurator::load_configuration() {
       ("pm.manager_timer", po::value<int>()->default_value(60),
        "manager period (s)")
       ("pm.max_vm", po::value<int>()->default_value(5000),
-       "Maximum number of Virtual Machines scheduled in each scheduling action");
+       "Maximum number of Virtual Machines scheduled");
 
     /// Read the configuration file
     ifstream settings_file(conf_file.c_str());
