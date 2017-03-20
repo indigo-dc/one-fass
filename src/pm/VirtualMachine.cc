@@ -308,7 +308,7 @@ void VirtualMachine::add_requirements(float c, int m) {  // , long long d)
 //    system_ds_usage += d;
 }
 
-void VirtualMachine::reset_requirements(float& c, int& m) {  
+void VirtualMachine::reset_requirements(float& c, int& m) {
     // , long long& d) {
     c = cpu;
     m = memory;
