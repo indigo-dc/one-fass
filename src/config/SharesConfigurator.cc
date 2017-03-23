@@ -16,8 +16,8 @@
 
 #include <fstream>
 #include <iostream>
-#include <pthread.h>
 #include <sstream>
+#include <pthread.h>
 #include "FassLog.h"
 #include "Configurator.h"
 
