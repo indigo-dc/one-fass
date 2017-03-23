@@ -112,7 +112,7 @@ private:
         bool stop_manager;
   
 	bool set_up_pools();
-	void do_prioritize();
+	//void do_prioritize();
         bool calculate_initial_shares();
        
         XMLRPCClient *client;

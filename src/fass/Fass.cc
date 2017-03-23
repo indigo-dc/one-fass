@@ -34,7 +34,7 @@
 // #include "PriorityManager.h"
 #include "FassLog.h"
 #include "Configurator.h"
-//#include "InitShares.h"
+// #include "InitShares.h"
 #include "FassDb.h"
 
 void Fass::start(bool bootstrap_only) {
@@ -188,13 +188,13 @@ void Fass::start(bool bootstrap_only) {
     vector<string> shares;
     shares = initial_shares->get_shares();
 
-    // for(vector<string>::const_iterator i = shares.begin(); i != shares.end(); ++i) {
-    //   FassLog::log("CICCIA", Log::INFO, * i); 
-    // } 
+    // for(vector<string>::const_iterator i = shares.begin();
+    //                                   i != shares.end(); ++i) {
+    //   FassLog::log("CICCIA", Log::INFO, * i);
+    // }
 
     pm = new PriorityManager(one_endpoint, one_secret, message_size,
                     timeout, machines_limit, shares, manager_timer);
-
     }
 
     catch (bad_alloc&) {

@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#include "Configurator.h"
 #include <fstream>
 #include <iostream>
 #include <sstream>
 #include "FassLog.h"
+#include "Configurator.h"
 
 /* -------------------------------------------------------------------------- */
 
@@ -33,9 +33,11 @@ bool FassConfigurator::load_configuration() {
       /// General
       ("fass.one_port", po::value<string>()->default_value("2633"),
        "OpenNebula listen port")
-      ("fass.one_endpoint", po::value<string>()->default_value("http://localhost"),
+      ("fass.one_endpoint", po::value<string>()
+                            ->default_value("http://localhost"),
        "OpenNebula listen endpoint")
-      ("fass.one_secret", po::value<string>()->default_value("oneadmin:opennebula"),
+      ("fass.one_secret", po::value<string>()
+                          ->default_value("oneadmin:opennebula"),
        "OpenNebula authentication")
       ("fass.log_level", po::value<int>()->default_value(3),
        "log level common to all managers")
@@ -58,7 +60,8 @@ bool FassConfigurator::load_configuration() {
        "keepalive max connections")
       ("rpcm.rpc_log", po::value<bool>()->default_value(true),
        "separate rpc log")
-      ("rpcm.log_call_format", po::value<string>()->default_value("Req:%i UID:%u %m invoked %l"),
+      ("rpcm.log_call_format", po::value<string>()
+                            ->default_value("Req:%i UID:%u %m invoked %l"),
        "log call format")
       // Database
       ("database.type", po::value<string>()->default_value("influxdb"),
@@ -92,7 +95,7 @@ bool FassConfigurator::load_configuration() {
 
     po::notify(vm_tmp);
 
-    swap(vm_tmp,vm);
+    swap(vm_tmp, vm);
     settings_file.close();
     return true;
 }
@@ -140,7 +143,7 @@ void FassConfigurator::print_loaded_options() {
         }
 
         FassLog::log("CONF", Log::INFO, os);
-};                                                            
+}
 
 /* -------------------------------------------------------------------------- */
 

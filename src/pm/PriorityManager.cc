@@ -42,21 +42,21 @@
 list<PriorityManager::user*> PriorityManager::user_list;
 
 // unary operator
-PriorityManager::user*  PriorityManager::make_user(const std::string& user_group_share) {
-
+PriorityManager::user*  
+   PriorityManager::make_user(const std::string& user_group_share) {
   vector< string > tokens;                                                  
-  boost::split(tokens, user_group_share, boost::is_any_of(":"));                      
-                                                                                      
-  if ( 4 != tokens.size() ) {                                                         
-     throw;                   
-  }                                                                                   
+  boost::split(tokens, user_group_share, boost::is_any_of(":"));
 
-  PriorityManager::user *us = new PriorityManager::user(boost::lexical_cast<int16_t>(tokens[1]),                                
-                      boost::lexical_cast<int16_t>(tokens[2]),                                
-                      boost::lexical_cast<int16_t>(tokens[3]));                               
+  if ( 4 != tokens.size() ) {
+     throw;
+  }
+
+  PriorityManager::user *us = new PriorityManager::user(boost::lexical_cast<int16_t>(tokens[1]),
+                      boost::lexical_cast<int16_t>(tokens[2]),
+                      boost::lexical_cast<int16_t>(tokens[3]));
 
   return us;
-};   
+}
 
 PriorityManager::PriorityManager(
           const string _one_xmlrpc,
@@ -73,7 +73,7 @@ PriorityManager::PriorityManager(
                 max_vm(_max_vm),
                 shares(_shares),
                 manager_timer(_manager_timer),
-                stop_manager(false){
+                stop_manager(false) {
     // initialize XML-RPC Client
     ostringstream oss;
     int rc;
@@ -93,7 +93,7 @@ PriorityManager::PriorityManager(
         throw;
     }
 
-    // create list of user objects with initial shares 
+    // create list of user objects with initial shares
     rc = calculate_initial_shares();
 
     if (!rc) {
@@ -129,8 +129,8 @@ extern "C" void * pm_loop(void *arg) {
         bool wait = true;
         timeout.tv_sec  = time(NULL) + pm->manager_timer;
         timeout.tv_nsec = 0;
-    
-        //FassLog::log("SARA", Log::INFO, "Pippo!");
+
+        // FassLog::log("SARA", Log::INFO, "Pippo!");
 
         pm->lock();
         while (wait && !pm->stop_manager) {  // block for manager_timer seconds
@@ -141,7 +141,7 @@ extern "C" void * pm_loop(void *arg) {
 
                 if ( rc == ETIMEDOUT ) wait = false;
         }
-        
+
         // FassLog::log("SARA", Log::INFO, "Pluto!");
         pm->unlock();
 
@@ -164,15 +164,14 @@ void PriorityManager::loop() {
     if ( rc != 0 ) {
         FassLog::log("PM", Log::ERROR, "Cannot get the VM pool!");
     }
-    
 
-    do_prioritize();
+    //do_prioritize();
 }
 
 int PriorityManager::start() {
     pthread_attr_t  pattr;
     ostringstream oss;
-    //int rc;
+    // int rc;
 
     FassLog::log("PM", Log::INFO, "Starting Priority Manager...");
 
@@ -199,18 +198,17 @@ int PriorityManager::get_queue() {
     return rc;
 }
 
-
-void PriorityManager::do_prioritize()
-{
+/*
+void PriorityManager::do_prioritize() {
     FassLog::log("PM", Log::INFO, "Executing do_prioritize...");
     int rc;
     ostringstream oss;
 
     VirtualMachine * vm;
-   
+
     int oid;
     int uid;
-    int gid;    
+    int gid;
     int vm_memory;
     int vm_cpu;
 //    list<user> user_list;
@@ -282,16 +280,16 @@ void PriorityManager::do_prioritize()
 
   return;
 }
+*/
 
 bool PriorityManager::calculate_initial_shares(){
-    
    FassLog::log("PM", Log::INFO, "Evaluating initial shares...");
  
-   //list<user> user_list; 
+   // list<user> user_list;
    for (vector<string>::const_iterator i= shares.begin(); i != shares.end(); i++){
       user_list.push_back(make_user(*i));
-   }   
-   // transform(shares.begin(), shares.end(), back_inserter(users), make_user);   
+   }
+   // transform(shares.begin(), shares.end(), back_inserter(users), make_user);
    /*
    ostringstream oss;
    oss << "" << endl;
@@ -304,6 +302,6 @@ bool PriorityManager::calculate_initial_shares(){
 
    return true;
 
-};
+}
 
 

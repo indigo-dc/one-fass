@@ -14,31 +14,28 @@
  * limitations under the License.
  */
 
-#include "Configurator.h"
 #include <fstream>
 #include <iostream>
 #include <pthread.h>
 #include <sstream>
+#include "Configurator.h"
 #include "FassLog.h"
 
 /* -------------------------------------------------------------------------- */
 
 bool SharesConfigurator::print_shares() {
-
-
     ostringstream os;
     os << "Reading initial shares..." << endl;
     os << "(username:uid:gid:share)" << endl;
 
-    for(vector<string>::const_iterator i = shares.begin(); i != shares.end(); ++i) {
-
+    for (vector<string>::const_iterator i = shares.begin();
+                                      i != shares.end(); ++i) {
        os << "> " << *i << endl;
     }
 
     FassLog::log("CONF", Log::INFO, os);
     return true;
-
-};
+}
 
 /* -------------------------------------------------------------------------- */
 
@@ -46,7 +43,7 @@ bool SharesConfigurator::load_shares(){
    
     cout << "Loading shares..." << endl;
 
-    ostringstream os; 
+    ostringstream os;
     vector<string> properties(props, props + 3);
 
     boost::property_tree::ptree pt;
@@ -56,7 +53,7 @@ bool SharesConfigurator::load_shares(){
     // pthread_mutex_lock(&mutex);
     // int th;
    
-    ifstream settings_file(conf_file.c_str()); 
+    ifstream settings_file(conf_file.c_str());
     try {
        // Read the configuration file
        boost::property_tree::ini_parser::read_ini(settings_file, pt_tmp);
@@ -65,12 +62,14 @@ bool SharesConfigurator::load_shares(){
        return false;
     }
     
-    //pthread_mutex_unlock(&mutex);
-    for (boost::property_tree::ptree::const_iterator it = pt_tmp.begin(); it != pt_tmp.end(); ++it) {
+    // pthread_mutex_unlock(&mutex);
+    for (boost::property_tree::ptree::const_iterator it = pt_tmp.begin(); 
+                                                    it != pt_tmp.end(); ++it) {
        string user = it->first;
        string value(user);
        value.append(":");
-       for(vector<string>::const_iterator i = properties.begin(); i != properties.end(); ++i) {
+       for (vector<string>::const_iterator i = properties.begin(); 
+                                         i != properties.end(); ++i) {
           try {
               string search(user);
               search = search.append(".");
@@ -82,16 +81,16 @@ bool SharesConfigurator::load_shares(){
               FassLog::log("CONF", Log::INFO, os);
               return false;
           }
-       } // end loop on properties
+       }  // end loop on properties
        value.erase(value.size() - 1);
        shares.push_back(value);
-    } // end loop on users
+    }  // end loop on users
   
-    swap(pt_tmp, pt); 
-    //pt_tmp.clear();
+    swap(pt_tmp, pt);
+    // pt_tmp.clear();
     settings_file.close();
     return true;
-};
+}
 
 /* -------------------------------------------------------------------------- */
 
