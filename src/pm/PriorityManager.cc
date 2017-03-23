@@ -324,7 +324,7 @@ bool PriorityManager::calculate_initial_shares() {
         << (*i)->groupID << " "
         << (*i)->share << endl;
     }
- 
+
     FassLog::log("SARA", Log::INFO, oss);
 
     return true;
