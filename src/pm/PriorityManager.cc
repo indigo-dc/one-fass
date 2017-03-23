@@ -300,7 +300,8 @@ void PriorityManager::do_prioritize() {
 bool PriorityManager::calculate_initial_shares() {
     FassLog::log("PM", Log::INFO, "Evaluating initial shares...");
 
-    // TODO(svallero or valzacc): for the time being only user shares are considered
+    // TODO(svallero or valzacc):
+    // for the time being only user shares are considered
     vector<string> norm_shares;
     int sum = 0;
     for (vector<string>::const_iterator i= shares.begin();
