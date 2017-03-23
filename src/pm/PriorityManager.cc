@@ -43,7 +43,8 @@ list<PriorityManager::user*> PriorityManager::user_list;
 
 // unary operator
 PriorityManager::user*
-PriorityManager::make_user(const std::string& user_group_share, const int& sum) {
+PriorityManager::make_user(
+          const std::string& user_group_share, const int& sum) {
   vector< string > tokens;
   boost::split(tokens, user_group_share, boost::is_any_of(":"));
 
@@ -169,7 +170,7 @@ void PriorityManager::loop() {
     // return an xml string with reordered VMs
     rc = set_queue();
 
-    if ( ! rc ) {
+    if ( !rc ) {
         FassLog::log("PM", Log::ERROR, "Cannot set the VM pool!");
     }
 
@@ -299,9 +300,9 @@ void PriorityManager::do_prioritize() {
 bool PriorityManager::calculate_initial_shares() {
     FassLog::log("PM", Log::INFO, "Evaluating initial shares...");
 
-    // TODO: for the time being only user shares are considered
+    // TODO(svallero or valzacc): for the time being only user shares are considered
     vector<string> norm_shares;
-    int sum=0;
+    int sum = 0;
     for (vector<string>::const_iterator i= shares.begin();
                                       i != shares.end(); i++) {
         vector<string> tokens;
@@ -316,8 +317,11 @@ bool PriorityManager::calculate_initial_shares() {
 
     ostringstream oss;
     oss << "" << endl;
-    for (list<user*>::const_iterator i = user_list.begin(); i != user_list.end(); ++i){
-        oss << (*i)->userID << " " << (*i)->groupID << " " << (*i)->share << endl;
+    for (list<user*>::const_iterator i = user_list.begin();
+                                    i != user_list.end(); ++i) {
+        oss << (*i)->userID << " "
+        << (*i)->groupID << " "
+        << (*i)->share << endl;
     }
  
     FassLog::log("SARA", Log::INFO, oss);
