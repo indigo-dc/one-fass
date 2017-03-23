@@ -35,24 +35,25 @@ extern "C" void * pm_loop(void *arg);
 class PriorityManager
 {
 public:
-struct user                                                                           
-{                                                                                     
-public:                                                                               
-      unsigned short userID;                                                          
-      unsigned short groupID;                                                         
-      unsigned short share;                                                           
 
-      //user(){};
-      user (unsigned short userID,                                                    
-        unsigned short groupID,                                                       
-        unsigned short share )                                                        
-        : userID(userID),                                                             
-          groupID(groupID),                                                                         
-          share (share)                                                                             
-          {};
+    struct user                                                                           
+    {                                                                                       
+     public:                                                                               
+          unsigned short userID;                                                          
+          unsigned short groupID;                                                         
+          float share;                                                           
 
-      ~user(){};                                                                                       
-}; 
+          user (unsigned short userID,                                                    
+            unsigned short groupID,                                                       
+            float share )                                                        
+            : userID(userID),                                                             
+              groupID(groupID),                                                                         
+              share (share)                                                                             
+              {};
+
+            ~user(){};
+        }; 
+
 	PriorityManager(
         const string _one_xmlrpc,
         const string _one_string,
@@ -81,6 +82,11 @@ public:
     };
 
     VMPool * vmpool;
+
+    // returns the reordered queue
+    const string& get_queue() const {
+        return queue;
+    };
 
 private:
        
@@ -116,11 +122,17 @@ private:
         bool calculate_initial_shares();
        
         XMLRPCClient *client;
-	int get_queue();
+        // gets pending VMs from ONE
+	int get_pending();
+        // reorders the queue
+        bool set_queue();
  
         static list<user*> user_list;
 
-        user* make_user(const std::string& user_group_share);
+        user* make_user(const std::string& user_group_share, const int& sum);
+       
+        // the reordered queue
+        string queue;
 };
 
 #endif

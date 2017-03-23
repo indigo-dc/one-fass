@@ -43,7 +43,7 @@ list<PriorityManager::user*> PriorityManager::user_list;
 
 // unary operator
 PriorityManager::user*
-PriorityManager::make_user(const std::string& user_group_share) {
+PriorityManager::make_user(const std::string& user_group_share, const int& sum) {
   vector< string > tokens;
   boost::split(tokens, user_group_share, boost::is_any_of(":"));
 
@@ -54,7 +54,7 @@ PriorityManager::make_user(const std::string& user_group_share) {
   PriorityManager::user *us = new PriorityManager::user(
                       boost::lexical_cast<int16_t>(tokens[1]),
                       boost::lexical_cast<int16_t>(tokens[2]),
-                      boost::lexical_cast<int16_t>(tokens[3]));
+                      boost::lexical_cast<float_t>(tokens[3])/sum);
 
   return us;
 }
@@ -160,13 +160,26 @@ void PriorityManager::loop() {
 
     int rc;
     // let's get the list of pending VMs from ONE
-    rc = get_queue();
+    rc = get_pending();
 
     if ( rc != 0 ) {
         FassLog::log("PM", Log::ERROR, "Cannot get the VM pool!");
     }
 
+    // return an xml string with reordered VMs
+    rc = set_queue();
+
+    if ( ! rc ) {
+        FassLog::log("PM", Log::ERROR, "Cannot set the VM pool!");
+    }
+
     // do_prioritize();
+}
+
+bool PriorityManager::set_queue() {
+    queue = "pippo";
+
+    return true;
 }
 
 int PriorityManager::start() {
@@ -185,8 +198,8 @@ int PriorityManager::start() {
     return true;
 }
 
-int PriorityManager::get_queue() {
-    FassLog::log("PM", Log::DEBUG, "Executing get_queue...");
+int PriorityManager::get_pending() {
+    FassLog::log("PM", Log::DEBUG, "Executing get_pending...");
     int rc;
     // VM pool
     // TODO(valzacc or svallero): is it needed?
@@ -286,13 +299,21 @@ void PriorityManager::do_prioritize() {
 bool PriorityManager::calculate_initial_shares() {
     FassLog::log("PM", Log::INFO, "Evaluating initial shares...");
 
-    // list<user> user_list;
+    // TODO: for the time being only user shares are considered
+    vector<string> norm_shares;
+    int sum=0;
     for (vector<string>::const_iterator i= shares.begin();
                                       i != shares.end(); i++) {
-       user_list.push_back(make_user(*i));
+        vector<string> tokens;
+        boost::split(tokens, *i, boost::is_any_of(":"));
+        sum += boost::lexical_cast<int16_t>(tokens[3]);
     }
-    // transform(shares.begin(), shares.end(), back_inserter(users), make_user);
-    /*
+
+    for (vector<string>::const_iterator i= shares.begin();
+                                      i != shares.end(); i++) {
+       user_list.push_back(make_user(*i , sum));
+    }
+
     ostringstream oss;
     oss << "" << endl;
     for (list<user*>::const_iterator i = user_list.begin(); i != user_list.end(); ++i){
@@ -300,7 +321,6 @@ bool PriorityManager::calculate_initial_shares() {
     }
  
     FassLog::log("SARA", Log::INFO, oss);
-    */
 
     return true;
 }
