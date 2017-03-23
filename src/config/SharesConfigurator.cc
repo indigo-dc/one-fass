@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
+#include <pthread.h>
 #include <fstream>
 #include <iostream>
 #include <sstream>
-#include <pthread.h>
 #include "FassLog.h"
 #include "Configurator.h"
 
