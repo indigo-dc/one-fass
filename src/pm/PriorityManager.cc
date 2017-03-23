@@ -284,25 +284,25 @@ void PriorityManager::do_prioritize() {
 */
 
 bool PriorityManager::calculate_initial_shares() {
-   FassLog::log("PM", Log::INFO, "Evaluating initial shares...");
+    FassLog::log("PM", Log::INFO, "Evaluating initial shares...");
 
-   // list<user> user_list;
-   for (vector<string>::const_iterator i= shares.begin();
-                                     i != shares.end(); i++) {
-      user_list.push_back(make_user(*i));
-   }
-   // transform(shares.begin(), shares.end(), back_inserter(users), make_user);
-   /*
-   ostringstream oss;
-   oss << "" << endl;
-   for (list<user*>::const_iterator i = user_list.begin(); i != user_list.end(); ++i){
-       oss << (*i)->userID << " " << (*i)->groupID << " " << (*i)->share << endl;
-   }
+    // list<user> user_list;
+    for (vector<string>::const_iterator i= shares.begin();
+                                      i != shares.end(); i++) {
+       user_list.push_back(make_user(*i));
+    }
+    // transform(shares.begin(), shares.end(), back_inserter(users), make_user);
+    /*
+    ostringstream oss;
+    oss << "" << endl;
+    for (list<user*>::const_iterator i = user_list.begin(); i != user_list.end(); ++i){
+        oss << (*i)->userID << " " << (*i)->groupID << " " << (*i)->share << endl;
+    }
+ 
+    FassLog::log("SARA", Log::INFO, oss);
+    */
 
-   FassLog::log("SARA", Log::INFO, oss);
-   */
-
-   return true;
+    return true;
 }
 
 
