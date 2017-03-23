@@ -42,16 +42,17 @@
 list<PriorityManager::user*> PriorityManager::user_list;
 
 // unary operator
-PriorityManager::user*  
-   PriorityManager::make_user(const std::string& user_group_share) {
-  vector< string > tokens;                                                  
+PriorityManager::user*
+PriorityManager::make_user(const std::string& user_group_share) {
+  vector< string > tokens;
   boost::split(tokens, user_group_share, boost::is_any_of(":"));
 
   if ( 4 != tokens.size() ) {
      throw;
   }
 
-  PriorityManager::user *us = new PriorityManager::user(boost::lexical_cast<int16_t>(tokens[1]),
+  PriorityManager::user *us = new PriorityManager::user(
+                      boost::lexical_cast<int16_t>(tokens[1]),
                       boost::lexical_cast<int16_t>(tokens[2]),
                       boost::lexical_cast<int16_t>(tokens[3]));
 
@@ -165,7 +166,7 @@ void PriorityManager::loop() {
         FassLog::log("PM", Log::ERROR, "Cannot get the VM pool!");
     }
 
-    //do_prioritize();
+    // do_prioritize();
 }
 
 int PriorityManager::start() {
@@ -282,11 +283,12 @@ void PriorityManager::do_prioritize() {
 }
 */
 
-bool PriorityManager::calculate_initial_shares(){
+bool PriorityManager::calculate_initial_shares() {
    FassLog::log("PM", Log::INFO, "Evaluating initial shares...");
  
    // list<user> user_list;
-   for (vector<string>::const_iterator i= shares.begin(); i != shares.end(); i++){
+   for (vector<string>::const_iterator i= shares.begin();
+                                     i != shares.end(); i++) {
       user_list.push_back(make_user(*i));
    }
    // transform(shares.begin(), shares.end(), back_inserter(users), make_user);
@@ -301,7 +303,6 @@ bool PriorityManager::calculate_initial_shares(){
    */
 
    return true;
-
 }
 
 

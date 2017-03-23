@@ -39,8 +39,7 @@ bool SharesConfigurator::print_shares() {
 
 /* -------------------------------------------------------------------------- */
 
-bool SharesConfigurator::load_shares(){
-   
+bool SharesConfigurator::load_shares() {
     cout << "Loading shares..." << endl;
 
     ostringstream os;
@@ -52,7 +51,7 @@ bool SharesConfigurator::load_shares(){
     // pthread_mutex_t mutex;
     // pthread_mutex_lock(&mutex);
     // int th;
-   
+
     ifstream settings_file(conf_file.c_str());
     try {
        // Read the configuration file
@@ -61,14 +60,14 @@ bool SharesConfigurator::load_shares(){
        cerr << "Error: " << re.what() << endl;
        return false;
     }
-    
+
     // pthread_mutex_unlock(&mutex);
-    for (boost::property_tree::ptree::const_iterator it = pt_tmp.begin(); 
+    for (boost::property_tree::ptree::const_iterator it = pt_tmp.begin();
                                                     it != pt_tmp.end(); ++it) {
        string user = it->first;
        string value(user);
        value.append(":");
-       for (vector<string>::const_iterator i = properties.begin(); 
+       for (vector<string>::const_iterator i = properties.begin();
                                          i != properties.end(); ++i) {
           try {
               string search(user);
@@ -85,7 +84,7 @@ bool SharesConfigurator::load_shares(){
        value.erase(value.size() - 1);
        shares.push_back(value);
     }  // end loop on users
-  
+
     swap(pt_tmp, pt);
     // pt_tmp.clear();
     settings_file.close();
