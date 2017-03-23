@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
+#include "Configurator.h"
 #include <fstream>
 #include <iostream>
 #include <pthread.h>
 #include <sstream>
-#include "Configurator.h"
 #include "FassLog.h"
 
 /* -------------------------------------------------------------------------- */

@@ -285,7 +285,7 @@ void PriorityManager::do_prioritize() {
 
 bool PriorityManager::calculate_initial_shares() {
    FassLog::log("PM", Log::INFO, "Evaluating initial shares...");
- 
+
    // list<user> user_list;
    for (vector<string>::const_iterator i= shares.begin();
                                      i != shares.end(); i++) {
