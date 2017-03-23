@@ -22,21 +22,44 @@
 #include "XMLRPCClient.h"
 #include <time.h>
 #include <pthread.h>
+#include <list>
+//#include <boost/algorithm/string/classification.hpp>
+//#include <boost/algorithm/string/split.hpp>
+//#include <boost/lexical_cast.hpp>
 
 using namespace std;
 
 extern "C" void * pm_loop(void *arg);
 
+
 class PriorityManager
 {
 public:
+struct user                                                                           
+{                                                                                     
+public:                                                                               
+      unsigned short userID;                                                          
+      unsigned short groupID;                                                         
+      unsigned short share;                                                           
+
+      //user(){};
+      user (unsigned short userID,                                                    
+        unsigned short groupID,                                                       
+        unsigned short share )                                                        
+        : userID(userID),                                                             
+          groupID(groupID),                                                                         
+          share (share)                                                                             
+          {};
+
+      ~user(){};                                                                                       
+}; 
 	PriorityManager(
         const string _one_xmlrpc,
         const string _one_string,
         int _message_size,
         int _timeout,
         unsigned int _max_vm,
-	//list<user> _list_of_users,
+	vector<string> _shares,
         int _manager_timer);
 
 	~PriorityManager(){
@@ -84,16 +107,20 @@ private:
 	int timeout;
 
 	unsigned int max_vm;
-	//list<user> list_of_users;	
-  int manager_timer; 
-  bool stop_manager;
+	vector<string> shares;	
+        int manager_timer; 
+        bool stop_manager;
   
 	bool set_up_pools();
 	void do_prioritize();
-
-  XMLRPCClient *client;
+        bool calculate_initial_shares();
+       
+        XMLRPCClient *client;
 	int get_queue();
+ 
+        static list<user*> user_list;
 
+        user* make_user(const std::string& user_group_share);
 };
 
 #endif

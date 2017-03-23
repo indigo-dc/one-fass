@@ -3,11 +3,13 @@
 import os
 Import('env')
 
-lib_name='fass_core'
+lib_name='fass_config'
 
 # Sources to generate the library
 source_files=[
-    'Fass.cc'
+    'Configurator.cc',
+    'FassConfigurator.cc',
+    'SharesConfigurator.cc'
 ]
 
 # Build library
@@ -16,16 +18,11 @@ env.StaticLibrary(lib_name, source_files)
 # Build daemon
 env.Prepend(LIBS=[
     'fass_core',
-    'fass_log',
-    'fass_config', 
-    'fass_rpcm',
-    'fass_client',
-    'fass_db',
-    'fass_pm'
+    'fass_config',
+    'fass_pm',
+    'fass_log'
 ])
 
 if not env.GetOption('clean'):
     env.ParseConfig(("LDFLAGS='%s'") % (os.environ['LDFLAGS'],))
-
-env.Program('fassd.cc')
 

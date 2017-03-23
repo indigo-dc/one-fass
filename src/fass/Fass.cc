@@ -34,7 +34,7 @@
 // #include "PriorityManager.h"
 #include "FassLog.h"
 #include "Configurator.h"
-#include "InitShares.h"
+//#include "InitShares.h"
 #include "FassDb.h"
 
 void Fass::start(bool bootstrap_only) {
@@ -63,14 +63,14 @@ void Fass::start(bool bootstrap_only) {
     }
 
     /** Initial shares system */
-    // initial_shares = new FassInitShares(etc_location, var_location);
+    // Read initial shares from separate file
+    initial_shares = new SharesConfigurator(etc_location);
 
-    // rc = initial_shares->load_shares();
+    rc = initial_shares->load_shares();
 
-    // if ( !rc )
-    // {
-    //    throw runtime_error("Could not load initial shares file.");
-    // }
+    if ( !rc ) {
+        throw runtime_error("Could not load initial shares file.");
+    }
 
     /** Log system */
 
@@ -99,6 +99,18 @@ void Fass::start(bool bootstrap_only) {
 
         FassLog::log("FASS", Log::INFO, os);
         fass_configuration->print_loaded_options();
+
+        os.clear();
+        os.str("");
+        os << "\n";
+        os << "----------------------------------------\n";
+        os << "     Initial Shares File      \n";
+        os << "----------------------------------------\n";
+        os << initial_shares->get_conf_fname()  << " \n";
+        os << "----------------------------------------";
+
+        FassLog::log("FASS", Log::INFO, os);
+        initial_shares->print_shares();
     } catch(runtime_error&) {
         throw;
     }
@@ -171,34 +183,18 @@ void Fass::start(bool bootstrap_only) {
     fass_configuration->get_single_option
          ("pm", "manager_timer", manager_timer);
 
-    // Read initial shares from separate file
-    initial_shares = new SharesConfigurator(etc_location);
 
-    rc = initial_shares->load_shares();
+    // Get the initial shares vector
+    vector<string> shares;
+    shares = initial_shares->get_shares();
 
-    // if ( !rc )
-    // {
-    //    throw runtime_error("Could not load Initial Shares file.");
-    // }
+    // for(vector<string>::const_iterator i = shares.begin(); i != shares.end(); ++i) {
+    //   FassLog::log("CICCIA", Log::INFO, * i); 
+    // } 
 
-    // std::vector<user> users;
-    // std::list<users> list_of_users;
-
-    // TODO(valzacc or svallero) add the init shares vector
-
-    // initial_shares->get_single_option("users", "user", user);
-
-    // list_of_users::iterator list_it;
-
-    // for (list_it = users.begin(); list_it != users.end(); ++list_it)
-    // {
-    //    list_of_users.insert(list_it,users);
-    // }
-
-    // pm = new PriorityManager(one_endpoint, one_secret, message_size,
-    // timeout, machines_limit, manager_timer, list_of_users);
     pm = new PriorityManager(one_endpoint, one_secret, message_size,
-                             timeout, machines_limit, manager_timer);
+                    timeout, machines_limit, shares, manager_timer);
+
     }
 
     catch (bad_alloc&) {
@@ -283,6 +279,8 @@ void Fass::start(bool bootstrap_only) {
 
     pm->finalize();
 
+    delete fass_configuration;
+    delete initial_shares;
     // sleep to wait drivers???
 
     pthread_join(rpcm->get_thread_id(), 0);

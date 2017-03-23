@@ -33,11 +33,9 @@ bool FassConfigurator::load_configuration() {
       /// General
       ("fass.one_port", po::value<string>()->default_value("2633"),
        "OpenNebula listen port")
-      ("fass.one_endpoint", po::value<string>()
-       ->default_value("http://localhost"),
+      ("fass.one_endpoint", po::value<string>()->default_value("http://localhost"),
        "OpenNebula listen endpoint")
-      ("fass.one_secret", po::value<string>()
-       ->default_value("oneadmin:opennebula"),
+      ("fass.one_secret", po::value<string>()->default_value("oneadmin:opennebula"),
        "OpenNebula authentication")
       ("fass.log_level", po::value<int>()->default_value(3),
        "log level common to all managers")
@@ -60,8 +58,7 @@ bool FassConfigurator::load_configuration() {
        "keepalive max connections")
       ("rpcm.rpc_log", po::value<bool>()->default_value(true),
        "separate rpc log")
-      ("rpcm.log_call_format", po::value<string>()
-       ->default_value("Req:%i UID:%u %m invoked %l"),
+      ("rpcm.log_call_format", po::value<string>()->default_value("Req:%i UID:%u %m invoked %l"),
        "log call format")
       // Database
       ("database.type", po::value<string>()->default_value("influxdb"),
@@ -81,20 +78,69 @@ bool FassConfigurator::load_configuration() {
     /// Read the configuration file
     ifstream settings_file(conf_file.c_str());
 
-    /// Clear the map
+    // Clear the map
     vm = po::variables_map();
+    // temporary streamer map
+    po::variables_map vm_tmp = po::variables_map();
 
     try {
-        po::store(po::parse_config_file(settings_file , desc), vm);
+        po::store(po::parse_config_file(settings_file , desc), vm_tmp);
     } catch(const exception& re) {
         cerr << "Error: " << re.what() << endl;
         return false;
     }
 
-    po::notify(vm);
+    po::notify(vm_tmp);
 
+    swap(vm_tmp,vm);
+    settings_file.close();
     return true;
 }
+
+/* -------------------------------------------------------------------------- */
+
+void FassConfigurator::print_loaded_options() {
+        ostringstream os;
+        os <<"Reading configuration..." << endl;
+        for (po::variables_map::iterator it = vm.begin();
+             it != vm.end(); it++) {
+                string opt_name = it->first;
+                os << "> " << opt_name;
+
+                if (((boost::any)it->second.value()).empty()) {
+                        os << "(empty)";
+                }
+                if (vm[opt_name].defaulted() || it->second.defaulted()) {
+                        os << "(default)";
+                }
+                os << "=";
+
+                allowed_types tp = get_option_type(it->second.value());
+                switch (tp) {
+                        case is_string: os
+                                        << boost::any_cast<string>
+                                           (vm[opt_name].value());
+                        break;
+                        case is_int: os
+                                        << boost::any_cast<int>
+                                           (vm[opt_name].value());
+                        break;
+                        case is_double: os
+                                        << boost::any_cast<double>
+                                           (vm[opt_name].value());
+                        break;
+                        case is_bool: os
+                                        << boost::any_cast<bool>
+                                           (vm[opt_name].value());
+                        break;
+                        case is_unkn: os << "UnknownType";
+                        break;
+                }
+                os << endl;
+        }
+
+        FassLog::log("CONF", Log::INFO, os);
+};                                                            
 
 /* -------------------------------------------------------------------------- */
 

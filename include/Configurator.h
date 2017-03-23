@@ -16,10 +16,11 @@
 
 #ifndef CONFIGURATOR_H_
 #define CONFIGURATOR_H_
-
 #include "FassLog.h"
 #include <boost/lexical_cast.hpp>
 #include <boost/program_options.hpp>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/ini_parser.hpp>
 #include <exception>
 #include <iostream>
 #include <sstream>
@@ -44,15 +45,11 @@ public:
     /** Get the configuration filename */
     string get_conf_fname(){ return conf_file; };
 
-    /** Prints loaded configuration*/
-    void print_loaded_options(); 
  
 protected:
     /** Name for the configuration file, fassd.conf */
     string conf_file;
 
-    /** Map containing configuration variables */
-    po::variables_map   vm;
 
     /** Allowed option types */
     enum allowed_types {is_string, is_int, is_double, is_bool, is_unkn};
@@ -81,6 +78,9 @@ protected:
     	return retval;
     } 
 
+    /** Map containing configuration variables */
+    po::variables_map   vm;
+
 private:
 
     // dummy
@@ -102,6 +102,9 @@ public:
     /** Parse and loads the configuration */
     bool load_configuration();
 
+    /** Prints loaded configuration*/
+    void print_loaded_options(); 
+
     /** Gets the single option value */ 
     template<class T> 
     bool get_single_option(const string section, const string name, T& value) const {
@@ -112,8 +115,10 @@ public:
 
 private:
     static const char * conf_name;
+
     /** Path for the var directory, for defaults */
     string var_location;
+
 };
 
 // -----------------------------------------------------------------------------
@@ -126,13 +131,28 @@ public:
         Configurator(etc_location, conf_name)
         {};
 
+
     ~SharesConfigurator(){};
 
     /** Parse and loads the configuration */
     bool load_shares();
 
+    /** Prints loaded initila shares */
+    bool print_shares(); 
+
+    /** Returns a vector of strings in the format: */
+    // "uid:gid:share"
+    const vector<string>&  get_shares() const {
+       return shares;
+    };
+
 private:
     static const char * conf_name;
+    
+    static const char * props[];
+
+    /** To store initial shares */
+    vector<string> shares;
 };
 
 /// TODO: classes to configure algorithms, quotas etc... 
