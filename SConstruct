@@ -39,6 +39,7 @@ main_env.Append(CPPPATH=[
 # Library dirs
 main_env.Append(LIBPATH=[
     cwd+'/src/fass',
+    cwd+'/src/config',
     cwd+'/src/logger',
     cwd+'/src/rpcm', 
     cwd+'/src/client',
@@ -158,6 +159,7 @@ main_env.ParseConfig('xml2-config --libs --cflags')
 # SCONS scripts to build
 build_scripts=[
     'src/fass/SConstruct',
+    'src/config/SConstruct',
     'src/logger/SConstruct',
     'src/rpcm/SConstruct',
     'src/client/SConstruct',

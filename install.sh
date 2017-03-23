@@ -133,7 +133,7 @@ BIN_FILES="src/fass/fassd"
 
 # Configuration files for Fass, to be installed under $ETC_LOCATION
 
-ETC_FILES="etc/fassd.conf"
+ETC_FILES="etc/fassd.conf etc/shares.conf"
 
 
 # --- MAIN --------------------------------------------------------

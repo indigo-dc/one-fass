@@ -142,7 +142,7 @@ private:
     ~Fass()
     {
         delete fass_configuration;
-        //delete initial_shares;
+        delete initial_shares;
         delete rpcm;
         delete database;
 	delete pm;
