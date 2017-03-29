@@ -85,6 +85,11 @@ public:
         return "Fass v1.1";
     };
 
+    // returns the pm
+    PriorityManager* priority_manager()
+    {
+        return pm;
+    };
 
     /// Start all the managers for Fass 
     void start(bool bootstrap_only=false);

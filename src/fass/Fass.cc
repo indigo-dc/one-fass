@@ -276,11 +276,10 @@ void Fass::start(bool bootstrap_only) {
     sigwait(&mask, &signal);
 
     /** Stop the managers and free resources */
-
+    
+    rpcm->finalize();
     pm->finalize();
-
-    delete fass_configuration;
-    delete initial_shares;
+ 
     // sleep to wait drivers???
 
     pthread_join(rpcm->get_thread_id(), 0);

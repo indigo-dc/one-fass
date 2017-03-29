@@ -17,6 +17,7 @@
 #ifndef RPC_MANAGER_H_
 #define RPC_MANAGER_H_
 
+#include <unistd.h>
 #include <xmlrpc-c/base.hpp>
 #include <xmlrpc-c/registry.hpp>
 #include <xmlrpc-c/server_abyss.hpp>
@@ -55,10 +56,22 @@ public:
    
     pthread_t get_thread_id() const
     {
-        return rm_thread;
+        //return rm_thread;
+        return rm_xml_server_thread;
     };
 
 
+    void finalize() {
+        AbyssServer->terminate();
+        pthread_cancel(rm_xml_server_thread);
+        pthread_join(rm_xml_server_thread,0);
+        //AbyssServer->terminate();
+        delete AbyssServer;
+        if ( socket_fd != -1 )
+        {
+            close(socket_fd);
+        }
+    };
 private:
     
     /// Friends, thread functions require C-linkage
@@ -66,6 +79,7 @@ private:
     friend void * rm_xml_server_loop(void *arg);
     //friend void * rm_action_loop(void *arg);    
 
+    pthread_attr_t          pattr;   /// Thread attributes
     pthread_t               rm_thread; /// Thread ID for the RPCMananger
     pthread_t               rm_xml_server_thread; /// Thread ID for the XML server
 
@@ -87,6 +101,7 @@ private:
    
      
     bool setup_socket();
+    int  setup_socket_new();
     void register_xml_methods();
 
 
