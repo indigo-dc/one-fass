@@ -10,6 +10,7 @@ source_files=[
     'Request.cc',
     'RequestSystem.cc',
     'RequestOneProxy.cc',
+    'RequestQueue.cc',
     'RPCManager.cc'
 ]
 
