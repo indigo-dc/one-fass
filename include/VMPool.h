@@ -17,7 +17,6 @@
 #ifndef VM_POOL_H_
 #define VM_POOL_H_
 
-// this should not be necessary #include "PoolXML.h"
 #include "VirtualMachine.h"
 #include "XMLRPCClient.h"
 
@@ -34,10 +33,21 @@ public:
            bool           _live_resched):
 		client(_client),
 		machines_limit(_machines_limit),
-        	live_resched(_live_resched){};
+        	live_resched(_live_resched){
+                    xml = 0;
+                    ctx = 0;
+                };
 
     ~VMPool(){
     	flush();
+        if (ctx != 0) {
+            xmlXPathFreeContext(ctx);
+        }
+
+        if (xml != 0) {
+            xmlFreeDoc(xml);
+        }
+
     };
 
 
@@ -61,7 +71,7 @@ public:
      *
      *   @return a pointer to the object, 0 in case of failure
      */
-/*
+
     VirtualMachine * get(int oid) const
     {
 
@@ -79,34 +89,20 @@ public:
         }
         
     };
-*/
-    /**
-     *  Update the VM template
-     *    @param vid the VM id
-     *    @param st the template string
-     *
-     *    @return 0 on success, -1 otherwise
-     */
-//    int update(int vid) const;//, const string &st) const;
 
-    /**
-     *  Update the VM template
-     *      @param the VM
-     *
-     *      @return 0 on success, -1 otherwise
-     */
-/*
-    int update(VirtualMachine * vm) const
-    {
-        string xml;
-
-        return update(vm->get_oid());//, vm->get_template(xml));
-    };
-*/
+    const string make_queue(map<float, int, std::greater<float> > prios);
 protected:
 
     // deletes pool objects
     void flush();
+    // clears XMl node pointers
+    void free_nodes(std::vector<xmlNodePtr>& content) const {
+        std::vector<xmlNodePtr>::iterator it;
+
+        for (it = content.begin(); it < content.end(); it++) {
+        xmlFreeNode(*it);
+        }
+    };
     // adds an object to the pool
     void add_object(xmlNodePtr node);
 
@@ -114,6 +110,9 @@ protected:
     // parse the XML response from ONE into a xmlXPathContextPtr
     bool xml_parse(const string &xml_doc);  
     xmlXPathContextPtr ctx; // XML xpath context pointer
+    xmlDocPtr xml;
+    
+
     // get XML nodes corresponding to VMs
     int get_nodes(const string& xpath_expr, std::vector<xmlNodePtr>& content);
     XMLRPCClient *  client;
