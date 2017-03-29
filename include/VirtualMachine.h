@@ -62,6 +62,24 @@ public:
 
     };
 
+
+    const string dump_node(){
+        xmlChar *s;
+        int size;
+
+        xmlDocDumpMemory((xmlDocPtr)xml, &s, &size);
+
+        string xml_string = (char *)s;
+        xmlFree(s);
+    
+        // remove annoying header
+        size_t pos = xml_string.find("<VM>");
+        xml_string.erase(0,pos);
+        pos = xml_string.find("</VM>"); 
+        xml_string.erase(pos+5);
+        //xmlFree(xml);
+        return xml_string;
+    } 
   /*  {
         if (vm_template != 0)
         {
