@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
-#include "InitialShares.h"
+#ifndef Basic_PLUGIN_H_
+#define Basic_PLUGIN_H_
+
+#include "PriorityManager.h"
 
 using namespace std;
 
@@ -25,12 +28,13 @@ public:
 	
 	~BasicPlugin(){};
 
-protected:
-	
-	void update_prio(int oid, int uid, int gid, int vm_cpu, int vm_memory, list<user >list_of_users, float &vm_prio);
-}
+        // methods that should be implemented in custom plugin
+	float update_prio(int oid, int uid, int gid,
+                         int vm_cpu, int vm_memory,
+                         list<user> list_of_users);
+};
 
-
+#endif
 
 
 
