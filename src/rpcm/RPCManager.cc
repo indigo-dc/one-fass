@@ -22,6 +22,8 @@
 #include <string.h>
 #include <sys/signal.h>
 #include <sys/socket.h>
+#include <sys/types.h>
+#include <netdb.h>
 #include <unistd.h>
 #include <cerrno>
 #include <cstring>
@@ -33,6 +35,7 @@
 #include "FassLog.h"
 #include "RequestSystem.h"
 #include "RequestOneProxy.h"
+#include "RequestQueue.h"
 #include "Request.h"
 
 RPCManager::RPCManager(
@@ -64,6 +67,8 @@ RPCManager::RPCManager(
 
     // No Action Manager class, by now. Think if needed in the future
     // am.addListener(this);
+    //pthread_attr_init(&pattr);
+    //pthread_attr_setdetachstate(&pattr, PTHREAD_CREATE_JOINABLE);
 }
 
 extern "C" void * rm_xml_server_loop(void *arg) {
@@ -88,6 +93,7 @@ extern "C" void * rm_xml_server_loop(void *arg) {
     opt.keepaliveMaxConn(rm->keepalive_max_conn);
     opt.timeout(rm->timeout);
     opt.socketFd(rm->socket_fd);
+    //opt.serverOwnsSignals(false); 
 
     if (!rm->xml_log_file.empty()) {
         opt.logFileName(rm->xml_log_file);
@@ -100,6 +106,7 @@ extern "C" void * rm_xml_server_loop(void *arg) {
 
     rm->AbyssServer->run();
 
+    //delete rm->AbyssServer;
     return 0;
 }
 
@@ -111,6 +118,8 @@ void RPCManager::register_xml_methods() {
 
     /// System Methods
     xmlrpc_c::methodPtr system_version(new SystemVersion(call_log_format));
+    // Reordered queue (one.vmpool.info)
+    xmlrpc_c::methodPtr reordered_queue(new ReorderedQueue(call_log_format));
     // ONE Proxy Methods
     // FassLog::log("********", Log::INFO, call_log_format);
     xmlrpc_c::defaultMethodPtr one_proxy(new RequestOneProxy(one_endpoint,
@@ -119,30 +128,26 @@ void RPCManager::register_xml_methods() {
                                                              timeout));
     // add to registry
     RPCManagerRegistry.addMethod("fass.system.version", system_version);
+    RPCManagerRegistry.addMethod("one.vmpool.info", reordered_queue);
     RPCManagerRegistry.setDefaultMethod(one_proxy);
 }
 
 bool RPCManager::start() {
     // cout << "Starting RPC Manager..." << endl;
 
-    pthread_attr_t  pattr;
+    //pthread_attr_t  pattr;
     ostringstream   oss;
 
     FassLog::log("RPCM", Log::INFO, "Starting RPC Manager...");
 
-    int rc = setup_socket();
+    //int rc = setup_socket();
+    int rc = setup_socket_new();
 
     if ( rc != 0 ) {
         return false;
     }
 
     register_xml_methods();
-
-    // Action loop
-    // pthread_attr_init (&pattr);
-    // pthread_attr_setdetachstate (&pattr, PTHREAD_CREATE_JOINABLE);
-
-    // pthread_create(&rm_thread,&pattr,rm_action_loop,(void *)this);
 
     /// Server loop
     pthread_attr_init(&pattr);
@@ -161,6 +166,8 @@ bool RPCManager::setup_socket() {
     int                 rc;
     int                 yes = 1;
     struct sockaddr_in  rm_addr;
+
+    
 
     socket_fd = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -223,4 +230,82 @@ bool RPCManager::setup_socket() {
     }
 
     return 0;
+}
+
+int RPCManager::setup_socket_new(){
+
+    int rc;
+    int yes = 1;
+
+    struct addrinfo hints = {0};
+    struct addrinfo * result;
+
+    hints.ai_family   = AF_UNSPEC;
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_flags    = AI_PASSIVE;
+
+    rc = getaddrinfo(listen_address.c_str(), port.c_str(), &hints, &result);
+
+    if ( rc != 0 )
+    {
+        ostringstream oss;
+
+        oss << "Cannot open server socket: " << gai_strerror(rc);
+        FassLog::log("RPCM",Log::ERROR,oss);
+
+        return -1;
+    }
+
+    socket_fd = socket(result->ai_family, result->ai_socktype, 0);
+
+    if ( socket_fd == -1 )
+    {
+        ostringstream oss;
+
+        oss << "Cannot open server socket: " << strerror(errno);
+        FassLog::log("RPCM",Log::ERROR,oss);
+
+        freeaddrinfo(result);
+
+        return -1;
+    }
+
+    rc = setsockopt(socket_fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int));
+
+    if ( rc == -1 )
+    {
+        ostringstream oss;
+
+        oss << "Cannot set socket options: " << strerror(errno);
+        FassLog::log("RPCM",Log::ERROR,oss);
+
+        close(socket_fd);
+
+        freeaddrinfo(result);
+
+        return -1;
+    }
+
+    fcntl(socket_fd,F_SETFD,FD_CLOEXEC); // Close socket in MADs
+
+    rc = bind(socket_fd, result->ai_addr, result->ai_addrlen);
+
+    freeaddrinfo(result);
+
+    if ( rc == -1)
+    {
+        ostringstream oss;
+
+        oss << "Cannot bind to " << listen_address << ":" << port << " : "
+            << strerror(errno);
+
+        FassLog::log("RPCM",Log::ERROR,oss);
+
+        close(socket_fd);
+
+        return -1;
+    }
+
+    return 0;
+
 }
