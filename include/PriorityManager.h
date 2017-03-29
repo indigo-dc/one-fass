@@ -31,41 +31,47 @@ using namespace std;
 
 extern "C" void * pm_loop(void *arg);
 
+class user                                                                           
+{                                                                                       
+public:                                                                               
+    unsigned short userID;                                                          
+    unsigned short groupID;                                                         
+    float share;                                                           
+
+    user(){};
+    user (unsigned short userID,                                                    
+      unsigned short groupID,                                                       
+      float share )                                                        
+      : userID(userID),                                                             
+        groupID(groupID),                                                                         
+        share (share)                                                                             
+        {};
+
+      ~user(){};
+}; 
 
 class PriorityManager
 {
 public:
 
-    struct user                                                                           
-    {                                                                                       
-     public:                                                                               
-          unsigned short userID;                                                          
-          unsigned short groupID;                                                         
-          float share;                                                           
 
-          user (unsigned short userID,                                                    
-            unsigned short groupID,                                                       
-            float share )                                                        
-            : userID(userID),                                                             
-              groupID(groupID),                                                                         
-              share (share)                                                                             
-              {};
 
-            ~user(){};
-        }; 
+    PriorityManager(
+    const string _one_xmlrpc,
+    const string _one_string,
+    int _message_size,
+    int _timeout,
+    unsigned int _max_vm,
+    vector<string> _shares,
+    int _manager_timer);
 
-	PriorityManager(
-        const string _one_xmlrpc,
-        const string _one_string,
-        int _message_size,
-        int _timeout,
-        unsigned int _max_vm,
-	vector<string> _shares,
-        int _manager_timer);
+    ~PriorityManager(){
+       
+        delete client;
+        delete vmpool;
+        user_list.clear();
 
-	~PriorityManager(){
-            delete client;
-        };	
+    };	
 
     pthread_t get_thread_id() const{
         return pm_thread;
@@ -84,7 +90,7 @@ public:
     VMPool * vmpool;
 
     // returns the reordered queue
-    const string& get_queue() const {
+    string& get_queue() {
         return queue;
     };
 
@@ -104,8 +110,8 @@ private:
         };
 
         pthread_t  pm_thread;        // thread for the Priority Manager
-        pthread_mutex_t mutex;
-        pthread_cond_t  cond;
+        pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+        pthread_cond_t  cond = PTHREAD_COND_INITIALIZER;
 
 	string one_xmlrpc;
 	string one_secret;
@@ -118,7 +124,7 @@ private:
         bool stop_manager;
   
 	bool set_up_pools();
-	//void do_prioritize();
+	void do_prioritize();
         bool calculate_initial_shares();
        
         XMLRPCClient *client;
@@ -127,12 +133,14 @@ private:
         // reorders the queue
         bool set_queue();
  
-        static list<user*> user_list;
+        static list<user> user_list;
 
-        user* make_user(const std::string& user_group_share, const int& sum);
-       
+        void make_user(const std::string& user_group_share, const int& sum, user* us);
+         
         // the reordered queue
         string queue;
+        // map<prio, oid> sorted in decreasing prio values
+        static map<float, int, std::greater<float> > priorities; 
 };
 
 #endif

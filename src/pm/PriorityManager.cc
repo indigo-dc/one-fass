@@ -35,29 +35,33 @@
 #include "FassLog.h"
 #include "VMPool.h"
 #include "VirtualMachine.h"
-// #include "InitShares.h"
+#include "BasicPlugin.h"
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/split.hpp>
 
-list<PriorityManager::user*> PriorityManager::user_list;
+list<user> PriorityManager::user_list;
+map<float, int, std::greater<float> > PriorityManager::priorities;
 
 // unary operator
-PriorityManager::user*
-PriorityManager::make_user(
-          const std::string& user_group_share, const int& sum) {
+void PriorityManager::make_user(
+          const std::string& user_group_share, const int& sum, user* us) {
   vector< string > tokens;
   boost::split(tokens, user_group_share, boost::is_any_of(":"));
 
   if ( 4 != tokens.size() ) {
      throw;
   }
+ 
+  int uid = boost::lexical_cast<int16_t>(tokens[1]);
+  int gid = boost::lexical_cast<int16_t>(tokens[2]);  
+  float share = boost::lexical_cast<float_t>(tokens[3])/sum;
 
-  PriorityManager::user *us = new PriorityManager::user(
-                      boost::lexical_cast<int16_t>(tokens[1]),
-                      boost::lexical_cast<int16_t>(tokens[2]),
-                      boost::lexical_cast<float_t>(tokens[3])/sum);
+  // PriorityManager::user *us = new PriorityManager::user(uid, gid, share);
+  us->userID = uid;
+  us->groupID = gid;
+  us->share = share;
 
-  return us;
+  //return us; 
 }
 
 PriorityManager::PriorityManager(
@@ -75,7 +79,8 @@ PriorityManager::PriorityManager(
                 max_vm(_max_vm),
                 shares(_shares),
                 manager_timer(_manager_timer),
-                stop_manager(false) {
+                stop_manager(false),
+                queue("") {
     // initialize XML-RPC Client
     ostringstream oss;
     int rc;
@@ -94,6 +99,10 @@ PriorityManager::PriorityManager(
     catch(runtime_error &) {
         throw;
     }
+
+    // create VM pool
+    bool live_resched = true;
+    vmpool = new VMPool(client, max_vm, live_resched);
 
     // create list of user objects with initial shares
     rc = calculate_initial_shares();
@@ -167,19 +176,39 @@ void PriorityManager::loop() {
         FassLog::log("PM", Log::ERROR, "Cannot get the VM pool!");
     }
 
+    // calculates priorities
+    do_prioritize();
+/*
+    ostringstream oss;
+    oss << "Reordered:" << endl;
+    for (std::map<float,int>::iterator it=priorities.begin(); it!=priorities.end(); ++it) {
+        oss << it->second << " " << it->first << endl;
+    } 
+    FassLog::log("SARA", Log::INFO, oss);
+*/
+    // here the queue is actually set
+    queue=vmpool->make_queue(priorities);      
+ 
     // return an xml string with reordered VMs
-    rc = set_queue();
-
-    if ( !rc ) {
-        FassLog::log("PM", Log::ERROR, "Cannot set the VM pool!");
-    }
-
-    // do_prioritize();
+//    rc = set_queue();
+//    if ( !rc ) {
+//        FassLog::log("PM", Log::ERROR, "Cannot set the VM pool!");
+//    }
 }
+
+/*
+vector<int> PriorityManager::reorder_queue(){
+
+    vector<int> retval;
+    // map<float, int> priorities;
+    priorities.sort();
+
+}
+*/
 
 bool PriorityManager::set_queue() {
     queue = "pippo";
-
+    
     return true;
 }
 
@@ -204,8 +233,8 @@ int PriorityManager::get_pending() {
     int rc;
     // VM pool
     // TODO(valzacc or svallero): is it needed?
-    bool live_resched = true;
-    vmpool = new VMPool(client, max_vm, live_resched);
+    //bool live_resched = true;
+    //vmpool = new VMPool(client, max_vm, live_resched);
 
     // cleans the cache and gets the VM pool
     rc = vmpool->set_up();
@@ -213,10 +242,9 @@ int PriorityManager::get_pending() {
     return rc;
 }
 
-/*
 void PriorityManager::do_prioritize() {
     FassLog::log("PM", Log::INFO, "Executing do_prioritize...");
-    int rc;
+    //int rc;
     ostringstream oss;
 
     VirtualMachine * vm;
@@ -226,42 +254,44 @@ void PriorityManager::do_prioritize() {
     int gid;
     int vm_memory;
     int vm_cpu;
-//    list<user> user_list;
 
     const map<int, VirtualMachine*> pending_vms = vmpool->get_objects();
 
-    time_t time_start = time(0);
-    time_t time_end   = time(0);
+//    time_t time_start = time(0);
+//    time_t time_end   = time(0);
 
-    tm tmp_tm = *localtime(&time_start);
+//    tm tmp_tm = *localtime(&time_start);
 
-    int start_month = 1;   // January
-    int start_year = 2016; // TODO Make this number settable in the config file 
+//    int start_month = 1;   // January
+//    int start_year = 2016; // TODO Make this number settable in the config file 
  
     float vm_prio = 1.0; // value from 0 to 1
 
-    tmp_tm.tm_sec  = 0;
-    tmp_tm.tm_min  = 0;
-    tmp_tm.tm_hour = 0;
-    tmp_tm.tm_mday = 1;
-    tmp_tm.tm_mon  = start_month - 1;
-    tmp_tm.tm_year = start_year - 1900;
-    tmp_tm.tm_isdst = -1; // Unknown daylight saving time
+//    tmp_tm.tm_sec  = 0;
+//    tmp_tm.tm_min  = 0;
+//    tmp_tm.tm_hour = 0;
+//    tmp_tm.tm_mday = 1;
+//    tmp_tm.tm_mon  = start_month - 1;
+//    tmp_tm.tm_year = start_year - 1900;
+//    tmp_tm.tm_isdst = -1; // Unknown daylight saving time
 
-    time_start = mktime(&tmp_tm);
+//    time_start = mktime(&tmp_tm);
 
-    // first param is the filter flag: 
-    // -3: Connected user resources
-    // -2: All resources
-    // -1: Connected user and his group resources 
-    // 0: UID User Resources
+//    // first param is the filter flag: 
+//    // -3: Connected user resources
+//    // -2: All resources
+//    // -1: Connected user and his group resources 
+//    // 0: UID User Resources
  
-    //client->call("one.vmpool.accounting", "iii", &result, 0, time_start, time_end); // how to use this info?  TODO with Sara
+//    //client->call("one.vmpool.accounting", "iii", &result, 0, time_start, time_end); // how to use this info?  TODO with Sara
 
 
     map<int, VirtualMachine*>::const_iterator  vm_it;
+    BasicPlugin *plugin;
+    // TODO(svallero or valzacc): make it a real plugin ;) 
+    plugin = new BasicPlugin();
 
-    oss << "Scheduling Results:" << endl;
+    oss << "Found pending VMs:" << endl;
 
     for (vm_it=pending_vms.begin(); vm_it != pending_vms.end(); vm_it++) {
 
@@ -269,33 +299,33 @@ void PriorityManager::do_prioritize() {
  
          vm->get_requirements(vm_cpu, vm_memory);
          oid = vm->get_oid(); 
-         vm->get_uid();
-         vm->get_gid();
+         uid = vm->get_uid();
+         gid = vm->get_gid();
+//       I think that these are not relevant 
 //         vm->get_state(); 
-// // I think that this is not relevant 
-// //         vm->get_rank();  
+//         vm->get_rank();  
+         
+         // TODO we miss the historical usage U
+         vm_prio = plugin->update_prio(oid, uid, gid, vm_cpu, vm_memory, user_list);
+         priorities.clear();
+         priorities.insert(pair<float, int>(vm_prio, oid));
  	       
-        //oss << *vm;
-        oss << oid << " ";
-        //FassLog::log("PM", Log::INFO, oss);
+         oss << oid << "(" << vm_prio << ") - " ;
+         //oss << oid << "(" << priorities[oid] << ") - " ;
     }
     FassLog::log("PM", Log::INFO, oss);
-
- 
-//  oss    << "\tNumber of VMs:            "
-//         << pending_vms.size() << endl;
-
-// FassLog::log("PM", Log::INFO, oss);
-
-
-// //shares retrieved in Fass class and passed into pm 
+    
+    oss.str("");
+    oss.clear(); 
+    oss << "Number of VMs: " << pending_vms.size() << endl;
+    FassLog::log("PM", Log::INFO, oss);
 
 
-// PluginBasic::update_prio(oid, uid, gid, vm_cpu, vm_memory, list_of_users, &vm_prio); // TODO we miss historical usage U
-
-  return;
+    // shares retrieved in Fass class and passed into pm 
+    
+    delete plugin;
+    return;
 }
-*/
 
 bool PriorityManager::calculate_initial_shares() {
     FassLog::log("PM", Log::INFO, "Evaluating initial shares...");
@@ -313,16 +343,22 @@ bool PriorityManager::calculate_initial_shares() {
 
     for (vector<string>::const_iterator i= shares.begin();
                                       i != shares.end(); i++) {
-       user_list.push_back(make_user(*i , sum));
+       user *us = new user(); 
+       make_user(*i , sum, us);
+       user_list.push_back(*us);
+       delete us;
+       //ostringstream oss;
+       //oss << "*******" << us->userID <<endl;
+       //FassLog::log("SARA", Log::INFO, oss);
     }
 
     ostringstream oss;
     oss << "" << endl;
-    for (list<user*>::const_iterator i = user_list.begin();
+    for (list<user>::const_iterator i = user_list.begin();
                                     i != user_list.end(); ++i) {
-        oss << (*i)->userID << " "
-        << (*i)->groupID << " "
-        << (*i)->share << endl;
+        oss << (*i).userID << " "
+        << (*i).groupID << " "
+        << (*i).share << endl;
     }
 
     FassLog::log("SARA", Log::INFO, oss);
