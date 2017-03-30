@@ -34,6 +34,7 @@ class FassDb
 
 public:
 
+
     // default constructor
     FassDb()
     {
@@ -64,7 +65,7 @@ class InfluxDb: public FassDb
 {
 public:
 
-    static InfluxDb& instance()
+    static FassDb& instance()
     {
         static InfluxDb influxdb;
 
@@ -117,7 +118,7 @@ private:
     // generic query
     bool query_db(string method, string q, string &retval);
 
-    // ping query, to check if the database is uo and running
+    // ping query, to check if the database is up and running
     bool ping_db();
 
     // create a new database, the action has no effect if the database already exists 

@@ -32,6 +32,7 @@
 #include <climits>
 #include <list>
 #include "Fass.h"
+#include "FassDb.h"
 #include "FassLog.h"
 #include "VMPool.h"
 #include "VirtualMachine.h"
@@ -71,7 +72,8 @@ PriorityManager::PriorityManager(
           int _timeout,
           unsigned int _max_vm,
           vector<string> _shares,
-          int _manager_timer):
+          int _manager_timer,
+          FassDb* _fassdb):
                 one_xmlrpc(_one_xmlrpc),
                 one_secret(_one_secret),
                 message_size(_message_size),
@@ -80,7 +82,9 @@ PriorityManager::PriorityManager(
                 shares(_shares),
                 manager_timer(_manager_timer),
                 stop_manager(false),
-                queue("") {
+                queue(""),
+                fassdb(_fassdb) {
+
     // initialize XML-RPC Client
     ostringstream oss;
     int rc;
@@ -110,6 +114,7 @@ PriorityManager::PriorityManager(
     if (!rc) {
         FassLog::log("PM", Log::ERROR, "Could not evaluate initial shares.");
     }
+
 }
 
 extern "C" void * pm_loop(void *arg) {
@@ -330,6 +335,7 @@ void PriorityManager::do_prioritize() {
 bool PriorityManager::calculate_initial_shares() {
     FassLog::log("PM", Log::INFO, "Evaluating initial shares...");
 
+    int rc;
     // TODO(svallero or valzacc):
     // for the time being only user shares are considered
     vector<string> norm_shares;
@@ -341,17 +347,27 @@ bool PriorityManager::calculate_initial_shares() {
         sum += boost::lexical_cast<int16_t>(tokens[3]);
     }
 
+    // all shares should be written to DB with the same timestamp    
+    long int timestamp = static_cast<long int>(time(NULL));
     for (vector<string>::const_iterator i= shares.begin();
                                       i != shares.end(); i++) {
        user *us = new user(); 
        make_user(*i , sum, us);
        user_list.push_back(*us);
+
+       // write share to DB
+       rc = fassdb->write_initial_shares(us->share,
+                                         boost::lexical_cast<string>(us->userID),
+                                         boost::lexical_cast<string>(us->groupID), 
+                                         timestamp);
+       if (!rc) {
+           FassLog::log("PM", Log::ERROR, "Could not write initial shares to DB.");
+       }
+
        delete us;
-       //ostringstream oss;
-       //oss << "*******" << us->userID <<endl;
-       //FassLog::log("SARA", Log::INFO, oss);
     }
 
+/* 
     ostringstream oss;
     oss << "" << endl;
     for (list<user>::const_iterator i = user_list.begin();
@@ -362,6 +378,7 @@ bool PriorityManager::calculate_initial_shares() {
     }
 
     FassLog::log("SARA", Log::INFO, oss);
+*/
 
     return true;
 }

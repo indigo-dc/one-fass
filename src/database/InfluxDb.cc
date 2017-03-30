@@ -82,16 +82,26 @@ bool InfluxDb::query_db(string method, string q, string &retval) {
        // up until the EOF as the content
        boost::asio::streambuf request;
        std::ostream request_stream(&request);
-       // request_stream << "GET " << "/ping" << " HTTP/1.0\r\n";
-       // request_stream << method << " " << "/ping" << " HTTP/1.0\r\n";
-       // string search = "show%20databases";
-       // request_stream << method << " " << "/query?pretty=true&db="
-       // << _dbname << "&q=" << search << " " << protocol << "\r\n";
-       request_stream << method << " " << q << " " << protocol << "\r\n";
+
+       std::string my_query("");
+       bool post=false;
+       if (method == "WRITE") {
+           post = true;
+           my_query.append("/write?db=" + _dbname);
+           method="POST";
+       } else {
+           my_query = q;
+       }
+       request_stream << method << " ";
+       request_stream << my_query << " " << protocol << "\r\n";
        request_stream << "Host: " << _endpoint << "\r\n";
        request_stream << "Accept: */*\r\n";
-       request_stream << "Content-Type: application/x-www-form-urlencoded\r\n";
+       if (post) {
+           request_stream << "Content-Type: application/x-www-form-urlencoded\r\n";
+           request_stream << "Content-Length: " << q.length() << "\r\n";
+       }
        request_stream << "Connection: close\r\n\r\n";
+       if (post) request_stream << q;
 
        // Send the request
        boost::asio::write(socket, request);
@@ -130,7 +140,7 @@ bool InfluxDb::query_db(string method, string q, string &retval) {
        if (status_code == 204) {
                // ping success results in 204
                FassLog::log("DB-QUERY", Log::DDEBUG,
-                            "Success pinging InfluxDb!");
+                            "Success!");
                return true;
        }
 
@@ -179,7 +189,7 @@ bool InfluxDb::ping_db() {
 bool InfluxDb::create_db() {
     string response;
     ostringstream query;
-    query << "/query?pretty=true&q=create%20database%20" << _dbname;
+    query << "/query?pretty=false&q=create%20database%20" << _dbname;
     bool retval = InfluxDb::query_db("POST", query.str(), response);
     return retval;
 }
@@ -189,8 +199,18 @@ bool InfluxDb::write_initial_shares(const float share,
                                     const string group,
                                     const int64_t timestamp) {
     FassLog::log("INFLUXDB", Log::INFO, "Writing initial shares.");
+    // query_db(string method, string q, string &retval)
+    string response;
+    ostringstream query;
+    query << "share,user=" << user 
+    << ",group=" << group
+    << " value=" << share
+    << " " << timestamp;
+    FassLog::log("INFLUXDB", Log::INFO, query);
+    bool retval = InfluxDb::query_db("WRITE", query.str(), response);
+    return retval;
 
-    return true;
+    //return true;
 }
 
 bool InfluxDb::write_queue(const int priority, const string user,

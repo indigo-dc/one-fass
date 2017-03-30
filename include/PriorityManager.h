@@ -19,6 +19,7 @@
 
 #include "VMPool.h"
 //#include "InitShares.h"
+#include "FassDb.h"
 #include "XMLRPCClient.h"
 #include <time.h>
 #include <pthread.h>
@@ -63,12 +64,14 @@ public:
     int _timeout,
     unsigned int _max_vm,
     vector<string> _shares,
-    int _manager_timer);
+    int _manager_timer,
+    FassDb* _fassdb);
 
     ~PriorityManager(){
        
         delete client;
         delete vmpool;
+        delete fassdb;
         user_list.clear();
 
     };	
@@ -126,8 +129,12 @@ private:
 	bool set_up_pools();
 	void do_prioritize();
         bool calculate_initial_shares();
+
+        // the reordered queue
+        string queue;
        
         XMLRPCClient *client;
+        FassDb *fassdb;
         // gets pending VMs from ONE
 	int get_pending();
         // reorders the queue
@@ -137,8 +144,6 @@ private:
 
         void make_user(const std::string& user_group_share, const int& sum, user* us);
          
-        // the reordered queue
-        string queue;
         // map<prio, oid> sorted in decreasing prio values
         static map<float, int, std::greater<float> > priorities; 
 };
