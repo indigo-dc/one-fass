@@ -27,6 +27,7 @@
 #include <boost/lexical_cast.hpp>
 
 const string VMPool::make_queue(map<float, int, std::greater<float> > prios) {
+    FassLog::log("VMPOOL", Log::DDEBUG, "Creating the queue...");
     ostringstream oss;
     // root node
     string retval;
@@ -34,6 +35,7 @@ const string VMPool::make_queue(map<float, int, std::greater<float> > prios) {
     // write header
     oss << "<" << root << ">";
     for (std::map<float,int>::iterator it=prios.begin(); it!=prios.end(); ++it) {
+         FassLog::log("SARA", Log::DDEBUG, "INSIDE THE LOOP");
          int oid = it->second;
          VirtualMachine *vm = get(oid);
          string node = vm->dump_node();
@@ -44,12 +46,13 @@ const string VMPool::make_queue(map<float, int, std::greater<float> > prios) {
          node.insert(0,prio_node);
          oss << node; 
     }
+    FassLog::log("SARA", Log::DDEBUG, "OUTSIDE THE LOOP");
     // write footer
     oss << "</" << root << ">";
     
     retval= oss.str();    
 
-    FassLog::log("SARA", Log::INFO, oss);
+    FassLog::log("VMPOOL", Log::DDEBUG, oss);
     return retval;
 }
 
@@ -103,7 +106,7 @@ int VMPool::set_up() {
                xmlrpc_c::value_array(result).vectorValueValue();
         bool   success = xmlrpc_c::value_boolean(values[0]);
 
-        // OpenNebula says failure
+        // ONE says failure
         if (!success) {
             string message = xmlrpc_c::value_string(values[1]);
 
@@ -168,82 +171,3 @@ int VMPool::load_vms(xmlrpc_c::value &result) {
         return -1;
     }
 }
-
-bool VMPool::xml_parse(const string &xml_doc) {
-    // copied from ONE ObjectXML
-    // xmlDocPtr xml = xmlReadMemory(xml_doc.c_str(), xml_doc.length(),
-    xml = xmlReadMemory(xml_doc.c_str(), xml_doc.length(),
-                                  0, 0, XML_PARSE_HUGE);
-    if (xml == 0) {
-        throw runtime_error("Error parsing XML Document");
-        return false;
-    }
-
-   
-    ctx = xmlXPathNewContext(xml);
-
-    if (ctx == 0) {
-        xmlFreeDoc(xml);
-        throw runtime_error("Unable to create new XPath context");
-        return false;
-    }
-    
-
-    return true;
-}
-
-int VMPool::get_nodes(const string& xpath_expr,
-                      std::vector<xmlNodePtr>& content) {
-    // copied from ONE
-    xmlXPathObjectPtr obj;
-
-    obj = xmlXPathEvalExpression(
-        reinterpret_cast<const xmlChar *>(xpath_expr.c_str()), ctx);
-
-        if (obj == 0) {
-        return 0;
-    }
-
-    if (obj->nodesetval == 0) {
-        xmlXPathFreeObject(obj);
-        return 0;
-    }
-
-    xmlNodeSetPtr ns = obj->nodesetval;
-    int           size = ns->nodeNr;
-    int           num_nodes = 0;
-    xmlNodePtr    cur;
-
-    for (int i = 0; i < size; ++i) {
-        cur = xmlCopyNode(ns->nodeTab[i], 1);
-
-        if ( cur == 0 || cur->type != XML_ELEMENT_NODE ) {
-            xmlFreeNode(cur);
-            continue;
-        }
-
-        content.push_back(cur);
-        num_nodes++;
-    }
-
-    xmlXPathFreeObject(obj);
-
-    return num_nodes;
-}
-/*
-int VMPool::update(int vid) const //, const string &st) const
-{
-    xmlrpc_c::value result;
-
-    try
-    {
-        client->call("one.vm.update", "is", &result, vid); //, st.c_str());
-    }
-    catch (exception const& e)
-    {
-        return -1;
-    }
-    
-	return 0;
-}
-*/

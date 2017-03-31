@@ -8,7 +8,9 @@ lib_name='fass_pm'
 # Sources to generate the library
 source_files=[
     'PriorityManager.cc',
+    'ObjectXML.cc',
     'VMPool.cc',
+    'AcctPool.cc',
     'VirtualMachine.cc',
     'BasicPlugin.cc'
 ]

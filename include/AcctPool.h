@@ -14,57 +14,39 @@
  * limitations under the License.
  */
 
-#ifndef VM_POOL_H_
-#define VM_POOL_H_
+#ifndef ACCT_POOL_H_
+#define ACCT_POOL_H_
 
-#include "VirtualMachine.h"
 #include <map>
+#include <list>
 
 #include "XMLRPCClient.h"
 #include "ObjectXML.h"
+#include "User.h"
 
 using namespace std;
 
-class VMPool: protected ObjectXML 
+class AcctPool: protected ObjectXML 
 {
 public:
 
-    /* Might be needed in the future 
-    VMPool(XMLRPCClient *  _client,
-           unsigned int   _machines_limit,
-           bool           _live_resched):
-		client(_client),
-		machines_limit(_machines_limit),
-        	live_resched(_live_resched){ */
-    VMPool(XMLRPCClient *  _client):
+    AcctPool(XMLRPCClient *  _client):
                 ObjectXML(),
 		client(_client) {
     };
 
-    ~VMPool() {
-
-    	flush();
-
+    ~AcctPool() {
+        objects.clear();
     };
 
-    // returns the map of VM objects
-    const map<int, VirtualMachine*>& get_objects() const {
-
-        return objects;
-
-    };
-
-    // retrieves the pending and rescheduling VMs:
-    //    0 on success
-    //   -1 on error
-    //   -2 if no VMs need to be scheduled
-    int set_up();
+    // retrieves the accounting information
+    int set_up(list<user> user_list);
 
     // gets an object from the pool
-    VirtualMachine * get(int oid) const
+    xmlNodePtr get(int oid) const
     {
 
-	map<int, VirtualMachine *>::const_iterator it;
+	map<int, xmlNodePtr >::const_iterator it;
 
         it = objects.find(oid);
 
@@ -74,24 +56,18 @@ public:
         }
         else
         {
-            return static_cast<VirtualMachine *> (it->second);
+            return static_cast<xmlNodePtr > (it->second);
         }
         
     };
 
-    // creates the ordered queue
-    const string make_queue(map<float, int, std::greater<float> > prios);
-
 private:
 
-    // deletes pool objects
-    void flush();
-
     // adds an object to the pool
-    void add_object(xmlNodePtr node);
+    void add_object(int uid, xmlNodePtr node);
  
     // gets list of VMs from ONE
-    int load_vms(xmlrpc_c::value &result);
+    int load_acct(xmlrpc_c::value &result);
 
     // class variables
 
@@ -100,7 +76,7 @@ private:
     //bool live_resched;
 
     // hash map contains the suitable [id, object] pairs
-    map<int, VirtualMachine *> objects; 
+    map<int, xmlNodePtr> objects; 
 };
 
 

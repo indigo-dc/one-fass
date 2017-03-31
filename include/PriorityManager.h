@@ -18,38 +18,18 @@
 #define PRIORITY_MANAGER_H_
 
 #include "VMPool.h"
-//#include "InitShares.h"
+#include "AcctPool.h"
 #include "FassDb.h"
 #include "XMLRPCClient.h"
+#include "User.h"
+
 #include <time.h>
 #include <pthread.h>
 #include <list>
-//#include <boost/algorithm/string/classification.hpp>
-//#include <boost/algorithm/string/split.hpp>
-//#include <boost/lexical_cast.hpp>
 
 using namespace std;
 
 extern "C" void * pm_loop(void *arg);
-
-class user                                                                           
-{                                                                                       
-public:                                                                               
-    unsigned short userID;                                                          
-    unsigned short groupID;                                                         
-    float share;                                                           
-
-    user(){};
-    user (unsigned short userID,                                                    
-      unsigned short groupID,                                                       
-      float share )                                                        
-      : userID(userID),                                                             
-        groupID(groupID),                                                                         
-        share (share)                                                                             
-        {};
-
-      ~user(){};
-}; 
 
 class PriorityManager
 {
@@ -62,7 +42,7 @@ public:
     const string _one_string,
     int _message_size,
     int _timeout,
-    unsigned int _max_vm,
+    // unsigned int _max_vm,
     vector<string> _shares,
     int _manager_timer,
     FassDb* _fassdb);
@@ -71,7 +51,7 @@ public:
        
         delete client;
         delete vmpool;
-        delete fassdb;
+        delete acctpool;
         user_list.clear();
 
     };	
@@ -91,6 +71,7 @@ public:
     };
 
     VMPool * vmpool;
+    AcctPool * acctpool;
 
     // returns the reordered queue
     string& get_queue() {
@@ -121,14 +102,15 @@ private:
 	int message_size;
 	int timeout;
 
-	unsigned int max_vm;
+	// unsigned int max_vm;
 	vector<string> shares;	
         int manager_timer; 
         bool stop_manager;
   
-	bool set_up_pools();
-	void do_prioritize();
         bool calculate_initial_shares();
+	bool set_up_pools();
+        void historical_usage(long int timestamp);
+	void do_prioritize(long int timestamp);
 
         // the reordered queue
         string queue;
@@ -137,8 +119,6 @@ private:
         FassDb *fassdb;
         // gets pending VMs from ONE
 	int get_pending();
-        // reorders the queue
-        bool set_queue();
  
         static list<user> user_list;
 
