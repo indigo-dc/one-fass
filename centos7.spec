@@ -1,7 +1,7 @@
 Name: one-fass
 Version: systemd_devel
 Summary: A FairShare Scheduling Service for Opennebula 
-Release: 0
+Release: 1.0
 License: Apache
 Group: System
 URL: https://github.com/indigo-dc/one-fass
@@ -56,7 +56,7 @@ Requires: coreutils
 Requires: glibc-common
 
 %description service
-This package provides the Fass daemon (fassd).
+This package provides the Fass daemon (fassd) and a patched verion of the OpenNbula scheduler (mm_sched_fass).
 
 ################################################################################
 # Package common
