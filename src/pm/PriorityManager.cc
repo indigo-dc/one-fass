@@ -174,7 +174,7 @@ extern "C" void * pm_loop(void *arg) {
 void PriorityManager::loop() {
     FassLog::log("PM", Log::INFO, "PRIORITY MANAGER LOOP:");
     // all entries  should be written to DB with the same timestamp
-    int64_t timestamp = static_cast<long int>(time(NULL));
+    int64_t timestamp = static_cast<int64_t>(time(NULL));
 
     int rc;
 
@@ -219,17 +219,17 @@ int PriorityManager::start() {
     return true;
 }
 
-void PriorityManager::historical_usage(long int timestamp){
+void PriorityManager::historical_usage(int64_t timestamp) {
     FassLog::log("PM", Log::DEBUG, "Evaluating historical usage...");
     int rc;
-     
+
     // vector of user ids
     vector<int> uids;
     for (list<User>::const_iterator i = user_list.begin();
                                     i != user_list.end(); ++i) {
         uids.push_back((*i).userID);
     }
-    
+
     rc = acctpool->set_up(uids);
 
     if ( rc != 0 ) {
@@ -238,22 +238,24 @@ void PriorityManager::historical_usage(long int timestamp){
 
 
     // setup time
-    int start_month = 1;   // January
-    int start_year = 2016; // TODO Make this number settable in the config file 
+    int start_month = 1;  // January
+    int start_year = 2016;  // TODO(valzacc): set it in the config file
 
-    // TODO: capire...
+    // TODO(svallero): capire...
     // time_t time_start = time(0);
-    long int time_start = 0;
-    tm tmp_tm = *localtime(&time_start);
+    int64_t time_start = 0;
+    // tm tmp_tm = *localtime(&time_start);
+    struct tm tmp_tm;
+    localtime_r(&time_start, &tmp_tm);
     tmp_tm.tm_sec  = 0;
     tmp_tm.tm_min  = 0;
     tmp_tm.tm_hour = 0;
     tmp_tm.tm_mday = 1;
     tmp_tm.tm_mon  = start_month - 1;
     tmp_tm.tm_year = start_year - 1900;
-    tmp_tm.tm_isdst = -1; // Unknown daylight saving time
+    tmp_tm.tm_isdst = -1;  // Unknown daylight saving time
 
-    time_start = static_cast<long int>(mktime(&tmp_tm));
+    time_start = static_cast<uint16_t>(mktime(&tmp_tm));
 /*
     ostringstream tmp;
     tmp << "" << endl;
@@ -261,8 +263,8 @@ void PriorityManager::historical_usage(long int timestamp){
     tmp << "stop: " << timestamp << endl;
     FassLog::log("SARA", Log::INFO, tmp);
 */
-    // evaluate historical usage 
-    // user_ids, start_time, stop_time, period, n_periods  
+    // evaluate historical usage
+    // user_ids, start_time, stop_time, period, n_periods
     // TODO(svallero): take period and n_periods from config
     // long int period = 3600;
     // int n_periods = 3;
@@ -318,7 +320,7 @@ void PriorityManager::do_prioritize(int64_t timestamp) {
 
     for (vm_it=pending_vms.begin(); vm_it != pending_vms.end(); vm_it++) {
          vm = static_cast<VMObject*>(vm_it->second);
- 
+
          vm->get_requirements(vm_cpu, vm_memory);
          oid = vm->get_oid();
          uid = vm->get_uid();
@@ -359,7 +361,7 @@ bool PriorityManager::calculate_initial_shares() {
         sum += boost::lexical_cast<int16_t>(tokens[3]);
     }
 
-    // all shares should be written to DB with the same timestamp    
+    // all shares should be written to DB with the same timestamp
     int64_t timestamp = static_cast<int64_t>(time(NULL));
     for (vector<string>::const_iterator i= shares.begin();
                                       i != shares.end(); i++) {

@@ -44,7 +44,7 @@ int AcctPool::eval_usage(list<User> user_list, long int time_start,
 */
 
 void AcctPool::flush() {
-    map<int, AcctObject*>::iterator it; 
+    map<int, AcctObject*>::iterator it;
     for (it = objects.begin(); it != objects.end(); it++) {
         delete it->second;
     }
@@ -61,7 +61,7 @@ void AcctPool::make_object(int uid, xmlNodePtr node) {
 
 
         AcctObject *acct = new AcctObject(node);
- 
+
         objects.insert(pair<int, AcctObject*>(uid, acct));
 
         ostringstream   oss;
@@ -141,10 +141,10 @@ int AcctPool::set_up(vector<int> const &uids) {
                 if (u_nodes[j]) xmlFreeNode(u_nodes[j]);
             }
             // if (n_nodes) {
-            //    add_object(uid, node, time_start, time_stop, period, n_periods);
-            //    xmlFreeNode(node);
+            //  add_object(uid, node, time_start, time_stop, period, n_periods);
+            //  xmlFreeNode(node);
             // }
-            //free_nodes(u_nodes);
+            // free_nodes(u_nodes);
         }
 
         // clean global variables that might have been allocated by the parser

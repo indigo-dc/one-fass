@@ -97,7 +97,7 @@ bool InfluxDb::query_db(string method, string q, string &retval) {
        request_stream << "Host: " << _endpoint << "\r\n";
        request_stream << "Accept: */*\r\n";
        if (post) {
-           request_stream 
+           request_stream
                    << "Content-Type: application/x-www-form-urlencoded\r\n";
            request_stream << "Content-Length: " << q.length() << "\r\n";
        }

@@ -70,7 +70,7 @@ int main(int argc, char **argv) {
   // "/query?pretty=true&db=mydb&q=show%20databases"
   // << " HTTP/1.0\r\n";
   std::string content("zeppola,user=pippo,group=pluto value=0.3");
-  request_stream << "POST " 
+  request_stream << "POST "
   << "/write?db=mydb"
   << " HTTP/1.1\r\n";
   request_stream << "Host: " << "localhost:8086" << "\r\n";
