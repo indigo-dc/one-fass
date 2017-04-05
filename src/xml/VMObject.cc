@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "VirtualMachine.h"
+#include "VMObject.h"
 
 #include <stdexcept>
 #include <cstring>
@@ -24,42 +24,13 @@
 #include <string>
 #include <vector>
 
-void VirtualMachine::init(const xmlNodePtr node) {
-    // constructs the object
-    xml = xmlNewDoc(reinterpret_cast<const xmlChar *>("1.0"));
+void VMObject::init_attributes() {
+    //vector<xmlNodePtr> nodes;
 
-    if (xml == 0) {
-        throw("Error allocating XML Document");
-    }
+    //int rc;
+    //int action;
 
-    ctx = xmlXPathNewContext(xml);
-
-    if (ctx == 0) {
-        xmlFreeDoc(xml);
-        throw("Unable to create new XPath context");
-    }
-
-    xmlNodePtr root_node = xmlDocCopyNode(node, xml, 1);
-
-    if (root_node == 0) {
-        xmlXPathFreeContext(ctx);
-        xmlFreeDoc(xml);
-        throw("Unable to allocate node");
-    }
-
-    xmlDocSetRootElement(xml, root_node);
-
-    // initialize VM attributes
-    init_attributes();
-}
-
-void VirtualMachine::init_attributes() {
-    vector<xmlNodePtr> nodes;
-
-    int rc;
-    int action;
-
-    string automatic_requirements;
+    //string automatic_requirements;
 
     xpath(oid, "/VM/ID", -1);
     xpath(uid, "/VM/UID", -1);
@@ -70,12 +41,12 @@ void VirtualMachine::init_attributes() {
 
 }
 
-void VirtualMachine::add_requirements(float c, int m) { 
+void VMObject::add_requirements(float c, int m) { 
     cpu    += c;
     memory += m;
 }
 
-void VirtualMachine::reset_requirements(float& c, int& m) {
+void VMObject::reset_requirements(float& c, int& m) {
     c = cpu;
     m = memory;
 
@@ -83,7 +54,7 @@ void VirtualMachine::reset_requirements(float& c, int& m) {
     memory = 0;
 }
 
-void VirtualMachine::get_requirements(int& cpu, int& memory) {
+void VMObject::get_requirements(int& cpu, int& memory) {
 
     if (this->memory == 0 || this->cpu == 0) {
         cpu    = 0;

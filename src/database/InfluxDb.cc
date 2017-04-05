@@ -134,7 +134,7 @@ bool InfluxDb::query_db(string method, string q, string &retval) {
                oss_sc << "Response returned with status code " << status_code;
                // retval=oss_sc.str();
                retval = status_message;
-               FassLog::log("DB_QUERY", Log::ERROR, retval);
+               FassLog::log("DB-QUERY", Log::ERROR, retval);
                return false;
        }
        if (status_code == 204) {
@@ -198,7 +198,7 @@ bool InfluxDb::write_initial_shares(const float share,
                                     const string user,
                                     const string group,
                                     const int64_t timestamp) {
-    FassLog::log("INFLUXDB", Log::INFO, "Writing initial shares.");
+    FassLog::log("INFLUXDB", Log::DEBUG, "Writing initial shares.");
     // query_db(string method, string q, string &retval)
     string response;
     ostringstream query;
@@ -206,7 +206,7 @@ bool InfluxDb::write_initial_shares(const float share,
     << ",group=" << group
     << " value=" << share
     << " " << timestamp;
-    FassLog::log("INFLUXDB", Log::INFO, query);
+    FassLog::log("INFLUXDB", Log::DEBUG, query);
     bool retval = InfluxDb::query_db("WRITE", query.str(), response);
     return retval;
 

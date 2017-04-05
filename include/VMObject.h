@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef VIRTUAL_MACHINE_H_
-#define VIRTUAL_MACHINE_H_
+#ifndef VM_OBJECT_H_
+#define VM_OBJECT_H_
 
 #include <sstream>
 #include <string>
@@ -31,26 +31,22 @@
 
 using namespace std;
 
-class VirtualMachine: protected ObjectXML
+class VMObject: protected ObjectXML
 {
 public:
 
     // constructs an object using a XML node, 
     // the node is copied to the new object
-    VirtualMachine(const xmlNodePtr node): ObjectXML() {
+    VMObject(const xmlNodePtr node): ObjectXML() {
         init(node);
+        init_attributes();
     };
 
-    ~VirtualMachine(){};
+    ~VMObject(){};
 
     const string dump_node(){
-        xmlChar *s;
-        int size;
 
-        xmlDocDumpMemory((xmlDocPtr)xml, &s, &size);
-
-        string xml_string = (char *)s;
-        xmlFree(s);
+        string xml_string = dump(xml);
     
         // remove annoying header
         size_t pos = xml_string.find("<VM>");
@@ -89,7 +85,6 @@ public:
 
 private:
     
-    void init(const xmlNodePtr node);
     void init_attributes();
 
     // VM attributes 

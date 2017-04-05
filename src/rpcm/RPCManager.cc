@@ -153,12 +153,13 @@ bool RPCManager::start() {
     pthread_attr_init(&pattr);
     pthread_attr_setdetachstate(&pattr, PTHREAD_CREATE_JOINABLE);
 
-    oss << "Starting XML-RPC server, port " << port << " ...";
-    FassLog::log("RPCM", Log::INFO, oss);
+    oss << "Threading XML-RPC server, port " << port << ".";
+    FassLog::log("RPCM", Log::DEBUG, oss);
 
     pthread_create(&rm_xml_server_thread, &pattr, rm_xml_server_loop,
                    reinterpret_cast<void *>(this));
 
+    FassLog::log("RPCM", Log::INFO, "...started.");
     return true;
 }
 

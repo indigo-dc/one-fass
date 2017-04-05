@@ -18,23 +18,24 @@
 #ifndef USER_H_
 #define USER_H_
 
-class user                                                                           
-{                                                                                       
-public:                                                                               
-    unsigned short userID;                                                          
-    unsigned short groupID;                                                         
-    float share;                                                           
+class User
+{
+public:
+    unsigned short userID;
+    unsigned short groupID;
+    float share;
 
-    user(){};
-    user (unsigned short userID,                                                    
-      unsigned short groupID,                                                       
-      float share )                                                        
-      : userID(userID),                                                             
-        groupID(groupID),                                                                         
-        share (share)                                                                             
+    User() {};
+    User(unsigned short userID,
+      unsigned short groupID,
+      float share):
+        userID(userID),
+        groupID(groupID),
+        share(share)
         {};
 
-      ~user(){};
-}; 
+      ~User(){};
+
+};
  
 #endif

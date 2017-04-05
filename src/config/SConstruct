@@ -1,4 +1,4 @@
-# SConstruct for src/fass
+# SConstruct for src/config
 
 import os
 Import('env')
@@ -17,10 +17,8 @@ env.StaticLibrary(lib_name, source_files)
 
 # Build daemon
 env.Prepend(LIBS=[
-    'fass_core',
-    'fass_config',
-    'fass_pm',
-    'fass_log'
+    'fass_log',
+    'fass_config'
 ])
 
 if not env.GetOption('clean'):

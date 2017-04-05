@@ -38,13 +38,14 @@ main_env.Append(CPPPATH=[
 
 # Library dirs
 main_env.Append(LIBPATH=[
-    cwd+'/src/fass',
-    cwd+'/src/config',
     cwd+'/src/logger',
-    cwd+'/src/rpcm', 
     cwd+'/src/client',
+    cwd+'/src/config',
     cwd+'/src/database',
-    cwd+'/src/pm'
+    cwd+'/src/xml',
+    cwd+'/src/pm',
+    cwd+'/src/rpcm', 
+    cwd+'/src/fass'
 ])
 
 # Compile flags
@@ -158,13 +159,14 @@ main_env.ParseConfig('xml2-config --libs --cflags')
 
 # SCONS scripts to build
 build_scripts=[
-    'src/fass/SConstruct',
-    'src/config/SConstruct',
     'src/logger/SConstruct',
-    'src/rpcm/SConstruct',
     'src/client/SConstruct',
+    'src/config/SConstruct',
     'src/database/SConstruct',
-    'src/pm/SConstruct'
+    'src/xml/SConstruct',
+    'src/pm/SConstruct',
+    'src/rpcm/SConstruct',
+    'src/fass/SConstruct'
 ]
 
 for script in build_scripts:

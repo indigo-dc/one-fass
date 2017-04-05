@@ -17,7 +17,7 @@
 #ifndef VM_POOL_H_
 #define VM_POOL_H_
 
-#include "VirtualMachine.h"
+#include "VMObject.h"
 #include <map>
 
 #include "XMLRPCClient.h"
@@ -48,7 +48,7 @@ public:
     };
 
     // returns the map of VM objects
-    const map<int, VirtualMachine*>& get_objects() const {
+    const map<int, VMObject*>& get_objects() const {
 
         return objects;
 
@@ -61,10 +61,10 @@ public:
     int set_up();
 
     // gets an object from the pool
-    VirtualMachine * get(int oid) const
+    VMObject * get(int oid) const
     {
 
-	map<int, VirtualMachine *>::const_iterator it;
+	map<int, VMObject *>::const_iterator it;
 
         it = objects.find(oid);
 
@@ -74,7 +74,7 @@ public:
         }
         else
         {
-            return static_cast<VirtualMachine *> (it->second);
+            return static_cast<VMObject *> (it->second);
         }
         
     };
@@ -100,7 +100,7 @@ private:
     //bool live_resched;
 
     // hash map contains the suitable [id, object] pairs
-    map<int, VirtualMachine *> objects; 
+    map<int, VMObject *> objects; 
 };
 
 

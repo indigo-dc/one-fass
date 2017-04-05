@@ -120,9 +120,9 @@ private:
         // gets pending VMs from ONE
 	int get_pending();
  
-        static list<user> user_list;
+        static list<User> user_list;
 
-        void make_user(const std::string& user_group_share, const int& sum, user* us);
+        void make_user(const std::string& user_group_share, const int& sum, User* us);
          
         // map<prio, oid> sorted in decreasing prio values
         static map<float, int, std::greater<float> > priorities; 

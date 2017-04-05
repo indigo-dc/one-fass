@@ -46,8 +46,22 @@ public:
         if (xml != 0) {
             xmlFreeDoc(xml);
         }
-
+        xmlCleanupParser();
     };
+
+    const string dump(xmlDocPtr xml_doc){
+        xmlChar *s;
+        int size;
+
+        xmlDocDumpMemory((xmlDocPtr)xml_doc, &s, &size);
+
+        string xml_string = (char *)s;
+        xmlFree(s);
+
+        return xml_string;
+        }        
+
+    void init(const xmlNodePtr node);
 
 protected:
 

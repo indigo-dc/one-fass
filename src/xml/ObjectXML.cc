@@ -26,9 +26,37 @@
 #include <vector>
 #include <boost/lexical_cast.hpp>
 
+void ObjectXML::init(const xmlNodePtr node) {
+    // constructs the object
+    xml = xmlNewDoc(reinterpret_cast<const xmlChar *>("1.0"));
+
+    if (xml == 0) {
+        throw("Error allocating XML Document");
+    }
+
+    ctx = xmlXPathNewContext(xml);
+
+    if (ctx == 0) {
+        xmlFreeDoc(xml);
+        throw("Unable to create new XPath context");
+    }
+
+    xmlNodePtr root_node = xmlDocCopyNode(node, xml, 1);
+
+    if (root_node == 0) {
+        xmlXPathFreeContext(ctx);
+        xmlFreeDoc(xml);
+        throw("Unable to allocate node");
+    }
+
+    xmlDocSetRootElement(xml, root_node);
+
+}
+
 bool ObjectXML::xml_parse(const string &xml_doc) {
     // copied from ONE ObjectXML
     // xmlDocPtr xml = xmlReadMemory(xml_doc.c_str(), xml_doc.length(),
+    //xmlInitParser();
     xml = xmlReadMemory(xml_doc.c_str(), xml_doc.length(),
                                   0, 0, XML_PARSE_HUGE);
     if (xml == 0) {
@@ -45,7 +73,7 @@ bool ObjectXML::xml_parse(const string &xml_doc) {
         return false;
     }
     
-
+    //xmlCleanupParser();
     return true;
 }
 

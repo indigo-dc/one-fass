@@ -16,19 +16,48 @@
 
 #include "AcctPool.h"
 
-#include <libxml/parser.h>
-#include <libxml/tree.h>
-#include <libxml/xpath.h>
-#include <libxml/xpathInternals.h>
-#include <assert.h>
-#include <stdexcept>
-#include <iomanip>
-#include <vector>
-#include <boost/lexical_cast.hpp>
-
 using namespace std;
 
-void AcctPool::add_object(int uid, xmlNodePtr node) {
+
+/*
+int AcctPool::eval_usage(list<User> user_list, long int time_start,
+                                         long int time_stop, 
+                                         long int period, 
+                                         int n_periods) {
+    FassLog::log("AcctPool", Log::INFO, "Setting historical usage per user...");
+    // loop over users
+
+    for (list<User>::iterator i = user_list.begin();
+                                   i != user_list.end(); ++i) {
+    
+        int uid = (*i).userID;
+        xmlNodePtr node = this->get(uid);    
+        //if (node) (*i).set_usage(node);
+
+        //ostringstream oss;
+        //oss << "UID ***" << endl;
+        //oss << "THIS IS THE NODE" << endl;
+        //oss << uid << endl; 
+        //FassLog::log("SARA", Log::INFO, oss);
+
+    }
+
+    return 0;
+}
+*/
+
+void AcctPool::flush() {
+ 
+    map<int, AcctObject*>::iterator it; 
+    for (it = objects.begin(); it != objects.end(); it++) { 
+        delete it->second;
+    }
+
+    objects.clear();
+}
+
+void AcctPool::make_object(int uid, xmlNodePtr node) {
+
         if ( node == 0 || node->children == 0 || node->children->next == 0 ) {
               FassLog::log("AcctPool", Log::ERROR,
               "XML Node does not represent a valid accounting entry");
@@ -36,20 +65,23 @@ void AcctPool::add_object(int uid, xmlNodePtr node) {
         }
 
 
-        objects.insert(pair<int, xmlNodePtr>(uid, node));
+        AcctObject *acct = new AcctObject(node);
+ 
+        objects.insert(pair<int, AcctObject*>(uid, acct));
 
         ostringstream   oss;
-        oss << "Inserting accounting object with UID: " << uid;
+        oss << "Creating accounting object with OID: " << acct->get_oid();
         FassLog::log("AcctPool", Log::DDEBUG, oss);
-        FassLog::log("SARA", Log::INFO, oss);
+       
+        return;
 }
 
-int AcctPool::set_up(list<user> user_list) {
+int AcctPool::set_up(vector<int> const &uids) {
         int rc;
         ostringstream   oss;
 
         // clean the pool to get updated data from OpenNebula
-        objects.clear();
+        flush();
 
         // load the complete pool of VMs from OpenNebula
         xmlrpc_c::value result;
@@ -92,40 +124,36 @@ int AcctPool::set_up(list<user> user_list) {
 
         // loop over known users
         // all the nodes for one user should be merged in one pool node
-        for (list<user>::const_iterator i = user_list.begin();
-                                        i != user_list.end(); ++i) {
+        for (vector<int>::const_iterator i = uids.begin();
+                                        i != uids.end(); ++i) {
             oss.str("");
             oss.clear();
             // get root node context 
             std::vector<xmlNodePtr> u_nodes;
             int n_nodes;
-            int uid = (*i).userID; 
+            int uid = (*i); 
             ostringstream search;
-            //search << "/HISTORY_RECORDS/HISTORY/VM[UID=" << uid << "]";
             search << "/HISTORY_RECORDS/HISTORY[VM/UID=" << uid << "]";
             n_nodes = get_nodes(search.str(), u_nodes);
 
             oss << "I got " << n_nodes << " nodes for user " << uid << endl;
             FassLog::log("AcctPool", Log::DEBUG, oss);
-            xmlNodePtr node;
+            // xmlNodePtr node;
             for (unsigned int j = 0 ; j < u_nodes.size(); j++) {
-                //ostringstream tmp;
-                //tmp << "Processing node " << j << endl;
-                //FassLog::log("SARA", Log::DEBUG, tmp );
-                if (j == 0) node = xmlCopyNode(u_nodes[j],1);
-                else node = xmlTextMerge(node, u_nodes[j]);
+                // if (j == 0) node = xmlCopyNode(u_nodes[j],1);
+                // else node= xmlTextMerge(node, u_nodes[j]);
+                make_object(uid, u_nodes[j]);
+                if (u_nodes[j]) xmlFreeNode(u_nodes[j]);
             }
-
-            if (n_nodes) {
-                AcctPool::add_object(uid, node);
-                xmlFreeNode(node);
-            }
-            free_nodes(u_nodes);
+            // if (n_nodes) {
+            //    add_object(uid, node, time_start, time_stop, period, n_periods);
+            //    xmlFreeNode(node);
+            // }
+            //free_nodes(u_nodes);
         }
 
         // clean global variables that might have been allocated by the parser
         xmlCleanupParser();
-
     return rc;
 }
 

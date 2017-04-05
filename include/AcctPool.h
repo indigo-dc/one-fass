@@ -18,11 +18,13 @@
 #define ACCT_POOL_H_
 
 #include <map>
+#include <vector>
 #include <list>
 
 #include "XMLRPCClient.h"
 #include "ObjectXML.h"
-#include "User.h"
+#include "AcctObject.h"
+
 
 using namespace std;
 
@@ -36,13 +38,22 @@ public:
     };
 
     ~AcctPool() {
-        objects.clear();
+        flush();
     };
 
     // retrieves the accounting information
-    int set_up(list<user> user_list);
+    // evaluate historical usage and store it as AcctObject 
+    /*
+    int eval_usage(vector<int> const &uids,
+                          long int &time_start,
+                          long int &time_stop,
+                          long int &period,
+                          int &n_periods);
+    */
+    int set_up(vector<int> const &uids);
 
     // gets an object from the pool
+    /*
     xmlNodePtr get(int oid) const
     {
 
@@ -60,11 +71,14 @@ public:
         }
         
     };
-
+*/
 private:
 
+    // deletes pool objects 
+    void flush(); 
+
     // adds an object to the pool
-    void add_object(int uid, xmlNodePtr node);
+    void make_object(int uid, xmlNodePtr node);
  
     // gets list of VMs from ONE
     int load_acct(xmlrpc_c::value &result);
@@ -72,12 +86,11 @@ private:
     // class variables
 
     XMLRPCClient *  client;
-    //unsigned int   machines_limit;
-    //bool live_resched;
 
     // hash map contains the suitable [id, object] pairs
-    map<int, xmlNodePtr> objects; 
-};
+    map<int, AcctObject*> objects; 
+    //map<int, list<AcctObject*> > objects; 
 
+};
 
 #endif

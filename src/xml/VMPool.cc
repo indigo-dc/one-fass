@@ -35,9 +35,8 @@ const string VMPool::make_queue(map<float, int, std::greater<float> > prios) {
     // write header
     oss << "<" << root << ">";
     for (std::map<float,int>::iterator it=prios.begin(); it!=prios.end(); ++it) {
-         FassLog::log("SARA", Log::DDEBUG, "INSIDE THE LOOP");
          int oid = it->second;
-         VirtualMachine *vm = get(oid);
+         VMObject *vm = get(oid);
          string node = vm->dump_node();
          // we add the prio value to the XML string
          size_t pos = node.find("<VM>");
@@ -46,13 +45,12 @@ const string VMPool::make_queue(map<float, int, std::greater<float> > prios) {
          node.insert(0,prio_node);
          oss << node; 
     }
-    FassLog::log("SARA", Log::DDEBUG, "OUTSIDE THE LOOP");
     // write footer
     oss << "</" << root << ">";
     
     retval= oss.str();    
 
-    FassLog::log("VMPOOL", Log::DDEBUG, oss);
+    FassLog::log("VMPOOL", Log::DDDEBUG, oss);
     return retval;
 }
 
@@ -63,9 +61,9 @@ void VMPool::add_object(xmlNodePtr node) {
               return;
         }
 
-        VirtualMachine* vm = new VirtualMachine(node);
+        VMObject* vm = new VMObject(node);
 
-        objects.insert(pair<int, VirtualMachine*>(vm->get_oid(), vm));
+        objects.insert(pair<int, VMObject*>(vm->get_oid(), vm));
 
         ostringstream   oss;
         oss << "Inserting VM object with ID: " << vm->get_oid();
@@ -73,7 +71,7 @@ void VMPool::add_object(xmlNodePtr node) {
 }
 
 void VMPool::flush() {
-        map<int, VirtualMachine*>::iterator it;
+        map<int, VMObject*>::iterator it;
 
         for (it = objects.begin(); it != objects.end(); it++) {
             delete it->second;

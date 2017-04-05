@@ -1,4 +1,4 @@
-# SConstruct for src/fass
+# SConstruct for src/database
 
 import os
 Import('env')

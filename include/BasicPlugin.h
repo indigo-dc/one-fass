@@ -31,7 +31,7 @@ public:
         // methods that should be implemented in custom plugin
 	float update_prio(int oid, int uid, int gid,
                          int vm_cpu, int vm_memory,
-                         list<user> list_of_users);
+                         list<User> list_of_users);
 };
 
 #endif

@@ -1,14 +1,17 @@
-# SConstruct for src/pm
+# SConstruct for src/xml
 
 import os
 Import('env')
 
-lib_name='fass_pm'
+lib_name='fass_xml'
 
 # Sources to generate the library
 source_files=[
-    'PriorityManager.cc',
-    'BasicPlugin.cc'
+    'ObjectXML.cc',
+    'VMPool.cc',
+    'VMObject.cc',
+    'AcctPool.cc',
+    'AcctObject.cc'
 ]
 
 # Build library
@@ -16,11 +19,9 @@ env.StaticLibrary(lib_name, source_files)
 
 # Build daemon
 env.Prepend(LIBS=[
-    'fass_db',
     'fass_log',
     'fass_client',
-    'fass_xml',
-    'fass_pm'
+    'fass_xml'
 ])
 
 if not env.GetOption('clean'):
