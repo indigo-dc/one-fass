@@ -82,7 +82,8 @@ scons
 
 %install
 export DESTDIR=%{buildroot}
-./install.sh
+#./install.sh
+./rpmbuild.sh
 
 # init scripts
 install -p -D -m 755 systemd/fass.service %{buildroot}/lib/systemd/system/fass.service
