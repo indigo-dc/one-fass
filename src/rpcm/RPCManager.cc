@@ -162,8 +162,6 @@ bool RPCManager::setup_socket() {
     int                 yes = 1;
     struct sockaddr_in  rm_addr;
 
-    
-
     socket_fd = socket(AF_INET, SOCK_STREAM, 0);
 
     if ( socket_fd == -1 ) {
@@ -277,13 +275,13 @@ int RPCManager::setup_socket_new() {
         return -1;
     }
 
-    fcntl(socket_fd,F_SETFD,FD_CLOEXEC); // Close socket in MADs
+    fcntl(socket_fd,F_SETFD,FD_CLOEXEC);  // Close socket in MADs
 
     rc = bind(socket_fd, result->ai_addr, result->ai_addrlen);
 
     freeaddrinfo(result);
 
-    if ( rc == -1) {
+    if ( rc == -1 ) {
         ostringstream oss;
 
         oss << "Cannot bind to " << listen_address << ":" << port << " : "
