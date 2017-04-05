@@ -65,13 +65,20 @@ int main(int argc, char **argv) {
 
   boost::asio::streambuf request;
   std::ostream request_stream(&request);
-  request_stream << "GET " << "/ping" << " HTTP/1.0\r\n";
+  // request_stream << "GET " << "/ping" << " HTTP/1.0\r\n";
   // request_stream << "GET " <<
   // "/query?pretty=true&db=mydb&q=show%20databases"
   // << " HTTP/1.0\r\n";
-  request_stream << "Host: " << "localhost" << "\r\n";
+  std::string content("zeppola,user=pippo,group=pluto value=0.3");
+  request_stream << "POST "
+  << "/write?db=mydb"
+  << " HTTP/1.1\r\n";
+  request_stream << "Host: " << "localhost:8086" << "\r\n";
+  request_stream << "Content-Type: application/x-www-form-urlencoded \r\n";
   request_stream << "Accept: */*\r\n";
+  request_stream << "Content-Length: " << content.length() << "\r\n";
   request_stream << "Connection: close\r\n\r\n";
+  request_stream << content;
 
   // Send the request.
   boost::asio::write(socket, request);
@@ -97,6 +104,8 @@ int main(int argc, char **argv) {
   if (status_code != 200) {
         std::cout << "Response returned with status code "
                       << status_code << "\n";
+        std::cout << status_message << "\n";
+        std::cout << response_stream.rdbuf() << "\n";
             return 1;
   }
 

@@ -194,7 +194,8 @@ void Fass::start(bool bootstrap_only) {
     // }
 
     pm = new PriorityManager(one_endpoint, one_secret, message_size,
-                    timeout, machines_limit, shares, manager_timer);
+                    timeout, shares, manager_timer, database);
+         // timeout, machines_limit, shares, manager_timer, database);
     }
 
     catch (bad_alloc&) {
@@ -277,10 +278,9 @@ void Fass::start(bool bootstrap_only) {
 
     /** Stop the managers and free resources */
 
+    rpcm->finalize();
     pm->finalize();
 
-    delete fass_configuration;
-    delete initial_shares;
     // sleep to wait drivers???
 
     pthread_join(rpcm->get_thread_id(), 0);

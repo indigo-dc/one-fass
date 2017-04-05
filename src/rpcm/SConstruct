@@ -10,6 +10,7 @@ source_files=[
     'Request.cc',
     'RequestSystem.cc',
     'RequestOneProxy.cc',
+    'RequestQueue.cc',
     'RPCManager.cc'
 ]
 
@@ -18,11 +19,9 @@ env.StaticLibrary(lib_name, source_files)
 
 # Build daemon
 env.Prepend(LIBS=[
-    'fass_core',
     'fass_rpcm',
     'fass_log',
     'fass_client',
-    'fass_pm',
     'xml2'
 ])
 

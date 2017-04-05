@@ -18,53 +18,43 @@
 #define PRIORITY_MANAGER_H_
 
 #include "VMPool.h"
-//#include "InitShares.h"
+#include "AcctPool.h"
+#include "FassDb.h"
 #include "XMLRPCClient.h"
+#include "User.h"
+
 #include <time.h>
 #include <pthread.h>
 #include <list>
-//#include <boost/algorithm/string/classification.hpp>
-//#include <boost/algorithm/string/split.hpp>
-//#include <boost/lexical_cast.hpp>
 
 using namespace std;
 
 extern "C" void * pm_loop(void *arg);
 
-
 class PriorityManager
 {
 public:
-struct user                                                                           
-{                                                                                     
-public:                                                                               
-      unsigned short userID;                                                          
-      unsigned short groupID;                                                         
-      unsigned short share;                                                           
 
-      //user(){};
-      user (unsigned short userID,                                                    
-        unsigned short groupID,                                                       
-        unsigned short share )                                                        
-        : userID(userID),                                                             
-          groupID(groupID),                                                                         
-          share (share)                                                                             
-          {};
 
-      ~user(){};                                                                                       
-}; 
-	PriorityManager(
-        const string _one_xmlrpc,
-        const string _one_string,
-        int _message_size,
-        int _timeout,
-        unsigned int _max_vm,
-	vector<string> _shares,
-        int _manager_timer);
 
-	~PriorityManager(){
-            delete client;
-        };	
+    PriorityManager(
+    const string _one_xmlrpc,
+    const string _one_string,
+    int _message_size,
+    int _timeout,
+    // unsigned int _max_vm,
+    vector<string> _shares,
+    int _manager_timer,
+    FassDb* _fassdb);
+
+    ~PriorityManager(){
+       
+        delete client;
+        delete vmpool;
+        delete acctpool;
+        user_list.clear();
+
+    };	
 
     pthread_t get_thread_id() const{
         return pm_thread;
@@ -81,6 +71,12 @@ public:
     };
 
     VMPool * vmpool;
+    AcctPool * acctpool;
+
+    // returns the reordered queue
+    string& get_queue() {
+        return queue;
+    };
 
 private:
        
@@ -98,29 +94,38 @@ private:
         };
 
         pthread_t  pm_thread;        // thread for the Priority Manager
-        pthread_mutex_t mutex;
-        pthread_cond_t  cond;
+        pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+        pthread_cond_t  cond = PTHREAD_COND_INITIALIZER;
 
 	string one_xmlrpc;
 	string one_secret;
 	int message_size;
 	int timeout;
 
-	unsigned int max_vm;
+	// unsigned int max_vm;
 	vector<string> shares;	
         int manager_timer; 
         bool stop_manager;
   
-	bool set_up_pools();
-	//void do_prioritize();
         bool calculate_initial_shares();
+	bool set_up_pools();
+        void historical_usage(long int timestamp);
+	void do_prioritize(long int timestamp);
+
+        // the reordered queue
+        string queue;
        
         XMLRPCClient *client;
-	int get_queue();
+        FassDb *fassdb;
+        // gets pending VMs from ONE
+	int get_pending();
  
-        static list<user*> user_list;
+        static list<User> user_list;
 
-        user* make_user(const std::string& user_group_share);
+        void make_user(const std::string& user_group_share, const int& sum, User* us);
+         
+        // map<prio, oid> sorted in decreasing prio values
+        static map<float, int, std::greater<float> > priorities; 
 };
 
 #endif

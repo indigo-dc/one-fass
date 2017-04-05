@@ -14,18 +14,14 @@
  * limitations under the License.
  */
 
-#include "BasicPlugin.h"
+#include "RequestQueue.h"
+#include "Fass.h"
 #include "PriorityManager.h"
 
-float BasicPlugin::update_prio(int oid, int uid, int gid,
-                              int vm_cpu, int vm_memory,
-                              list<User> list_of_users) {
-    // Insert algorithm for recomputation of vm_prio here
-    // This is a dummy value for testing purposes (to be removed)
-    float vm_prio = oid;  // revert order
-    // float vm_prio = 1./oid * 100000.; // same order
-
-    return vm_prio;
+void ReorderedQueue::request_execute(xmlrpc_c::paramList const& paramList,
+                                 RequestAttributes& att) {
+    PriorityManager *pm = Fass::instance().priority_manager();
+    string queue = pm->get_queue();
+    success_response(queue, att);
+    return;
 }
-
-

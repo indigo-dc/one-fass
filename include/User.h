@@ -1,3 +1,4 @@
+
 /**
  * Copyright © 2017 INFN Torino - INDIGO-DataCloud
  *
@@ -14,18 +15,27 @@
  * limitations under the License.
  */
 
-#include "BasicPlugin.h"
-#include "PriorityManager.h"
+#ifndef USER_H_
+#define USER_H_
 
-float BasicPlugin::update_prio(int oid, int uid, int gid,
-                              int vm_cpu, int vm_memory,
-                              list<User> list_of_users) {
-    // Insert algorithm for recomputation of vm_prio here
-    // This is a dummy value for testing purposes (to be removed)
-    float vm_prio = oid;  // revert order
-    // float vm_prio = 1./oid * 100000.; // same order
+class User
+{
+public:
+    unsigned short userID;
+    unsigned short groupID;
+    float share;
 
-    return vm_prio;
-}
+    User() {};
+    User(unsigned short userID,
+      unsigned short groupID,
+      float share):
+        userID(userID),
+        groupID(groupID),
+        share(share)
+        {};
 
+      ~User(){};
 
+};
+ 
+#endif
