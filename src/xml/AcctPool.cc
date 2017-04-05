@@ -16,9 +16,6 @@
 
 #include "AcctPool.h"
 
-using namespace std;
-
-
 /*
 int AcctPool::eval_usage(list<User> user_list, long int time_start,
                                          long int time_stop, 
@@ -47,9 +44,8 @@ int AcctPool::eval_usage(list<User> user_list, long int time_start,
 */
 
 void AcctPool::flush() {
- 
     map<int, AcctObject*>::iterator it; 
-    for (it = objects.begin(); it != objects.end(); it++) { 
+    for (it = objects.begin(); it != objects.end(); it++) {
         delete it->second;
     }
 
@@ -57,7 +53,6 @@ void AcctPool::flush() {
 }
 
 void AcctPool::make_object(int uid, xmlNodePtr node) {
-
         if ( node == 0 || node->children == 0 || node->children->next == 0 ) {
               FassLog::log("AcctPool", Log::ERROR,
               "XML Node does not represent a valid accounting entry");
@@ -72,7 +67,7 @@ void AcctPool::make_object(int uid, xmlNodePtr node) {
         ostringstream   oss;
         oss << "Creating accounting object with OID: " << acct->get_oid();
         FassLog::log("AcctPool", Log::DDEBUG, oss);
-       
+
         return;
 }
 
@@ -111,15 +106,15 @@ int AcctPool::set_up(vector<int> const &uids) {
         string acctlist(static_cast<string>(xmlrpc_c::value_string(values[1])));
         // parse the response and group entries per user
         xmlInitParser();
-        if (xml != 0) {
+        if ( xml != 0 ) {
             xmlFreeDoc(xml);
         }
 
-        if ( ctx != 0) {
+        if ( ctx != 0 ) {
             xmlXPathFreeContext(ctx);
         }
 
-        //FassLog::log("SARA", Log::DEBUG, acctlist);
+        // FassLog::log("SARA", Log::DEBUG, acctlist);
         xml_parse(acctlist);
 
         // loop over known users
@@ -128,10 +123,10 @@ int AcctPool::set_up(vector<int> const &uids) {
                                         i != uids.end(); ++i) {
             oss.str("");
             oss.clear();
-            // get root node context 
+            // get root node context
             std::vector<xmlNodePtr> u_nodes;
             int n_nodes;
-            int uid = (*i); 
+            int uid = (*i);
             ostringstream search;
             search << "/HISTORY_RECORDS/HISTORY[VM/UID=" << uid << "]";
             n_nodes = get_nodes(search.str(), u_nodes);

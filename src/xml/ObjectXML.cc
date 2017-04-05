@@ -50,13 +50,12 @@ void ObjectXML::init(const xmlNodePtr node) {
     }
 
     xmlDocSetRootElement(xml, root_node);
-
 }
 
 bool ObjectXML::xml_parse(const string &xml_doc) {
     // copied from ONE ObjectXML
     // xmlDocPtr xml = xmlReadMemory(xml_doc.c_str(), xml_doc.length(),
-    //xmlInitParser();
+    // xmlInitParser();
     xml = xmlReadMemory(xml_doc.c_str(), xml_doc.length(),
                                   0, 0, XML_PARSE_HUGE);
     if (xml == 0) {
@@ -64,7 +63,6 @@ bool ObjectXML::xml_parse(const string &xml_doc) {
         return false;
     }
 
-   
     ctx = xmlXPathNewContext(xml);
 
     if (ctx == 0) {
@@ -72,8 +70,8 @@ bool ObjectXML::xml_parse(const string &xml_doc) {
         throw runtime_error("Unable to create new XPath context");
         return false;
     }
-    
-    //xmlCleanupParser();
+
+    // xmlCleanupParser();
     return true;
 }
 

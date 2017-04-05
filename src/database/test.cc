@@ -65,23 +65,18 @@ int main(int argc, char **argv) {
 
   boost::asio::streambuf request;
   std::ostream request_stream(&request);
-  //request_stream << "GET " << "/ping" << " HTTP/1.0\r\n";
+  // request_stream << "GET " << "/ping" << " HTTP/1.0\r\n";
   // request_stream << "GET " <<
   // "/query?pretty=true&db=mydb&q=show%20databases"
   // << " HTTP/1.0\r\n";
-  //std::string content("zeppola%2Cuser%3Dpippo%2Cgroup%3Dpluto%20value%3D0.3");
   std::string content("zeppola,user=pippo,group=pluto value=0.3");
   request_stream << "POST " 
-  //<< "/write?db=mydb&share%2Chost%3Dserver01%2Cregion%3Dus-west%20value%3D0.66%201434055562000000000"
   << "/write?db=mydb"
-  //<< "/write?db=fassdb&q=cpu_load_short%2Chost%3Dserver01%2Cregion%3Dus-west+value%3D0.64"
-  //<< "/write?db=mydb&q=share%2Cuser%3Dpippo%2Cgroup%3Dpgruppo+value%3D0.1"
-  //<< "/write?db=mydb&q=zeppola%2Cuser%3Dpippo%2Cgroup%3Dpluto+value%3D0.3"
   << " HTTP/1.1\r\n";
   request_stream << "Host: " << "localhost:8086" << "\r\n";
   request_stream << "Content-Type: application/x-www-form-urlencoded \r\n";
   request_stream << "Accept: */*\r\n";
-  request_stream << "Content-Length: " << content.length() << "\r\n"; 
+  request_stream << "Content-Length: " << content.length() << "\r\n";
   request_stream << "Connection: close\r\n\r\n";
   request_stream << content;
 

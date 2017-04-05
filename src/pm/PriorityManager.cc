@@ -56,9 +56,9 @@ void PriorityManager::make_user(
   if ( 4 != tokens.size() ) {
      throw;
   }
- 
+
   int uid = boost::lexical_cast<int16_t>(tokens[1]);
-  int gid = boost::lexical_cast<int16_t>(tokens[2]);  
+  int gid = boost::lexical_cast<int16_t>(tokens[2]);
   float share = boost::lexical_cast<float_t>(tokens[3])/sum;
 
   // PriorityManager::user *us = new PriorityManager::user(uid, gid, share);
@@ -66,7 +66,7 @@ void PriorityManager::make_user(
   us->groupID = gid;
   us->share = share;
 
-  //return us; 
+  // return us;
 }
 
 PriorityManager::PriorityManager(
@@ -88,7 +88,6 @@ PriorityManager::PriorityManager(
                 stop_manager(false),
                 queue(""),
                 fassdb(_fassdb) {
-
     // initialize XML-RPC Client
     ostringstream oss;
     int rc;
@@ -174,8 +173,8 @@ extern "C" void * pm_loop(void *arg) {
 
 void PriorityManager::loop() {
     FassLog::log("PM", Log::INFO, "PRIORITY MANAGER LOOP:");
-    // all entries  should be written to DB with the same timestamp    
-    long int timestamp = static_cast<long int>(time(NULL));
+    // all entries  should be written to DB with the same timestamp
+    int64_t timestamp = static_cast<long int>(time(NULL));
 
     int rc;
 
@@ -186,7 +185,7 @@ void PriorityManager::loop() {
         FassLog::log("PM", Log::ERROR, "Cannot get the VM pool!");
     }
     // get historical usage per user
-    //historical_usage(timestamp);
+    // historical_usage(timestamp);
 
     // calculates priorities
     do_prioritize(timestamp);
@@ -199,11 +198,10 @@ void PriorityManager::loop() {
     FassLog::log("SARA", Log::INFO, oss);
 */
     // here the queue is actually set
-    queue=vmpool->make_queue(priorities);      
-    
+    queue = vmpool->make_queue(priorities);
+
     // cleanup the list of priorities
     priorities.clear();
- 
 }
 
 int PriorityManager::start() {
@@ -275,12 +273,11 @@ void PriorityManager::historical_usage(long int timestamp){
         FassLog::log("PM", Log::ERROR, "Cannot evaluate the accounting info!");
     }
     */
-    //for (list<user>::const_iterator i = user_list.begin();
+    // for (list<user>::const_iterator i = user_list.begin();
     //                                i != user_list.end(); ++i) {
-        // (*i).userID 
+        // (*i).userID
         // get accounting for that user
     //}
-
 }
 
 int PriorityManager::get_pending() {
@@ -293,9 +290,9 @@ int PriorityManager::get_pending() {
     return rc;
 }
 
-void PriorityManager::do_prioritize(long int timestamp) {
+void PriorityManager::do_prioritize(int64_t timestamp) {
     FassLog::log("PM", Log::INFO, "Evaluating priorities...");
-    //int rc;
+    // int rc;
     ostringstream oss;
 
     VMObject * vm;
@@ -305,7 +302,7 @@ void PriorityManager::do_prioritize(long int timestamp) {
     int gid;
     int vm_memory;
     int vm_cpu;
-    float vm_prio = 1.0; 
+    float vm_prio = 1.0;
 
     // get the VMs previously stored
     const map<int, VMObject*> pending_vms = vmpool->get_objects();
@@ -314,31 +311,32 @@ void PriorityManager::do_prioritize(long int timestamp) {
 
     // the plugin
     BasicPlugin *plugin;
-    // TODO(svallero or valzacc): make it a real plugin ;) 
+    // TODO(svallero or valzacc): make it a real plugin ;)
     plugin = new BasicPlugin();
 
     oss << "Found pending VMs:" << endl;
 
     for (vm_it=pending_vms.begin(); vm_it != pending_vms.end(); vm_it++) {
-
          vm = static_cast<VMObject*>(vm_it->second);
  
          vm->get_requirements(vm_cpu, vm_memory);
-         oid = vm->get_oid(); 
+         oid = vm->get_oid();
          uid = vm->get_uid();
          gid = vm->get_gid();
-         
-         // TODO we miss the historical usage U
-         vm_prio = plugin->update_prio(oid, uid, gid, vm_cpu, vm_memory, user_list);
+
+         // TODO(svallero): we miss the historical usage U
+         vm_prio = plugin->update_prio(oid, uid, gid, vm_cpu,
+                                       vm_memory, user_list);
          priorities.insert(pair<float, int>(vm_prio, oid));
- 	       
-         oss << oid << "(" << vm_prio << ") - " ;
-         //oss << oid << "(" << priorities[oid] << ") - " ;
+
+         oss << oid << "(" << vm_prio << ") - ";
+         // oss << oid << "(" << priorities[oid] << ") - " ;
     }
+
     FassLog::log("PM", Log::DDEBUG, oss);
-    
+
     oss.str("");
-    oss.clear(); 
+    oss.clear();
     oss << "Number of VMs: " << pending_vms.size();
     FassLog::log("PM", Log::DEBUG, oss);
 
@@ -362,20 +360,21 @@ bool PriorityManager::calculate_initial_shares() {
     }
 
     // all shares should be written to DB with the same timestamp    
-    long int timestamp = static_cast<long int>(time(NULL));
+    int64_t timestamp = static_cast<int64_t>(time(NULL));
     for (vector<string>::const_iterator i= shares.begin();
                                       i != shares.end(); i++) {
-       User *us = new User(); 
+       User *us = new User();
        make_user(*i , sum, us);
        user_list.push_back(*us);
 
        // write share to DB
        rc = fassdb->write_initial_shares(us->share,
-                                         boost::lexical_cast<string>(us->userID),
-                                         boost::lexical_cast<string>(us->groupID), 
-                                         timestamp);
+                                      boost::lexical_cast<string>(us->userID),
+                                      boost::lexical_cast<string>(us->groupID),
+                                      timestamp);
        if (!rc) {
-           FassLog::log("PM", Log::ERROR, "Could not write initial shares to DB.");
+           FassLog::log("PM", Log::ERROR,
+                              "Could not write initial shares to DB.");
        }
 
        delete us;

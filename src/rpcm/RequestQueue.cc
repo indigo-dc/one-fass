@@ -20,7 +20,6 @@
 
 void ReorderedQueue::request_execute(xmlrpc_c::paramList const& paramList,
                                  RequestAttributes& att) {
-
     PriorityManager *pm = Fass::instance().priority_manager();
     string queue = pm->get_queue();
     success_response(queue, att);

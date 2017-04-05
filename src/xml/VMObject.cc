@@ -25,12 +25,12 @@
 #include <vector>
 
 void VMObject::init_attributes() {
-    //vector<xmlNodePtr> nodes;
+    // vector<xmlNodePtr> nodes;
 
-    //int rc;
-    //int action;
+    // int rc;
+    // int action;
 
-    //string automatic_requirements;
+    // string automatic_requirements;
 
     xpath(oid, "/VM/ID", -1);
     xpath(uid, "/VM/UID", -1);
@@ -38,10 +38,9 @@ void VMObject::init_attributes() {
 
     xpath(memory, "/VM/TEMPLATE/MEMORY", 0);
     xpath<float>(cpu, "/VM/TEMPLATE/CPU", 0);
-
 }
 
-void VMObject::add_requirements(float c, int m) { 
+void VMObject::add_requirements(float c, int m) {
     cpu    += c;
     memory += m;
 }
@@ -55,7 +54,6 @@ void VMObject::reset_requirements(float& c, int& m) {
 }
 
 void VMObject::get_requirements(int& cpu, int& memory) {
-
     if (this->memory == 0 || this->cpu == 0) {
         cpu    = 0;
         memory = 0;

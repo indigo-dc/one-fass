@@ -34,12 +34,12 @@ void AcctObject::init_attributes() {
     xpath(uid, "/HISTORY/VM/UID", -1);
     xpath(vmid, "/HISTORY/VM/ID", -1);
 
-    // TODO(svallero): valore in template o no? che differenza fa? 
+    // TODO(svallero): valore in template o no? che differenza fa?
     xpath(memory, "/HISTORY/VM/TEMPLATE/MEMORY", 0);
     xpath<float>(cpu, "/HISTORY/VM/TEMPLATE/CPU", 0);
 
-    // start/stop times from acct entry, not VM 
-    long int def = -1;
+    // start/stop times from acct entry, not VM
+    int64_t def = -1;
     xpath(start_time, "/HISTORY/STIME", def);
     xpath(stop_time, "/HISTORY/ETIME", def);
 
@@ -50,6 +50,6 @@ void AcctObject::init_attributes() {
     oss << "cpu " << cpu << endl;
     oss << "start_time " << start_time << endl;
     oss << "stop_time " << stop_time << endl;
-    
+
     FassLog::log("SARA", Log::DEBUG, oss);
 }

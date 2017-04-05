@@ -34,21 +34,24 @@ const string VMPool::make_queue(map<float, int, std::greater<float> > prios) {
     string root("VM_POOL");
     // write header
     oss << "<" << root << ">";
-    for (std::map<float,int>::iterator it=prios.begin(); it!=prios.end(); ++it) {
+    for (std::map<float, int>::iterator it = prios.begin();
+                                       it != prios.end(); ++it) {
          int oid = it->second;
          VMObject *vm = get(oid);
          string node = vm->dump_node();
          // we add the prio value to the XML string
          size_t pos = node.find("<VM>");
-         node.erase(0,pos+4);
-         string prio_node("<VM><PRIO>"+boost::lexical_cast<std::string>(0.-it->first)+"</PRIO>");  
-         node.insert(0,prio_node);
-         oss << node; 
+         node.erase(0, pos+4);
+         string prio_node("<VM><PRIO>"
+                          +boost::lexical_cast<std::string>(0.-it->first)
+                          +"</PRIO>");
+         node.insert(0, prio_node);
+         oss << node;
     }
     // write footer
     oss << "</" << root << ">";
-    
-    retval= oss.str();    
+
+    retval = oss.str();
 
     FassLog::log("VMPOOL", Log::DDDEBUG, oss);
     return retval;
@@ -78,7 +81,6 @@ void VMPool::flush() {
         }
 
         objects.clear();
-
 }
 
 int VMPool::set_up() {
@@ -117,20 +119,20 @@ int VMPool::set_up() {
         string vmlist(static_cast<string>(xmlrpc_c::value_string(values[1])));
         // parse the response and select only pending/rescheduling VMs
         xmlInitParser();
-        if (xml != 0) {
+        if ( xml != 0 ) {
             xmlFreeDoc(xml);
         }
 
-        if ( ctx != 0) {
+        if ( ctx != 0 ) {
             xmlXPathFreeContext(ctx);
         }
 
         xml_parse(vmlist);
-        // get root node context 
+        // get root node context
         std::vector<xmlNodePtr> nodes;
         int n_nodes;
-        n_nodes = get_nodes
-        ("/VM_POOL/VM[STATE=1 or ((LCM_STATE=3 or LCM_STATE=16) and RESCHED=1)]",
+        n_nodes = get_nodes(
+        "/VM_POOL/VM[STATE=1 or ((LCM_STATE=3 or LCM_STATE=16) and RESCHED=1)]",
         nodes);
 
         oss << "I got " << n_nodes << " pending VMs!";

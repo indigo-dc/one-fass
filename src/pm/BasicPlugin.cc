@@ -22,11 +22,10 @@ float BasicPlugin::update_prio(int oid, int uid, int gid,
                               list<User> list_of_users) {
     // Insert algorithm for recomputation of vm_prio here
     // This is a dummy value for testing purposes (to be removed)
-    float vm_prio = oid; // revert order
+    float vm_prio = oid;  // revert order
     // float vm_prio = 1./oid * 100000.; // same order
-  
-    return vm_prio; 
 
+    return vm_prio;
 }
 
 

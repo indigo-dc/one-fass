@@ -84,11 +84,11 @@ bool InfluxDb::query_db(string method, string q, string &retval) {
        std::ostream request_stream(&request);
 
        std::string my_query("");
-       bool post=false;
+       bool post = false;
        if (method == "WRITE") {
            post = true;
            my_query.append("/write?db=" + _dbname);
-           method="POST";
+           method = "POST";
        } else {
            my_query = q;
        }
@@ -97,7 +97,8 @@ bool InfluxDb::query_db(string method, string q, string &retval) {
        request_stream << "Host: " << _endpoint << "\r\n";
        request_stream << "Accept: */*\r\n";
        if (post) {
-           request_stream << "Content-Type: application/x-www-form-urlencoded\r\n";
+           request_stream 
+                   << "Content-Type: application/x-www-form-urlencoded\r\n";
            request_stream << "Content-Length: " << q.length() << "\r\n";
        }
        request_stream << "Connection: close\r\n\r\n";
@@ -202,15 +203,13 @@ bool InfluxDb::write_initial_shares(const float share,
     // query_db(string method, string q, string &retval)
     string response;
     ostringstream query;
-    query << "share,user=" << user 
+    query << "share,user=" << user
     << ",group=" << group
     << " value=" << share
     << " " << timestamp;
     FassLog::log("INFLUXDB", Log::DEBUG, query);
     bool retval = InfluxDb::query_db("WRITE", query.str(), response);
     return retval;
-
-    //return true;
 }
 
 bool InfluxDb::write_queue(const int priority, const string user,
