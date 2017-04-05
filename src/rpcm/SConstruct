@@ -27,5 +27,3 @@ env.Prepend(LIBS=[
 
 if not env.GetOption('clean'):
     env.ParseConfig(("LDFLAGS='%s'") % (os.environ['LDFLAGS'],))
-
-env.Program('test_queue.cc');

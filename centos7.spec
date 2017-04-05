@@ -1,5 +1,5 @@
-Name: one-fass
-Version: systemd_devel
+Name: one-fass-indigo
+Version: test
 Summary: A FairShare Scheduling Service for Opennebula 
 Release: 1.0
 License: Apache
@@ -7,7 +7,7 @@ Group: System
 URL: https://github.com/indigo-dc/one-fass
 
 #Source0: fass-%{version}.zip
-Source0: systemd_devel.zip 
+Source0: indigo-test.zip 
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 
