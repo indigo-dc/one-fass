@@ -203,12 +203,7 @@ fi
 # (it contains the ONE password)
 # chmod 640 $ETC_LOCATION/fassd.conf
 
- if [ "$UNINSTALL" = "no" ] ; then
-#     echo "Setting dir ownership..."
-#     for d in $CHOWN_DIRS; do
-#         chown -R $FASSADMIN_USER:$FASSADMIN_GROUP $DESTDIR$d
-#     done
- else
+ if [ "$UNINSTALL" = "yes" ] ; then
     echo "Removing dirs..."
     for d in `echo $DELETE_DIRS | awk '{for (i=NF;i>=1;i--) printf $i" "}'`; do
         rmdir $d
