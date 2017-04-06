@@ -86,7 +86,7 @@ export DESTDIR=%{buildroot}
 ./rpmbuild.sh
 
 # init scripts
-install -p -D -m 755 systemd/fass.service %{buildroot}/lib/systemd/system/fass.service
+install -p -D -m 644 systemd/fass.service %{buildroot}/lib/systemd/system/fass.service
 
 # logrotate
 %{__mkdir} -p %{buildroot}%{_sysconfdir}/logrotate.d
