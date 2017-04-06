@@ -144,9 +144,11 @@ fi
 %defattr(0640, root, fassadmin, 0750)
 %dir %{_sysconfdir}/fass
 %config %{_sysconfdir}/fass/fassd.conf
+%config %{_sysconfdir}/fass/shares.conf
 %config %{_sysconfdir}/logrotate.d/fass
 
 %defattr(-, root, root, 0755)
 /lib/systemd/system/fass.service
 
 %{_bindir}/fassd
+%{_bindir}/mm_sched_fass
