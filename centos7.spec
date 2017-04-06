@@ -1,13 +1,13 @@
-Name: one-fass
-Version: systemd_devel
+Name: one-fass-indigo
+Version: test
 Summary: A FairShare Scheduling Service for Opennebula 
-Release: 0
+Release: 1.0
 License: Apache
 Group: System
 URL: https://github.com/indigo-dc/one-fass
 
 #Source0: fass-%{version}.zip
-Source0: systemd_devel.zip 
+Source0: indigo-test.zip 
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 
@@ -56,7 +56,7 @@ Requires: coreutils
 Requires: glibc-common
 
 %description service
-This package provides the Fass daemon (fassd).
+This package provides the Fass daemon (fassd) and a patched verion of the OpenNbula scheduler (mm_sched_fass).
 
 ################################################################################
 # Package common
@@ -82,10 +82,11 @@ scons
 
 %install
 export DESTDIR=%{buildroot}
-./install.sh
+#./install.sh
+./rpmbuild.sh
 
 # init scripts
-install -p -D -m 755 systemd/fass.service %{buildroot}/lib/systemd/system/fass.service
+install -p -D -m 644 systemd/fass.service %{buildroot}/lib/systemd/system/fass.service
 
 # logrotate
 %{__mkdir} -p %{buildroot}%{_sysconfdir}/logrotate.d
@@ -143,9 +144,11 @@ fi
 %defattr(0640, root, fassadmin, 0750)
 %dir %{_sysconfdir}/fass
 %config %{_sysconfdir}/fass/fassd.conf
+%config %{_sysconfdir}/fass/shares.conf
 %config %{_sysconfdir}/logrotate.d/fass
 
 %defattr(-, root, root, 0755)
 /lib/systemd/system/fass.service
 
 %{_bindir}/fassd
+%{_bindir}/mm_sched_fass

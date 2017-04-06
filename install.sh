@@ -129,7 +129,7 @@ INSTALL_ETC_FILES=( ETC_FILES:$ETC_LOCATION)
 
 # Binary files, to be installed under $BIN_LOCATION
 
-BIN_FILES="src/fass/fassd" 
+BIN_FILES="src/fass/fassd one-sched-patched/mm_sched_fass" 
 
 # Configuration files for Fass, to be installed under $ETC_LOCATION
 
@@ -199,7 +199,7 @@ fi
 
 # Set ownership or remove Fass directories
 
-# confog file should not be readable outside the group 
+# config file should not be readable outside the group 
 # (it contains the ONE password)
 chmod 640 $ETC_LOCATION/fassd.conf
 
