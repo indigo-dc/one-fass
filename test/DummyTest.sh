@@ -1,7 +1,7 @@
 #!/bin/bash
 
 template=$1
-echo Initiating 5 VMs of tty type:
+echo Instantiating 5 VMs:
 onetemplate instantiate $template --name vm1
 onetemplate instantiate $template --name vm2
 onetemplate instantiate $template --name vm3
@@ -13,9 +13,7 @@ echo Listing the VMs
 onevm list
 
 echo Starting FaSS
-echo
 rm -rf /var/lock/fass/fass
-sleep 1
 systemctl start fass
 sleep 5
 
