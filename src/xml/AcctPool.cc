@@ -35,7 +35,7 @@ int AcctPool::eval_usage(list<User> user_list, long int time_start,
         //oss << "UID ***" << endl;
         //oss << "THIS IS THE NODE" << endl;
         //oss << uid << endl; 
-        //FassLog::log("SARA", Log::INFO, oss);
+        //FassLog::log("AcctPool", Log::INFO, oss);
 
     }
 
