@@ -58,7 +58,7 @@ bool InfluxDb::init_db() {
 bool InfluxDb::query_db(string method, string q, string &retval) {
     // for the time being we let it hardcoded
     const string protocol("HTTP/1.0");
-    // FassLog::log("SARA", Log::INFO, "Starting query");
+    // FassLog::log("INFLUXDB", Log::INFO, "Starting query");
 
     try {
        // Taken form an example in the boost documentation
