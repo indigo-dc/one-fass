@@ -44,7 +44,7 @@ void RequestOneProxy::execute(
     } catch (exception) {
        att.uname = "wrong format";
     }
-    // FassLog::log("******", Log::INFO, "Pippo!");
+    // FassLog::log("ONEPROXY", Log::INFO, "Pippo!");
     // oss << "Cannot contact oned... Error: " << e.what();
     // FassLog::log("ONEPROXY", Log::ERROR, oss);
     // att.uname = xmlrpc_c::value_string (_paramList.getString(0));
@@ -53,11 +53,11 @@ void RequestOneProxy::execute(
      unsigned int seed = time(NULL);
      att.req_id = (reinterpret_cast<uintptr_t>(this) * rand_r(&seed)) % 10000;
 
-    // FassLog::log("******", Log::INFO, "Pluto!");
+    // FassLog::log("ONEPROXY", Log::INFO, "Pluto!");
     // string format_str = get_format_string();
     log_method_invoked(att, _paramList, format_str,
                        _method_name, hidden_params);
-    // FassLog::log("******", Log::INFO, "Paperino!");
+    // FassLog::log("ONEPROXY", Log::INFO, "Paperino!");
     vector<xmlrpc_c::value> values;
 
     try {
@@ -71,7 +71,7 @@ void RequestOneProxy::execute(
         // (XMLRPCClient::client())->get_message_size()
         //    << " bytes for response buffer.\n";
 
-        // FassLog::log("SARA", Log::DEBUG, oss);
+        // FassLog::log("ONEPROXY", Log::DEBUG, oss);
 
         XMLRPCClient *myClient = XMLRPCClient::client();
         // first argument is auth,
