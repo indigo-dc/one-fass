@@ -18,13 +18,22 @@ onegroup list
 ```
 
 By default, after the installation of Opennebula, you will have two administrative accounts, ```oneadmin``` (userID=0) and ```serveradmin``` (userID=1). And two groups, ```oneadmin``` (groupID=0) and ```users``` (groupID=1).
-The ```shares.conf``` file, therefore, contains the basic working setup for only the administrative accounts
+The ```shares.conf``` file, therefore, contains the basic working setup for only the administrative accounts and an example of how to add a user called ```goofy```
 ```bash
-[users]
-user=0:0:50
-user=1:0:50
+[oneadmin]
+uid=0
+gid=0
+share=50
+[serveradmin]
+uid=1
+gid=0
+share=0
+[goofy]
+uid=2
+gid=1
+share=50
 ```
-to which you need to add all the other users and the relative shares in this format: ```userID:groupID:share%```.
+you need to change the users accordingly to your list.
 
 ## Start FaSS
 To start FaSS, simply type 
@@ -33,5 +42,5 @@ systemctl start fass
 ```
 
 ## Using FaSS
-Version 1.1 of FaSS does not implement an algorithm by default, but contains all the setup to reset the priorities of the VM of your users. 
-To add an algorithm edit the ```BasicPlugin``` class, in ```/tmp/one-fass/src/pm```.
+Version 1.0 of FaSS does implement a dummy algorithm by default, which inverts the priorities recevied from OpenNebula. 
+To change the algorithm edit the ```BasicPlugin``` class, in ```/tmp/one-fass/src/pm```.

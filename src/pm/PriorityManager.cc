@@ -161,7 +161,7 @@ extern "C" void * pm_loop(void *arg) {
                 rc = pthread_cond_timedwait(&pm->cond, &pm->mutex, &timeout);
                 // ostringstream oss;
                 // oss << "Timedwait return value: " << rc;
-                // FassLog::log("SARA",Log::INFO, oss);
+                // FassLog::log("PM",Log::INFO, oss);
 
                 if ( rc == ETIMEDOUT ) wait = false;
         }

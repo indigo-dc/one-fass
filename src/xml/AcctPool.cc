@@ -28,6 +28,7 @@ int AcctPool::eval_usage(list<User> *user_list, int64_t &time_start,
                                    i != user_list->end(); ++i) {
     
         int uid = (*i).userID;
+
         // get list of entries for this user
         list<AcctObject*> acct_list = this->get(uid);
         if ( acct_list.empty() ) {
@@ -88,7 +89,6 @@ int AcctPool::eval_usage(list<User> *user_list, int64_t &time_start,
             // << " CPU usage: " << cpu.usage << endl;  
         }
         // FassLog::log("PM", Log::DEBUG, output);
-
     }  // end loop on users
 
     return 0;
