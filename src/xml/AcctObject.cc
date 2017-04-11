@@ -51,5 +51,5 @@ void AcctObject::init_attributes() {
     oss << "start_time " << start_time << endl;
     oss << "stop_time " << stop_time << endl;
 
-    FassLog::log("AcctObj", Log::DEBUG, oss);
+    FassLog::log("AcctObj", Log::DDDEBUG, oss);
 }

@@ -40,15 +40,15 @@ public:
     PriorityManager(
     const string _one_xmlrpc,
     const string _one_string,
-    int _message_size,
+    int64_t _message_size,
     int _timeout,
     // unsigned int _max_vm,
     vector<string> _shares,
     int _manager_timer,
-    FassDb* _fassdb);
+    FassDb* _fassdb,
+    int _plugin_debug);
 
     ~PriorityManager(){
-       
         delete client;
         delete vmpool;
         delete acctpool;
@@ -82,7 +82,7 @@ private:
        
         friend void * pm_loop(void *arg);
         // we do not need all the ONE ActionManager machinery
-        void loop();
+        void make_queue();
 
         void lock(){
             pthread_mutex_lock(&mutex);
@@ -99,7 +99,7 @@ private:
 
 	string one_xmlrpc;
 	string one_secret;
-	int message_size;
+	int64_t message_size;
 	int timeout;
 
 	// unsigned int max_vm;
@@ -117,6 +117,9 @@ private:
        
         XMLRPCClient *client;
         FassDb *fassdb;
+ 
+        int plugin_debug;
+
         // gets pending VMs from ONE
 	int get_pending();
  

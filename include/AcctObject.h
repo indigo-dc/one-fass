@@ -70,6 +70,25 @@ public:
         return uid;
     };
 
+    float get_cpu() const
+    {
+        return cpu;
+    };
+
+    int get_memory() const
+    {
+        return memory;
+    };
+
+    int64_t get_start() const
+    {
+        return start_time;
+    };
+
+    int64_t get_stop() const
+    {
+        return stop_time;
+    };
 
 private:
 
@@ -79,8 +98,8 @@ private:
     int   vmid;
     int   memory; 
     float cpu;
-    long int start_time; 
-    long int stop_time; 
+    int64_t start_time; 
+    int64_t stop_time; 
 
     void init_attributes();
 

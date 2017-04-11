@@ -212,19 +212,65 @@ bool InfluxDb::write_initial_shares(const float share,
     return retval;
 }
 
+bool InfluxDb::write_usage(User user) {
+    FassLog::log("INFLUXDB", Log::INFO, "Writing usage records.");
+    // ostringstream output;
+    int uid = user.userID;
+    // output << "***** UID " << uid << "*****"<<endl;
+    const map<int, struct Usage> cpu_usage = user.get_cpu_usage();
+    const map<int, struct Usage> memory_usage = user.get_memory_usage();
+    // loop over usage entries
+    map<int, struct Usage>::const_iterator usage_it;
+    // write CPU
+    string response;
+    ostringstream query;
+    query << "cpu,user=" << uid;
+    query << " ";
+    int64_t timestamp = 0;
+    for (usage_it = cpu_usage.begin(); usage_it != cpu_usage.end();
+                                                                 usage_it++) {
+        struct Usage cpu = static_cast<struct Usage>(usage_it->second);
+        if (!timestamp) timestamp = cpu.stop_time;
+        // construct query
+        if (usage_it->first) query << ",value" << usage_it->first <<
+                                                          "=" << cpu.usage;
+        else
+           query << "value" << usage_it->first << "=" << cpu.usage;
+    }
+    query << " " << timestamp;
+    bool retval1 = InfluxDb::query_db("WRITE", query.str(), response);
+    FassLog::log("INFLUXDB", Log::DEBUG, query);
+
+    // memory
+    timestamp = 0;
+    query.str("");
+    query.clear();
+    query << "memory,user=" << uid;
+    query << " ";
+    for (usage_it = memory_usage.begin(); usage_it != memory_usage.end();
+                                                                  usage_it++) {
+        struct Usage memory = static_cast<struct Usage>(usage_it->second);
+        // should be the same as above
+        if (!timestamp) timestamp = memory.stop_time;
+        // construct query
+        if (usage_it->first) query << ",value" << usage_it->first << "="
+                                                                << memory.usage;
+        else
+           query << "value" << usage_it->first << "=" << memory.usage;
+    }
+    query << " " << timestamp;
+    bool retval2 = InfluxDb::query_db("WRITE", query.str(), response);
+    FassLog::log("INFLUXDB", Log::DEBUG, query);
+
+    return retval1 && retval2;
+}
+
 bool InfluxDb::write_queue(const int priority, const string user,
                            const string group, const int vmid,
                            const float cpus, const float memory,
                            const int64_t starttime, const int64_t timestamp) {
     FassLog::log("INFLUXDB", Log::INFO, "Writing queue.");
-
-    return true;
-}
-
-bool InfluxDb::write_usage(const float cpu_usage, const float memory_usage,
-                           const string user, const string group,
-                           const int64_t since, const int64_t timestamp) {
-    FassLog::log("INFLUXDB", Log::INFO, "Writing usage records.");
+    // TODO(svallero)
 
     return true;
 }

@@ -33,8 +33,20 @@ class ObjectXML
 public:
 
     ObjectXML() {
-        xml = 0;
-        ctx = 0;
+        // xml = 0;
+        // ctx = 0;
+        xml = xmlNewDoc(reinterpret_cast<const xmlChar *>("1.0"));
+
+        if (xml == 0) {
+            throw("Error allocating XML Document");
+        }
+
+        ctx = xmlXPathNewContext(xml);
+
+        if (ctx == 0) {
+            xmlFreeDoc(xml);
+            throw("Unable to create new XPath context");
+        }
     };
 
     ~ObjectXML() {
@@ -46,7 +58,7 @@ public:
         if (xml != 0) {
             xmlFreeDoc(xml);
         }
-        xmlCleanupParser();
+        //xmlCleanupParser();
     };
 
     const string dump(xmlDocPtr xml_doc){
