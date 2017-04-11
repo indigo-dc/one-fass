@@ -23,9 +23,7 @@ int AcctPool::eval_usage(list<User> *user_list, int64_t &time_start,
     FassLog::log("AcctPool", Log::DEBUG,
                           "Evaluating historical usage per user...");
     // we need one entry more to evaluate the deltas
-    // const int n_periods = num_periods++;
-    // TODO(svallero): fix codestyle
-    const int n_periods = 4;
+    const int n_periods = num_periods++;
     // loop over users
     for (list<User>::iterator i = user_list->begin();
                                    i != user_list->end(); ++i) {
@@ -41,8 +39,9 @@ int AcctPool::eval_usage(list<User> *user_list, int64_t &time_start,
         // accumulated usage
         // int64_t sum_cpu[n_periods];
         // int64_t sum_mem[n_periods];
-        double sum_cpu[n_periods];
-        double sum_mem[n_periods];
+        // TODO(svallero): fix codestyle
+        double sum_cpu[4];
+        double sum_mem[4];
         // init values
         for (int k = 0; k < n_periods; k++) {
             sum_cpu[k] = 0.;
@@ -95,7 +94,7 @@ int AcctPool::eval_usage(list<User> *user_list, int64_t &time_start,
         // }
         // FassLog::log("PM", Log::DEBUG, output);
     }  // end loop on users
-    
+
     return 0;
 }
 
