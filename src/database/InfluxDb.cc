@@ -234,7 +234,7 @@ bool InfluxDb::write_usage(User user) {
         // construct query
         if (usage_it->first) query << ",value" << usage_it->first <<
                                                           "=" << cpu.usage;
-        else 
+        else
            query << "value" << usage_it->first << "=" << cpu.usage;
     }
     query << " " << timestamp;

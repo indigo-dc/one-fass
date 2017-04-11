@@ -54,12 +54,12 @@ bool BasicPlugin::evaluate_total_usage(list<User> user_list) {
 
         count = 0;
         for (usage_it = memory_usage.begin(); usage_it != memory_usage.end();
-                                                                     usage_it++) {
+                                                                   usage_it++) {
             struct Usage mem = static_cast<struct Usage>(usage_it->second);
             int64_t tmp;
             it = tot_mem.find(count);
             if (it == tot_mem.end()) tmp = mem.usage;
-            else 
+            else
                tmp = it->second+mem.usage;
             tot_mem.insert(pair<int, int64_t>(count, tmp));
             // oss << count << " " << tmp << endl;

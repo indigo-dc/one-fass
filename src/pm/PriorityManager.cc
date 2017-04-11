@@ -336,7 +336,7 @@ void PriorityManager::do_prioritize(int64_t timestamp) {
 
     // neded to normalize historical usage per user
     plugin->evaluate_total_usage(user_list);
- 
+
     for (vm_it=pending_vms.begin(); vm_it != pending_vms.end(); vm_it++) {
          vm = static_cast<VMObject*>(vm_it->second);
 

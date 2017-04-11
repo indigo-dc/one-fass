@@ -20,9 +20,12 @@ int AcctPool::eval_usage(list<User> *user_list, int64_t &time_start,
                                          int64_t &time_stop,
                                          int64_t &period,
                                          int &num_periods) {
-    FassLog::log("AcctPool", Log::DEBUG, 
+    FassLog::log("AcctPool", Log::DEBUG,
                           "Evaluating historical usage per user...");
-    const int n_periods = num_periods++;  // we need one entry more to evaluate the deltas
+    // we need one entry more to evaluate the deltas
+    // const int n_periods = num_periods++;
+    // TODO(svallero): fix codestyle
+    const int n_periods = 4;
     // loop over users
     for (list<User>::iterator i = user_list->begin();
                                    i != user_list->end(); ++i) {
@@ -81,18 +84,18 @@ int AcctPool::eval_usage(list<User> *user_list, int64_t &time_start,
             // output << "Start: " << time_start << " Stop: " << time_stop
             // << " CPU usage: " << sum_cpu[k] << endl;
         }
- 
+
         // const map<int, struct Usage> cpu_usage = (*i).get_cpu_usage();
         // map<int, struct Usage>::const_iterator usage_it;
         // for (usage_it = cpu_usage.begin(); usage_it != cpu_usage.end();
         //                                                     usage_it++) {
         //    struct Usage cpu = static_cast<struct Usage>(usage_it->second);
-            // output << "Start: " << cpu.start_time << " Stop: " << cpu.stop_time
+          // output << "Start: " << cpu.start_time << " Stop: " << cpu.stop_time
             // << " CPU usage: " << cpu.usage << endl;
         // }
         // FassLog::log("PM", Log::DEBUG, output);
     }  // end loop on users
-
+    
     return 0;
 }
 
