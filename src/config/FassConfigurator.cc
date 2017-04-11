@@ -48,7 +48,7 @@ bool FassConfigurator::load_configuration() {
        "listen address")
       ("rpcm.timeout", po::value<int>()->default_value(15),
        "timeout")
-      ("rpcm.message_size", po::value<int>()->default_value(1073741824),
+      ("rpcm.message_size", po::value<int64_t>()->default_value(1073741824),
        "message size")
       ("rpcm.max_conn", po::value<int>()->default_value(15),
        "max connections")
@@ -76,7 +76,9 @@ bool FassConfigurator::load_configuration() {
       ("pm.manager_timer", po::value<int>()->default_value(60),
        "manager period (s)")
       ("pm.max_vm", po::value<int>()->default_value(5000),
-       "Maximum number of Virtual Machines scheduled");
+       "Maximum number of Virtual Machines scheduled")
+      ("pm.plugin_debug", po::value<int>()->default_value(0),
+       "Use dummy algo if set to 0, use simple fairshare algo otherwise");
 
     /// Read the configuration file
     ifstream settings_file(conf_file.c_str());

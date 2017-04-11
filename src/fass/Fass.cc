@@ -119,7 +119,7 @@ void Fass::start(bool bootstrap_only) {
 
     /** Initialize the XML library */
     // Try to avoid it
-    //    xmlInitParser();
+    xmlInitParser();
 
 
     /** Database */
@@ -155,7 +155,7 @@ void Fass::start(bool bootstrap_only) {
     // and the XMLRPCClient (called by the PM)
     // we use the same valuse for both server/client,
     // these should be consistent with the OpenNebula ones
-    int  message_size;
+    int64_t  message_size;
     int  timeout;
     // OpenNebula xml-rpc endpoint
     string one_endpoint;
@@ -177,11 +177,14 @@ void Fass::start(bool bootstrap_only) {
   try {
     int  manager_timer;
     int machines_limit;
+    int plugin_debug;
 
     fass_configuration->get_single_option
          ("pm", "max_vm", machines_limit);
     fass_configuration->get_single_option
          ("pm", "manager_timer", manager_timer);
+    fass_configuration->get_single_option
+         ("pm", "plugin_debug", plugin_debug);
 
 
     // Get the initial shares vector
@@ -194,7 +197,7 @@ void Fass::start(bool bootstrap_only) {
     // }
 
     pm = new PriorityManager(one_endpoint, one_secret, message_size,
-                    timeout, shares, manager_timer, database);
+                    timeout, shares, manager_timer, database, plugin_debug);
          // timeout, machines_limit, shares, manager_timer, database);
     }
 
@@ -287,7 +290,7 @@ void Fass::start(bool bootstrap_only) {
     pthread_join(pm->get_thread_id(), 0);
 
     // XML Library
-    // xmlCleanupParser();
+    xmlCleanupParser();
 
     FassLog::log("FASS", Log::INFO, "All modules finalized, exiting.\n");
 

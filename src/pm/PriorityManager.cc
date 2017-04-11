@@ -72,12 +72,13 @@ void PriorityManager::make_user(
 PriorityManager::PriorityManager(
           const string _one_xmlrpc,
           const string _one_secret,
-          int _message_size,
+          int64_t _message_size,
           int _timeout,
           // unsigned int _max_vm,
           vector<string> _shares,
           int _manager_timer,
-          FassDb* _fassdb):
+          FassDb* _fassdb,
+          int _plugin_debug):
                 one_xmlrpc(_one_xmlrpc),
                 one_secret(_one_secret),
                 message_size(_message_size),
@@ -87,7 +88,8 @@ PriorityManager::PriorityManager(
                 manager_timer(_manager_timer),
                 stop_manager(false),
                 queue(""),
-                fassdb(_fassdb) {
+                fassdb(_fassdb),
+                plugin_debug(_plugin_debug) {
     // initialize XML-RPC Client
     ostringstream oss;
     int rc;
@@ -121,6 +123,9 @@ PriorityManager::PriorityManager(
     }
 
     // create the accounting pool
+    //XMLRPCClient::initialize(one_secret, one_xmlrpc, message_size, timeout);
+    //XMLRPCClient *cli = XMLRPCClient::client();
+    //acctpool = new AcctPool(cli);
     acctpool = new AcctPool(client);
 }
 
@@ -162,8 +167,30 @@ extern "C" void * pm_loop(void *arg) {
         }
 
         pm->unlock();
+ 
+        // REAL LOOP
+        FassLog::log("PM", Log::INFO, "PRIORITY MANAGER LOOP:");
+        // all entries  should be written to DB with the same timestamp
+        int64_t timestamp = static_cast<int64_t>(time(NULL));
 
-        pm->loop();
+        int rc;
+
+        // let's get the list of pending VMs from ONE
+        rc = pm->get_pending();
+
+        if ( rc != 0 ) {
+            FassLog::log("PM", Log::ERROR, "Cannot get the VM pool!");
+        }
+
+        // get historical usage per user
+        pm->historical_usage(timestamp);
+
+        // calculates priorities
+        pm->do_prioritize(timestamp);
+    
+        // here the queue is actually set
+        pm->make_queue();
+
     }
 
     FassLog::log("PM", Log::INFO, "Priority Manager stopped.");
@@ -171,24 +198,8 @@ extern "C" void * pm_loop(void *arg) {
     return 0;
 }
 
-void PriorityManager::loop() {
-    FassLog::log("PM", Log::INFO, "PRIORITY MANAGER LOOP:");
-    // all entries  should be written to DB with the same timestamp
-    int64_t timestamp = static_cast<int64_t>(time(NULL));
+void PriorityManager::make_queue() {
 
-    int rc;
-
-    // let's get the list of pending VMs from ONE
-    rc = get_pending();
-
-    if ( rc != 0 ) {
-        FassLog::log("PM", Log::ERROR, "Cannot get the VM pool!");
-    }
-    // get historical usage per user
-    // historical_usage(timestamp);
-
-    // calculates priorities
-    do_prioritize(timestamp);
 /*
     ostringstream oss;
     oss << "Reordered:" << endl;
@@ -255,7 +266,7 @@ void PriorityManager::historical_usage(int64_t timestamp) {
     tmp_tm.tm_year = start_year - 1900;
     tmp_tm.tm_isdst = -1;  // Unknown daylight saving time
 
-    time_start = static_cast<uint16_t>(mktime(&tmp_tm));
+    time_start = static_cast<uint64_t>(mktime(&tmp_tm));
 /*
     ostringstream tmp;
     tmp << "" << endl;
@@ -264,22 +275,26 @@ void PriorityManager::historical_usage(int64_t timestamp) {
     FassLog::log("SARA", Log::INFO, tmp);
 */
     // evaluate historical usage
-    // user_ids, start_time, stop_time, period, n_periods
+    // user_list, start_time, stop_time, period, n_periods
     // TODO(svallero): take period and n_periods from config
-    // long int period = 3600;
-    // int n_periods = 3;
-    /* 
-    rc = acctpool->eval_usage(uids, time_start, timestamp, period, n_periods);
+    long int period = manager_timer;
+    int n_periods = 3;
+    rc = acctpool->eval_usage(&user_list, time_start, timestamp, period, n_periods);
 
     if ( rc != 0 ) {
         FassLog::log("PM", Log::ERROR, "Cannot evaluate the accounting info!");
     }
-    */
-    // for (list<user>::const_iterator i = user_list.begin();
-    //                                i != user_list.end(); ++i) {
-        // (*i).userID
-        // get accounting for that user
-    //}
+
+     for (list<User>::const_iterator i = user_list.begin();
+                                    i != user_list.end(); ++i) {
+        // write usage to DB
+        rc = fassdb->write_usage((*i));
+
+        if (!rc) {
+           FassLog::log("PM", Log::ERROR,
+                              "Could not write historical usage  to DB.");
+        }
+    }
 }
 
 int PriorityManager::get_pending() {
@@ -287,7 +302,9 @@ int PriorityManager::get_pending() {
     int rc;
 
     // cleans the cache and gets the VM pool
+    // lock();
     rc = vmpool->set_up();
+    // unlock();
     // TODO(svallero): real return code
     return rc;
 }
@@ -317,6 +334,10 @@ void PriorityManager::do_prioritize(int64_t timestamp) {
     plugin = new BasicPlugin();
 
     oss << "Found pending VMs:" << endl;
+    
+    // neded to normalize historical usage per user
+    plugin->evaluate_total_usage(user_list);
+ 
 
     for (vm_it=pending_vms.begin(); vm_it != pending_vms.end(); vm_it++) {
          vm = static_cast<VMObject*>(vm_it->second);
@@ -326,9 +347,16 @@ void PriorityManager::do_prioritize(int64_t timestamp) {
          uid = vm->get_uid();
          gid = vm->get_gid();
 
-         // TODO(svallero): we miss the historical usage U
+         // TODO(svallero): user_list should be a map
+         User user;
+         for (list<User>::iterator i = user_list.begin();
+                                 i != user_list.end(); ++i) {
+              if (((*i).userID == uid)) user = (*i);
+         }
+
          vm_prio = plugin->update_prio(oid, uid, gid, vm_cpu,
-                                       vm_memory, user_list);
+                                       vm_memory, &user, plugin_debug);
+
          priorities.insert(pair<float, int>(vm_prio, oid));
 
          oss << oid << "(" << vm_prio << ") - ";

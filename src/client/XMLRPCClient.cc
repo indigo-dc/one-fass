@@ -45,7 +45,7 @@ XMLRPCClient::XMLRPCClient(const string& secret,
 
     _endpoint = endpoint;
 
-    // xmlrpc_limit_set(XMLRPC_XML_SIZE_LIMIT_ID, message_size);
+    xmlrpc_limit_set(XMLRPC_XML_SIZE_LIMIT_ID, message_size);
 
     _timeout = tout * 1000;
 
@@ -105,6 +105,6 @@ void XMLRPCClient::call(const std::string& method,
 
     xmlrpc_c::value res;
     XMLRPCClient::call_async(method, s_plist, result);
-    // XMLRPCClient::call_async(method, s_plist, &res);
+    //XMLRPCClient::call_sync(method, s_plist, &res);
     // * result = res;
 }

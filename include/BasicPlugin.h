@@ -17,7 +17,11 @@
 #ifndef Basic_PLUGIN_H_
 #define Basic_PLUGIN_H_
 
+#include <vector>
+#include <list>
+
 #include "PriorityManager.h"
+#include "User.h"
 
 using namespace std;
 
@@ -26,12 +30,22 @@ class BasicPlugin
 public:
 	BasicPlugin(){};
 	
-	~BasicPlugin(){};
+	~BasicPlugin(){
+            tot_cpu.clear();
+            tot_mem.clear();
+        };
 
         // methods that should be implemented in custom plugin
-	float update_prio(int oid, int uid, int gid,
+        bool  evaluate_total_usage(list<User> user_list);
+	double update_prio(int oid, int uid, int gid,
                          int vm_cpu, int vm_memory,
-                         list<User> list_of_users);
+                         User *user,
+                         int debug_flag = 0);
+
+protected:
+ 
+    map<int, int64_t> tot_cpu;
+    map<int, int64_t> tot_mem;
 };
 
 #endif

@@ -21,6 +21,7 @@
 #include <xmlrpc-c/client_simple.hpp>
 #include <xmlrpc-c/girerr.hpp>
 
+#include <stdlib.h>
 #include <iostream>
 #include <string>
 #include <sstream>

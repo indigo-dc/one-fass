@@ -18,12 +18,26 @@
 #ifndef USER_H_
 #define USER_H_
 
+#include <map>
+#include <vector>
+
+struct Usage 
+{
+    int64_t usage;
+    int64_t start_time;
+    int64_t stop_time;
+   
+    Usage(int64_t usage, int64_t start_time, int64_t stop_time):
+                                  usage(usage),
+                                  start_time(start_time),
+                                  stop_time(stop_time)
+                                  {};  
+    
+};
+
 class User
 {
 public:
-    unsigned short userID;
-    unsigned short groupID;
-    float share;
 
     User() {};
     User(unsigned short userID,
@@ -36,6 +50,41 @@ public:
 
       ~User(){};
 
+    // setters
+    void set_cpu_usage(int entry, struct Usage usage){
+            
+        cpu_usage.insert(pair<int, struct Usage>(entry, usage));   
+    };
+
+    void set_memory_usage(int entry, struct Usage usage){
+            
+        memory_usage.insert(pair<int, struct Usage>(entry, usage));   
+    };
+
+    // getters
+    const map<int, struct Usage >& get_cpu_usage() const {
+
+        return cpu_usage;
+    };
+ 
+    const map<int, struct Usage >& get_memory_usage() const {
+
+        return memory_usage;
+    };
+
+    // clear usage objects
+    void flush_usage(){
+        cpu_usage.clear();
+        memory_usage.clear();
+    };
+
+    unsigned short userID;
+    unsigned short groupID;
+    float share;
+
+    // hash map contains [period_id, usage]
+    map<int, struct Usage > cpu_usage; 
+    map<int, struct Usage > memory_usage; 
 };
  
 #endif

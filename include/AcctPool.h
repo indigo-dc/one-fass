@@ -24,6 +24,7 @@
 #include "XMLRPCClient.h"
 #include "ObjectXML.h"
 #include "AcctObject.h"
+#include "User.h"
 
 
 using namespace std;
@@ -41,44 +42,41 @@ public:
         flush();
     };
 
-    // retrieves the accounting information
-    // evaluate historical usage and store it as AcctObject 
-    /*
-    int eval_usage(vector<int> const &uids,
-                          long int &time_start,
-                          long int &time_stop,
-                          long int &period,
+    // evaluate historical usage and store it in User object 
+    int eval_usage(list<User> *user_list,
+                          int64_t &time_start,
+                          int64_t &time_stop,
+                          int64_t &period,
                           int &n_periods);
-    */
+
     int set_up(vector<int> const &uids);
 
     // gets an object from the pool
-    /*
-    xmlNodePtr get(int oid) const
-    {
+    
+    list<AcctObject*>   get(int oid) const {
+        list<AcctObject*> retval;
 
-	map<int, xmlNodePtr >::const_iterator it;
+	map<int, list<AcctObject*> >::const_iterator it;
 
         it = objects.find(oid);
 
         if ( it == objects.end() )
         {
-            return 0;
+            return retval;
         }
         else
         {
-            return static_cast<xmlNodePtr > (it->second);
+            return static_cast<list<AcctObject*> > (it->second);
         }
-        
     };
-*/
+
 private:
 
     // deletes pool objects 
     void flush(); 
 
     // adds an object to the pool
-    void make_object(int uid, xmlNodePtr node);
+    void make_user_object(int uid, vector<xmlNodePtr> node);
  
     // gets list of VMs from ONE
     int load_acct(xmlrpc_c::value &result);
@@ -87,9 +85,8 @@ private:
 
     XMLRPCClient *  client;
 
-    // hash map contains the suitable [id, object] pairs
-    map<int, AcctObject*> objects; 
-    //map<int, list<AcctObject*> > objects; 
+    // hash map contains the suitable [id, list] pairs
+    map<int, list<AcctObject*> > objects; 
 
 };
 

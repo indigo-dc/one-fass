@@ -28,18 +28,7 @@
 
 void ObjectXML::init(const xmlNodePtr node) {
     // constructs the object
-    xml = xmlNewDoc(reinterpret_cast<const xmlChar *>("1.0"));
-
-    if (xml == 0) {
-        throw("Error allocating XML Document");
-    }
-
-    ctx = xmlXPathNewContext(xml);
-
-    if (ctx == 0) {
-        xmlFreeDoc(xml);
-        throw("Unable to create new XPath context");
-    }
+    //xmlFreeDoc(xml);
 
     xmlNodePtr root_node = xmlDocCopyNode(node, xml, 1);
 

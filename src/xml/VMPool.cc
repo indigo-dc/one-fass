@@ -118,7 +118,7 @@ int VMPool::set_up() {
         // the output of the one.vmpool.info method is always a string
         string vmlist(static_cast<string>(xmlrpc_c::value_string(values[1])));
         // parse the response and select only pending/rescheduling VMs
-        xmlInitParser();
+        // xmlInitParser();
         if ( xml != 0 ) {
             xmlFreeDoc(xml);
         }
@@ -145,7 +145,7 @@ int VMPool::set_up() {
         free_nodes(nodes);
 
         // clean global variables that might have been allocated by the parser
-        xmlCleanupParser();
+        // xmlCleanupParser();
 
     return rc;
 }
