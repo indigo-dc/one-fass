@@ -123,9 +123,9 @@ PriorityManager::PriorityManager(
     }
 
     // create the accounting pool
-    //XMLRPCClient::initialize(one_secret, one_xmlrpc, message_size, timeout);
-    //XMLRPCClient *cli = XMLRPCClient::client();
-    //acctpool = new AcctPool(cli);
+    // XMLRPCClient::initialize(one_secret, one_xmlrpc, message_size, timeout);
+    // XMLRPCClient *cli = XMLRPCClient::client();
+    // acctpool = new AcctPool(cli);
     acctpool = new AcctPool(client);
 }
 
@@ -167,7 +167,7 @@ extern "C" void * pm_loop(void *arg) {
         }
 
         pm->unlock();
- 
+
         // REAL LOOP
         FassLog::log("PM", Log::INFO, "PRIORITY MANAGER LOOP:");
         // all entries  should be written to DB with the same timestamp
@@ -187,10 +187,9 @@ extern "C" void * pm_loop(void *arg) {
 
         // calculates priorities
         pm->do_prioritize(timestamp);
-    
+
         // here the queue is actually set
         pm->make_queue();
-
     }
 
     FassLog::log("PM", Log::INFO, "Priority Manager stopped.");
@@ -199,7 +198,6 @@ extern "C" void * pm_loop(void *arg) {
 }
 
 void PriorityManager::make_queue() {
-
 /*
     ostringstream oss;
     oss << "Reordered:" << endl;
@@ -277,9 +275,10 @@ void PriorityManager::historical_usage(int64_t timestamp) {
     // evaluate historical usage
     // user_list, start_time, stop_time, period, n_periods
     // TODO(svallero): take period and n_periods from config
-    long int period = manager_timer;
+    int64_t period = manager_timer;
     int n_periods = 3;
-    rc = acctpool->eval_usage(&user_list, time_start, timestamp, period, n_periods);
+    rc = acctpool->eval_usage(&user_list, time_start, timestamp,
+                                                            period, n_periods);
 
     if ( rc != 0 ) {
         FassLog::log("PM", Log::ERROR, "Cannot evaluate the accounting info!");
@@ -334,11 +333,10 @@ void PriorityManager::do_prioritize(int64_t timestamp) {
     plugin = new BasicPlugin();
 
     oss << "Found pending VMs:" << endl;
-    
+
     // neded to normalize historical usage per user
     plugin->evaluate_total_usage(user_list);
  
-
     for (vm_it=pending_vms.begin(); vm_it != pending_vms.end(); vm_it++) {
          vm = static_cast<VMObject*>(vm_it->second);
 

@@ -47,7 +47,7 @@ public:
                           int64_t &time_start,
                           int64_t &time_stop,
                           int64_t &period,
-                          int &n_periods);
+                          int &num_periods);
 
     int set_up(vector<int> const &uids);
 

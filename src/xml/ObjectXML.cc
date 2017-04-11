@@ -28,7 +28,7 @@
 
 void ObjectXML::init(const xmlNodePtr node) {
     // constructs the object
-    //xmlFreeDoc(xml);
+    // xmlFreeDoc(xml);
 
     xmlNodePtr root_node = xmlDocCopyNode(node, xml, 1);
 

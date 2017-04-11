@@ -105,6 +105,6 @@ void XMLRPCClient::call(const std::string& method,
 
     xmlrpc_c::value res;
     XMLRPCClient::call_async(method, s_plist, result);
-    //XMLRPCClient::call_sync(method, s_plist, &res);
+    // XMLRPCClient::call_sync(method, s_plist, &res);
     // * result = res;
 }

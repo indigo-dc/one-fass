@@ -213,7 +213,6 @@ bool InfluxDb::write_initial_shares(const float share,
 }
 
 bool InfluxDb::write_usage(User user) {
-
     FassLog::log("INFLUXDB", Log::INFO, "Writing usage records.");
     // ostringstream output;
     int uid = user.userID;
@@ -227,31 +226,37 @@ bool InfluxDb::write_usage(User user) {
     ostringstream query;
     query << "cpu,user=" << uid;
     query << " ";
-    int64_t timestamp =0;
-    for (usage_it = cpu_usage.begin(); usage_it != cpu_usage.end(); usage_it++) {
+    int64_t timestamp = 0;
+    for (usage_it = cpu_usage.begin(); usage_it != cpu_usage.end();
+                                                                 usage_it++) {
         struct Usage cpu = static_cast<struct Usage>(usage_it->second);
         if (!timestamp) timestamp = cpu.stop_time;
         // construct query
-        if (usage_it->first) query << ",value" << usage_it->first << "=" << cpu.usage;  
-        else query << "value" << usage_it->first << "=" << cpu.usage;  
+        if (usage_it->first) query << ",value" << usage_it->first <<
+                                                          "=" << cpu.usage;
+        else 
+           query << "value" << usage_it->first << "=" << cpu.usage;
     }
     query << " " << timestamp;
     bool retval1 = InfluxDb::query_db("WRITE", query.str(), response);
     FassLog::log("INFLUXDB", Log::DEBUG, query);
 
     // memory
-    timestamp =0;
+    timestamp = 0;
     query.str("");
-    query.clear();  
+    query.clear();
     query << "memory,user=" << uid;
     query << " ";
-    for (usage_it = memory_usage.begin(); usage_it != memory_usage.end(); usage_it++) {
+    for (usage_it = memory_usage.begin(); usage_it != memory_usage.end();
+                                                                  usage_it++) {
         struct Usage memory = static_cast<struct Usage>(usage_it->second);
         // should be the same as above
         if (!timestamp) timestamp = memory.stop_time;
         // construct query
-        if (usage_it->first) query << ",value" << usage_it->first << "=" << memory.usage;  
-        else query << "value" << usage_it->first << "=" << memory.usage;  
+        if (usage_it->first) query << ",value" << usage_it->first << "="
+                                                                << memory.usage;
+        else
+           query << "value" << usage_it->first << "=" << memory.usage;
     }
     query << " " << timestamp;
     bool retval2 = InfluxDb::query_db("WRITE", query.str(), response);
