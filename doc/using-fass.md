@@ -42,5 +42,5 @@ systemctl start fass
 ```
 
 ## Using FaSS
-Version 1.0 of FaSS does implement a dummy algorithm by default, which inverts the priorities recevied from OpenNebula. 
-To change the algorithm edit the ```BasicPlugin``` class, in ```/tmp/one-fass/src/pm```.
+Version 1.0 of FaSS does implement a dummy algorithm by default, which inverts the priorities recevied from OpenNebula. A simle version of the SLURM MultiFactor algorithm is also implemented, to enable it set the parameter ```plugin_debug``` to 1 in the FaSS configuration file.
+In order to implement your own fair-share algorithm, edit the ```BasicPlugin``` class, in ```/tmp/one-fass/src/pm```.
