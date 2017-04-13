@@ -203,7 +203,8 @@ void Fass::start(bool bootstrap_only) {
     // }
 
     pm = new PriorityManager(one_endpoint, one_secret, message_size,
-                    timeout, shares, manager_timer, database, period, n_periods, plugin_debug);
+                           timeout, shares, manager_timer, database,
+                                   period, n_periods, plugin_debug);
          // timeout, machines_limit, shares, manager_timer, database);
     }
 

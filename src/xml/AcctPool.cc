@@ -72,7 +72,7 @@ int AcctPool::eval_usage(list<User> *user_list, int64_t &time_start,
         // set accounting entries in User object
         (*i).flush_usage();
          ostringstream output;
-         output << "***** UID " << (*i).userID << "*****"<<endl;
+         output << "***** UID " << (*i).userID << "*****" << endl;
         for (int k = 0; k < n_periods; k++) {
             struct Usage cpu_usage((int64_t)(sum_cpu[k]),
                                              time_start, time_stop);
