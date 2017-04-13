@@ -35,6 +35,7 @@ void VMObject::init_attributes() {
     xpath(oid, "/VM/ID", -1);
     xpath(uid, "/VM/UID", -1);
     xpath(gid, "/VM/GID", -1);
+    xpath(start, "/VM/STIME", static_cast<int64_t>(-1));
 
     xpath(memory, "/VM/TEMPLATE/MEMORY", 0);
     xpath<float>(cpu, "/VM/TEMPLATE/CPU", 0);

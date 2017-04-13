@@ -73,6 +73,10 @@ public:
         return gid;
     };
 
+    int64_t get_start() const
+    {
+        return start;
+    };
 
     // returns VM usage requirements
     void get_requirements(int& cpu, int& memory); 
@@ -91,7 +95,7 @@ private:
     int   oid;
     int   uid;
     int   gid;
-
+    int64_t start;
     int   memory;
     float cpu;
 

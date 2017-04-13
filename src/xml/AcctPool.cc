@@ -23,7 +23,7 @@ int AcctPool::eval_usage(list<User> *user_list, int64_t &time_start,
     FassLog::log("AcctPool", Log::DEBUG,
                           "Evaluating historical usage per user...");
     // we need one entry more to evaluate the deltas
-    const int n_periods = num_periods++;
+    int n_periods = num_periods + 1;
     // loop over users
     for (list<User>::iterator i = user_list->begin();
                                    i != user_list->end(); ++i) {
@@ -71,8 +71,8 @@ int AcctPool::eval_usage(list<User> *user_list, int64_t &time_start,
 
         // set accounting entries in User object
         (*i).flush_usage();
-        // ostringstream output;
-        // output << "***** UID " << (*i).userID << "*****"<<endl;
+         ostringstream output;
+         output << "***** UID " << (*i).userID << "*****"<<endl;
         for (int k = 0; k < n_periods; k++) {
             struct Usage cpu_usage((int64_t)(sum_cpu[k]),
                                              time_start, time_stop);
@@ -80,8 +80,8 @@ int AcctPool::eval_usage(list<User> *user_list, int64_t &time_start,
                                              time_start, time_stop);
             (*i).set_cpu_usage(k, cpu_usage);
             (*i).set_memory_usage(k, mem_usage);
-            // output << "Start: " << time_start << " Stop: " << time_stop
-            // << " CPU usage: " << sum_cpu[k] << endl;
+             output << "Start: " << time_start << " Stop: " << time_stop
+             << " CPU usage: " << sum_cpu[k] << endl;
         }
 
         // const map<int, struct Usage> cpu_usage = (*i).get_cpu_usage();
@@ -92,7 +92,7 @@ int AcctPool::eval_usage(list<User> *user_list, int64_t &time_start,
           // output << "Start: " << cpu.start_time << " Stop: " << cpu.stop_time
             // << " CPU usage: " << cpu.usage << endl;
         // }
-        // FassLog::log("PM", Log::DEBUG, output);
+        FassLog::log("AcctPool", Log::DEBUG, output);
     }  // end loop on users
 
     return 0;

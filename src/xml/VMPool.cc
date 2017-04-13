@@ -54,6 +54,7 @@ const string VMPool::make_queue(map<float, int, std::greater<float> > prios) {
     retval = oss.str();
 
     FassLog::log("VMPOOL", Log::DDDEBUG, oss);
+    FassLog::log("VMPOOL", Log::DDEBUG, "... done!");
     return retval;
 }
 

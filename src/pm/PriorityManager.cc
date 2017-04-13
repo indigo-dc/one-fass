@@ -78,6 +78,8 @@ PriorityManager::PriorityManager(
           vector<string> _shares,
           int _manager_timer,
           FassDb* _fassdb,
+          int _period,
+          int _n_periods,
           int _plugin_debug):
                 one_xmlrpc(_one_xmlrpc),
                 one_secret(_one_secret),
@@ -89,6 +91,8 @@ PriorityManager::PriorityManager(
                 stop_manager(false),
                 queue(""),
                 fassdb(_fassdb),
+                period(_period),
+                n_periods(_n_periods),
                 plugin_debug(_plugin_debug) {
     // initialize XML-RPC Client
     ostringstream oss;
@@ -274,11 +278,10 @@ void PriorityManager::historical_usage(int64_t timestamp) {
 */
     // evaluate historical usage
     // user_list, start_time, stop_time, period, n_periods
-    // TODO(svallero): take period and n_periods from config
-    int64_t period = manager_timer;
-    int n_periods = 3;
+    int64_t period_s = manager_timer*period;
+
     rc = acctpool->eval_usage(&user_list, time_start, timestamp,
-                                                            period, n_periods);
+                                                      period_s, n_periods);
 
     if ( rc != 0 ) {
         FassLog::log("PM", Log::ERROR, "Cannot evaluate the accounting info!");
@@ -320,6 +323,7 @@ void PriorityManager::do_prioritize(int64_t timestamp) {
     int gid;
     int vm_memory;
     int vm_cpu;
+    int64_t vm_start;
     float vm_prio = 1.0;
 
     // get the VMs previously stored
@@ -344,6 +348,7 @@ void PriorityManager::do_prioritize(int64_t timestamp) {
          oid = vm->get_oid();
          uid = vm->get_uid();
          gid = vm->get_gid();
+         vm_start = vm->get_start();
 
          // TODO(svallero): user_list should be a map
          User user;
@@ -352,7 +357,7 @@ void PriorityManager::do_prioritize(int64_t timestamp) {
               if (((*i).userID == uid)) user = (*i);
          }
 
-         vm_prio = plugin->update_prio(oid, uid, gid, vm_cpu,
+         vm_prio = plugin->update_prio(oid, vm_start, uid, gid, vm_cpu,
                                        vm_memory, &user, plugin_debug);
 
          priorities.insert(pair<float, int>(vm_prio, oid));

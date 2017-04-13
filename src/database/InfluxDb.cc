@@ -200,13 +200,14 @@ bool InfluxDb::write_initial_shares(const float share,
                                     const string group,
                                     const int64_t timestamp) {
     FassLog::log("INFLUXDB", Log::DEBUG, "Writing initial shares.");
+    // timestamp shpuld be in ns
     // query_db(string method, string q, string &retval)
     string response;
     ostringstream query;
     query << "share,user=" << user
     << ",group=" << group
     << " value=" << share
-    << " " << timestamp;
+    << " " << timestamp*1000000000;
     FassLog::log("INFLUXDB", Log::DEBUG, query);
     bool retval = InfluxDb::query_db("WRITE", query.str(), response);
     return retval;
@@ -237,7 +238,7 @@ bool InfluxDb::write_usage(User user) {
         else
            query << "value" << usage_it->first << "=" << cpu.usage;
     }
-    query << " " << timestamp;
+    query << " " << timestamp*1000000000;
     bool retval1 = InfluxDb::query_db("WRITE", query.str(), response);
     FassLog::log("INFLUXDB", Log::DEBUG, query);
 
@@ -258,7 +259,7 @@ bool InfluxDb::write_usage(User user) {
         else
            query << "value" << usage_it->first << "=" << memory.usage;
     }
-    query << " " << timestamp;
+    query << " " << timestamp*1000000000;
     bool retval2 = InfluxDb::query_db("WRITE", query.str(), response);
     FassLog::log("INFLUXDB", Log::DEBUG, query);
 

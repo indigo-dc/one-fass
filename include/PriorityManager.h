@@ -46,6 +46,8 @@ public:
     vector<string> _shares,
     int _manager_timer,
     FassDb* _fassdb,
+    int _period,
+    int _n_periods,
     int _plugin_debug);
 
     ~PriorityManager(){
@@ -117,6 +119,9 @@ private:
        
         XMLRPCClient *client;
         FassDb *fassdb;
+        
+        int period;
+        int n_periods;
  
         int plugin_debug;
 

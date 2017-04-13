@@ -176,13 +176,19 @@ void Fass::start(bool bootstrap_only) {
   /// ---- Priority Manager ----
   try {
     int  manager_timer;
-    int machines_limit;
+    // int machines_limit;
+    int period;
+    int n_periods;
     int plugin_debug;
 
-    fass_configuration->get_single_option
-         ("pm", "max_vm", machines_limit);
+    // fass_configuration->get_single_option
+    //      ("pm", "max_vm", machines_limit);
     fass_configuration->get_single_option
          ("pm", "manager_timer", manager_timer);
+    fass_configuration->get_single_option
+         ("pm", "period", period);
+    fass_configuration->get_single_option
+         ("pm", "n_periods", n_periods);
     fass_configuration->get_single_option
          ("pm", "plugin_debug", plugin_debug);
 
@@ -197,7 +203,7 @@ void Fass::start(bool bootstrap_only) {
     // }
 
     pm = new PriorityManager(one_endpoint, one_secret, message_size,
-                    timeout, shares, manager_timer, database, plugin_debug);
+                    timeout, shares, manager_timer, database, period, n_periods, plugin_debug);
          // timeout, machines_limit, shares, manager_timer, database);
     }
 

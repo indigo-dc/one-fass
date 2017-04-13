@@ -77,6 +77,10 @@ bool FassConfigurator::load_configuration() {
        "manager period (s)")
       ("pm.max_vm", po::value<int>()->default_value(5000),
        "Maximum number of Virtual Machines scheduled")
+      ("pm.period", po::value<int>()->default_value(180),
+       "for historical usage, it multiplies manager_timer")
+      ("pm.n_periods", po::value<int>()->default_value(3),
+       "number of periods used in the algorithm")
       ("pm.plugin_debug", po::value<int>()->default_value(0),
        "Use dummy algo if set to 0, use simple fairshare algo otherwise");
 
