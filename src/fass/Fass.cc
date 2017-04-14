@@ -233,8 +233,7 @@ void Fass::start(bool bootstrap_only) {
          ("terminator", "max_wait", max_wait);
 
     tm = new Terminator(one_endpoint, one_secret, message_size,
-                           timeout, manager_timer, shares, ttl, max_wait); 
-
+                           timeout, manager_timer, shares, ttl, max_wait);
     }
 
     catch (bad_alloc&) {

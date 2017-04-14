@@ -39,8 +39,6 @@ void VMObject::init_attributes() {
     xpath(memory, "/VM/TEMPLATE/MEMORY", 0);
     xpath<float>(cpu, "/VM/TEMPLATE/CPU", 0);
     // xpath<float>(prio, "/VM/PRIO", -1.);
-
-    
     // below is the time at which the VM was created
     xpath(birth, "/VM/STIME", static_cast<int64_t>(-1));
     // below is the time at which the VM was active

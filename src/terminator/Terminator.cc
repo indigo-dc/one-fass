@@ -57,7 +57,7 @@ Terminator::Terminator(
                 one_secret(_one_secret),
                 message_size(_message_size),
                 timeout(_timeout),
-                users(_users), 
+                users(_users),
                 ttl(_ttl),
                 max_wait(_max_wait) {
     // initialize XML-RPC Client
@@ -78,9 +78,9 @@ Terminator::Terminator(
     catch(runtime_error &) {
         throw;
     }
-    
+
     // creates the VM pool
-    vmpool = new VMPool(client); 
+    vmpool = new VMPool(client);
 }
 
 extern "C" void * tm_loop(void *arg) {
@@ -122,16 +122,16 @@ extern "C" void * tm_loop(void *arg) {
         // REAL LOOP
         FassLog::log("TERMIN", Log::INFO, "TERMINATOR LOOP");
 
-        int rc; 
-  
+        int rc;
+
         // get the pool of running VMs
-        // rc = tm->get_running(); 
+        // rc = tm->get_running();
 
         // if ( rc != 0 ) {
         //    FassLog::log("TERMIN", Log::ERROR, "Cannot get the VM pool!");
         // }
 
-        // loop over users 
+        // loop over users
         for (vector<string>::const_iterator i= tm->users.begin();
                                       i != tm->users.end(); i++) {
             ostringstream oss;
@@ -143,7 +143,8 @@ extern "C" void * tm_loop(void *arg) {
             int uid = boost::lexical_cast<int16_t>(tokens[1]);
             // kill running
             rc = tm->kill_running(uid);
-            oss << "Error terminating running VMs for user " << uid << " !" << endl; 
+            oss << "Error terminating running VMs for user " << uid << " !"
+                                                                    << endl;
             if ( rc != 0 ) {
                 FassLog::log("TERMIN", Log::ERROR, oss);
             }
@@ -151,11 +152,11 @@ extern "C" void * tm_loop(void *arg) {
             oss.str("");
             oss.clear();
             rc = tm->kill_pending(uid);
-            oss << "Error terminating pending VMs for user " << uid << " !" << endl; 
+            oss << "Error terminating pending VMs for user " << uid << " !"
+                                                                    << endl;
             if ( rc != 0 ) {
                 FassLog::log("TERMIN", Log::ERROR, oss);
             }
-
         }
     }
 
@@ -165,11 +166,10 @@ extern "C" void * tm_loop(void *arg) {
 }
 
 bool Terminator::terminate(int oid) {
-    
     ostringstream   oss;
     oss << "Terminating VM " << oid;
     FassLog::log("TERMIN", Log::ERROR, oss);
-    
+
     try {
         xmlrpc_c::value result;
         xmlrpc_c::paramList plist;
@@ -194,7 +194,7 @@ int Terminator::kill_running(int uid) {
     // cleans the cache and gets the VM pool
     rc = vmpool->get_running(uid);
     // TODO(svallero): real return code
-    oss << "Cannot get the VM pool for user " << uid << " !" << endl; 
+    oss << "Cannot get the VM pool for user " << uid << " !" << endl;
     if ( rc != 0 ) {
         FassLog::log("TERMIN", Log::ERROR, oss);
         return rc;
@@ -203,14 +203,14 @@ int Terminator::kill_running(int uid) {
     VMObject * vm;
     const map<int, VMObject*> vms = vmpool->get_objects();
     map<int, VMObject*>::const_iterator  vm_it;
-    for (vm_it=vms.begin(); vm_it != vms.end(); vm_it++) {   
+    for (vm_it=vms.begin(); vm_it != vms.end(); vm_it++) {
         ostringstream oss;
         vm = static_cast<VMObject*>(vm_it->second);
         int oid = vm->get_oid();
         int64_t start = vm->get_start();
-        int64_t stop = static_cast<int64_t>(time(NULL)); 
-        int64_t life = stop -start; 
-        oss << "OID: " << oid << " LIFETIME: " << life << " TTL: " << ttl; 
+        int64_t stop = static_cast<int64_t>(time(NULL));
+        int64_t life = stop - start;
+        oss << "OID: " << oid << " LIFETIME: " << life << " TTL: " << ttl;
         FassLog::log("TERMIN", Log::DDEBUG, oss);
         if (life > ttl) terminate(oid);
     }
@@ -225,7 +225,7 @@ int Terminator::kill_pending(int uid) {
     // cleans the cache and gets the VM pool
     rc = vmpool->get_pending(uid);
     // TODO(svallero): real return code
-    oss << "Cannot get the VM pool for user " << uid << " !" << endl; 
+    oss << "Cannot get the VM pool for user " << uid << " !" << endl;
     if ( rc != 0 ) {
         FassLog::log("TERMIN", Log::ERROR, oss);
         return rc;
@@ -234,14 +234,15 @@ int Terminator::kill_pending(int uid) {
     VMObject * vm;
     const map<int, VMObject*> vms = vmpool->get_objects();
     map<int, VMObject*>::const_iterator  vm_it;
-    for (vm_it=vms.begin(); vm_it != vms.end(); vm_it++) {   
+    for (vm_it=vms.begin(); vm_it != vms.end(); vm_it++) {
         ostringstream oss;
         vm = static_cast<VMObject*>(vm_it->second);
         int oid = vm->get_oid();
         int64_t start = vm->get_birth();
-        int64_t stop = static_cast<int64_t>(time(NULL)); 
-        int64_t wait = stop -start; 
-        oss << "OID: " << oid << " WAIT TIME: " << wait << "MAX WAIT : " << max_wait; 
+        int64_t stop = static_cast<int64_t>(time(NULL));
+        int64_t wait = stop - start;
+        oss << "OID: " << oid << " WAIT TIME: " << wait << "MAX WAIT : "
+                                                            << max_wait;
         FassLog::log("TERMIN", Log::DDEBUG, oss);
         if (wait > max_wait) terminate(oid);
     }
