@@ -37,7 +37,7 @@ public:
 
         // methods that should be implemented in custom plugin
         bool  evaluate_total_usage(list<User> user_list);
-	double update_prio(int oid, int64_t start, int uid, int gid,
+	double update_prio(int oid, int uid, int gid,
                          int vm_cpu, int vm_memory,
                          User *user,
                          int debug_flag = 0);

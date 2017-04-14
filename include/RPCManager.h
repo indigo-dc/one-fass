@@ -17,6 +17,8 @@
 #ifndef RPC_MANAGER_H_
 #define RPC_MANAGER_H_
 
+#include "Manager.h"
+
 #include <unistd.h>
 #include <xmlrpc-c/base.hpp>
 #include <xmlrpc-c/registry.hpp>
@@ -28,7 +30,7 @@ using namespace std;
 
 extern "C" void * rm_xml_server_loop(void *arg);
 
-class RPCManager
+class RPCManager: public Manager
 {
 public:
 
@@ -52,7 +54,7 @@ public:
        creates a new thread for the Request Manager. This thread will wait in
        an action loop till it receives ACTION_FINALIZE. */
 
-    bool start();
+    int start();
    
     pthread_t get_thread_id() const
     {
@@ -62,15 +64,18 @@ public:
 
 
     void finalize() {
+        lock();
         AbyssServer->terminate();
-        pthread_cancel(rm_xml_server_thread);
-        pthread_join(rm_xml_server_thread,0);
+        pthread_cond_signal(&cond);
+        //pthread_cancel(rm_xml_server_thread);
+        //pthread_join(rm_xml_server_thread,0);
         //AbyssServer->terminate();
         delete AbyssServer;
         if ( socket_fd != -1 )
         {
             close(socket_fd);
         }
+        unlock();
     };
 private:
     

@@ -43,6 +43,7 @@ main_env.Append(LIBPATH=[
     cwd+'/src/config',
     cwd+'/src/database',
     cwd+'/src/xml',
+    cwd+'/src/terminator',
     cwd+'/src/pm',
     cwd+'/src/rpcm', 
     cwd+'/src/fass'
@@ -164,6 +165,7 @@ build_scripts=[
     'src/config/SConstruct',
     'src/database/SConstruct',
     'src/xml/SConstruct',
+    'src/terminator/SConstruct',
     'src/pm/SConstruct',
     'src/rpcm/SConstruct',
     'src/fass/SConstruct'

@@ -174,8 +174,9 @@ void Fass::start(bool bootstrap_only) {
     fass_configuration->get_single_option("rpcm", "timeout", timeout);
 
   /// ---- Priority Manager ----
+  int  manager_timer;  // used also by Terminator
+  vector<string> shares;
   try {
-    int  manager_timer;
     // int machines_limit;
     int period;
     int n_periods;
@@ -194,7 +195,6 @@ void Fass::start(bool bootstrap_only) {
 
 
     // Get the initial shares vector
-    vector<string> shares;
     shares = initial_shares->get_shares();
 
     // for(vector<string>::const_iterator i = shares.begin();
@@ -221,6 +221,34 @@ void Fass::start(bool bootstrap_only) {
        throw runtime_error("Could not start the Priority Manager");
     }
 
+  /// ---- Terminator ----
+  try {
+    int64_t ttl;
+    int64_t max_wait;
+    fass_configuration->get_single_option
+         ("terminator", "manager_timer", manager_timer);
+    fass_configuration->get_single_option
+         ("terminator", "ttl", ttl);
+    fass_configuration->get_single_option
+         ("terminator", "max_wait", max_wait);
+
+    tm = new Terminator(one_endpoint, one_secret, message_size,
+                           timeout, manager_timer, shares, ttl, max_wait); 
+
+    }
+
+    catch (bad_alloc&) {
+        FassLog::log("FASS", Log::ERROR, "Error creating Terminator");
+        throw;
+    }
+
+    /// ---- Start Terminator ----
+
+    rc = tm->start();
+
+    if ( !rc ) {
+       throw runtime_error("Could not start Terminator");
+    }
 
     /// ---- Request Manager ----
     try {
@@ -288,13 +316,15 @@ void Fass::start(bool bootstrap_only) {
 
     /** Stop the managers and free resources */
 
-    rpcm->finalize();
     pm->finalize();
+    tm->finalize();
+    rpcm->finalize();
 
     // sleep to wait drivers???
 
     pthread_join(rpcm->get_thread_id(), 0);
     pthread_join(pm->get_thread_id(), 0);
+    pthread_join(tm->get_thread_id(), 0);
 
     // XML Library
     xmlCleanupParser();

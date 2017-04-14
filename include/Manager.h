@@ -21,13 +21,12 @@
 
 using namespace std;
 
-extern "C" void * m_loop(void *arg);
-
 class Manager
 {
 public:
 
-    Manager(){
+    Manager(int _manager_timer){
+        manager_timer = _manager_timer;
         stop_manager = false;
     };
 
@@ -51,9 +50,6 @@ public:
 
 protected: 
 
-    // to be defined in child classes
-    friend void * m_loop(void *arg);
-
     void lock(){
         pthread_mutex_lock(&mutex);
     };
@@ -67,7 +63,8 @@ protected:
 
     pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
     pthread_cond_t  cond = PTHREAD_COND_INITIALIZER;
-
+    
+    int manager_timer;
     bool stop_manager;
 };
 

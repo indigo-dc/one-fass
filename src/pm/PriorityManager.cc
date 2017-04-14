@@ -81,14 +81,14 @@ PriorityManager::PriorityManager(
           int _period,
           int _n_periods,
           int _plugin_debug):
+                Manager(_manager_timer),
                 one_xmlrpc(_one_xmlrpc),
                 one_secret(_one_secret),
                 message_size(_message_size),
                 timeout(_timeout),
                 // max_vm(_max_vm),
                 shares(_shares),
-                manager_timer(_manager_timer),
-                stop_manager(false),
+                // manager_timer(_manager_timer),
                 queue(""),
                 fassdb(_fassdb),
                 period(_period),
@@ -227,7 +227,7 @@ int PriorityManager::start() {
     pthread_attr_init(&pattr);
     pthread_attr_setdetachstate(&pattr, PTHREAD_CREATE_JOINABLE);
 
-    pthread_create(&pm_thread, &pattr, pm_loop, reinterpret_cast<void *>(this));
+    pthread_create(&m_thread, &pattr, pm_loop, reinterpret_cast<void *>(this));
 
     return true;
 }
@@ -305,7 +305,7 @@ int PriorityManager::get_pending() {
 
     // cleans the cache and gets the VM pool
     // lock();
-    rc = vmpool->set_up();
+    rc = vmpool->get_pending();
     // unlock();
     // TODO(svallero): real return code
     return rc;
@@ -323,7 +323,6 @@ void PriorityManager::do_prioritize(int64_t timestamp) {
     int gid;
     int vm_memory;
     int vm_cpu;
-    int64_t vm_start;
     float vm_prio = 1.0;
 
     // get the VMs previously stored
@@ -348,7 +347,6 @@ void PriorityManager::do_prioritize(int64_t timestamp) {
          oid = vm->get_oid();
          uid = vm->get_uid();
          gid = vm->get_gid();
-         vm_start = vm->get_start();
 
          // TODO(svallero): user_list should be a map
          User user;
@@ -357,7 +355,7 @@ void PriorityManager::do_prioritize(int64_t timestamp) {
               if (((*i).userID == uid)) user = (*i);
          }
 
-         vm_prio = plugin->update_prio(oid, vm_start, uid, gid, vm_cpu,
+         vm_prio = plugin->update_prio(oid, uid, gid, vm_cpu,
                                        vm_memory, &user, plugin_debug);
 
          priorities.insert(pair<float, int>(vm_prio, oid));

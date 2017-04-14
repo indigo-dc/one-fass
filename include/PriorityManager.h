@@ -17,6 +17,8 @@
 #ifndef PRIORITY_MANAGER_H_
 #define PRIORITY_MANAGER_H_
 
+#include "Manager.h"
+
 #include "VMPool.h"
 #include "AcctPool.h"
 #include "FassDb.h"
@@ -31,7 +33,7 @@ using namespace std;
 
 extern "C" void * pm_loop(void *arg);
 
-class PriorityManager
+class PriorityManager: public Manager 
 {
 public:
 
@@ -58,19 +60,7 @@ public:
 
     };	
 
-    pthread_t get_thread_id() const{
-        return pm_thread;
-    };
-
     int start();
-
-    void finalize(){
-
-        lock();
-        stop_manager = true;
-        pthread_cond_signal(&cond);
-        unlock();
-    };
 
     VMPool * vmpool;
     AcctPool * acctpool;
@@ -86,19 +76,6 @@ private:
         // we do not need all the ONE ActionManager machinery
         void make_queue();
 
-        void lock(){
-            pthread_mutex_lock(&mutex);
-        };
-
-        void unlock()
-        {
-            pthread_mutex_unlock(&mutex);
-        };
-
-        pthread_t  pm_thread;        // thread for the Priority Manager
-        pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
-        pthread_cond_t  cond = PTHREAD_COND_INITIALIZER;
-
 	string one_xmlrpc;
 	string one_secret;
 	int64_t message_size;
@@ -106,8 +83,7 @@ private:
 
 	// unsigned int max_vm;
 	vector<string> shares;	
-        int manager_timer; 
-        bool stop_manager;
+        // int manager_timer; 
   
         bool calculate_initial_shares();
 	bool set_up_pools();

@@ -24,6 +24,7 @@
 #include "RPCManager.h"
 #include "XMLRPCClient.h"
 #include "PriorityManager.h"
+#include "Terminator.h"
 
 #include <stdlib.h>
 #include <string>
@@ -151,6 +152,7 @@ private:
         delete rpcm;
         delete database;
 	delete pm;
+	delete tm;
     };
 
     Fass& operator=(Fass const&){return *this;};
@@ -177,6 +179,7 @@ private:
     XMLRPCClient *      rpccli;
 
     PriorityManager *   pm;
+    Terminator *   tm;
 /**
     /// Implementation functions 
     /// Is this needed? 

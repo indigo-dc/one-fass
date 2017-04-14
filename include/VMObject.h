@@ -78,6 +78,16 @@ public:
         return start;
     };
 
+    int64_t get_birth() const
+    {
+        return birth;
+    };
+
+    // float get_prio() const
+    // {
+    //    return prio;
+    // };
+
     // returns VM usage requirements
     void get_requirements(int& cpu, int& memory); 
 
@@ -96,8 +106,10 @@ private:
     int   uid;
     int   gid;
     int64_t start;
+    int64_t birth;
     int   memory;
     float cpu;
+    // float prio;
 
 };
 
