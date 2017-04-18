@@ -73,7 +73,7 @@ Terminator::Terminator(
     // << " bytes for response buffer." << endl;
     << " bytes for response buffer.";
 
-    FassLog::log("TERMIN", Log::INFO, oss);
+    FassLog::log("TERMIN", Log::DEBUG, oss);
     }
     catch(runtime_error &) {
         throw;
@@ -120,10 +120,9 @@ extern "C" void * tm_loop(void *arg) {
         tm->unlock();
 
         // REAL LOOP
-        FassLog::log("TERMIN", Log::INFO, "TERMINATOR LOOP");
+        FassLog::log("TERMIN", Log::INFO, "TERMINATOR LOOP:");
 
         int rc;
-
         // get the pool of running VMs
         // rc = tm->get_running();
 
@@ -149,14 +148,15 @@ extern "C" void * tm_loop(void *arg) {
                 FassLog::log("TERMIN", Log::ERROR, oss);
             }
             // kill pending
-            oss.str("");
-            oss.clear();
-            rc = tm->kill_pending(uid);
-            oss << "Error terminating pending VMs for user " << uid << " !"
-                                                                    << endl;
-            if ( rc != 0 ) {
-                FassLog::log("TERMIN", Log::ERROR, oss);
-            }
+            // this should be done in the PM to avoid inconsistencies
+            // oss.str("");
+            // oss.clear();
+            // rc = tm->kill_pending(uid);
+            // oss << "Error terminating pending VMs for user " << uid << " !"
+            //                                                        << endl;
+            // if ( rc != 0 ) {
+            //    FassLog::log("TERMIN", Log::ERROR, oss);
+            // }
         }
     }
 
@@ -168,7 +168,7 @@ extern "C" void * tm_loop(void *arg) {
 bool Terminator::terminate(int oid) {
     ostringstream   oss;
     oss << "Terminating VM " << oid;
-    FassLog::log("TERMIN", Log::ERROR, oss);
+    FassLog::log("TERMIN", Log::DEBUG, oss);
 
     try {
         xmlrpc_c::value result;
@@ -188,14 +188,17 @@ bool Terminator::terminate(int oid) {
 
 int Terminator::kill_running(int uid) {
     FassLog::log("TERMIN", Log::DEBUG, "Retrieving running VMs from ONE...");
+    // this procedure should be locked,
+    // or the PM could try to overwrite the vmpool object
+    lock();
+
     int rc;
     ostringstream oss;
-
     // cleans the cache and gets the VM pool
     rc = vmpool->get_running(uid);
     // TODO(svallero): real return code
-    oss << "Cannot get the VM pool for user " << uid << " !" << endl;
     if ( rc != 0 ) {
+        oss << "Cannot get the VM pool for user " << uid << " !" << endl;
         FassLog::log("TERMIN", Log::ERROR, oss);
         return rc;
     }
@@ -203,6 +206,7 @@ int Terminator::kill_running(int uid) {
     VMObject * vm;
     const map<int, VMObject*> vms = vmpool->get_objects();
     map<int, VMObject*>::const_iterator  vm_it;
+    int count = 0;
     for (vm_it=vms.begin(); vm_it != vms.end(); vm_it++) {
         ostringstream oss;
         vm = static_cast<VMObject*>(vm_it->second);
@@ -212,21 +216,30 @@ int Terminator::kill_running(int uid) {
         int64_t life = stop - start;
         oss << "OID: " << oid << " LIFETIME: " << life << " TTL: " << ttl;
         FassLog::log("TERMIN", Log::DDEBUG, oss);
-        if (life > ttl) terminate(oid);
+        if (life > ttl) {
+            terminate(oid);
+            count = count + 1;
+        }
     }
+    unlock();
+    oss << "Terminated " << count << " ACTIVE VMs";
+    if (uid >= 0) oss << " for user " << uid; 
+    FassLog::log("TERMIN", Log::INFO, oss);
     return 0;
 }
 
 int Terminator::kill_pending(int uid) {
     FassLog::log("TERMIN", Log::DEBUG, "Retrieving pending VMs from ONE...");
+    // also this procedure should be locked
+    lock();
     int rc;
     ostringstream oss;
 
     // cleans the cache and gets the VM pool
     rc = vmpool->get_pending(uid);
     // TODO(svallero): real return code
-    oss << "Cannot get the VM pool for user " << uid << " !" << endl;
     if ( rc != 0 ) {
+        oss << "Cannot get the VM pool for user " << uid << " !" << endl;
         FassLog::log("TERMIN", Log::ERROR, oss);
         return rc;
     }
@@ -234,6 +247,7 @@ int Terminator::kill_pending(int uid) {
     VMObject * vm;
     const map<int, VMObject*> vms = vmpool->get_objects();
     map<int, VMObject*>::const_iterator  vm_it;
+    int count = 0;
     for (vm_it=vms.begin(); vm_it != vms.end(); vm_it++) {
         ostringstream oss;
         vm = static_cast<VMObject*>(vm_it->second);
@@ -241,11 +255,18 @@ int Terminator::kill_pending(int uid) {
         int64_t start = vm->get_birth();
         int64_t stop = static_cast<int64_t>(time(NULL));
         int64_t wait = stop - start;
-        oss << "OID: " << oid << " WAIT TIME: " << wait << "MAX WAIT : "
+        oss << "OID: " << oid << " WAIT TIME: " << wait << " MAX WAIT : "
                                                             << max_wait;
         FassLog::log("TERMIN", Log::DDEBUG, oss);
-        if (wait > max_wait) terminate(oid);
+        if (wait > max_wait) {
+            terminate(oid);
+            count = count + 1;
+        }
     }
+    unlock();
+    oss << "Terminated " << count << " PENDING VMs";
+    if (uid >= 0) oss << " for user " << uid; 
+    FassLog::log("TERMIN", Log::INFO, oss);
     return 0;
 }
 int Terminator::start() {

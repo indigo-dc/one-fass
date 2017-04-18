@@ -43,6 +43,7 @@
 #include "User.h"
 #include "ObjectXML.h"
 #include "VMObject.h"
+#include "Terminator.h"
 
 list<User> PriorityManager::user_list;
 map<float, int, std::greater<float> > PriorityManager::priorities;
@@ -77,6 +78,7 @@ PriorityManager::PriorityManager(
           // unsigned int _max_vm,
           vector<string> _shares,
           int _manager_timer,
+          string _start_time,
           FassDb* _fassdb,
           int _period,
           int _n_periods,
@@ -89,6 +91,7 @@ PriorityManager::PriorityManager(
                 // max_vm(_max_vm),
                 shares(_shares),
                 // manager_timer(_manager_timer),
+                start_time(_start_time),
                 queue(""),
                 fassdb(_fassdb),
                 period(_period),
@@ -108,7 +111,7 @@ PriorityManager::PriorityManager(
     // << " bytes for response buffer." << endl;
     << " bytes for response buffer.";
 
-    FassLog::log("PM", Log::INFO, oss);
+    FassLog::log("PM", Log::DEBUG, oss);
     }
     catch(runtime_error &) {
         throw;
@@ -179,6 +182,10 @@ extern "C" void * pm_loop(void *arg) {
 
         int rc;
 
+        // first let's cleanup all the VMs waiting since too long
+        Terminator * tm = Fass::instance().terminator(); 
+        tm->kill_pending(-1);  
+
         // let's get the list of pending VMs from ONE
         rc = pm->get_pending();
 
@@ -233,7 +240,7 @@ int PriorityManager::start() {
 }
 
 void PriorityManager::historical_usage(int64_t timestamp) {
-    FassLog::log("PM", Log::DEBUG, "Evaluating historical usage...");
+    FassLog::log("PM", Log::INFO, "Evaluating historical usage...");
     int rc;
 
     // vector of user ids
@@ -243,32 +250,46 @@ void PriorityManager::historical_usage(int64_t timestamp) {
         uids.push_back((*i).userID);
     }
 
-    rc = acctpool->set_up(uids);
+    // setup time
+    // chop the date string
+    vector< string > tokens;
+    boost::split(tokens, start_time, boost::is_any_of("/"));
 
-    if ( rc != 0 ) {
-        FassLog::log("PM", Log::ERROR, "Cannot retrieve the accounting info!");
+    if ( 3 != tokens.size() ) {
+      FassLog::log("PM", Log::ERROR, "Wrong format for start_time.");
+      throw;
     }
 
+    ostringstream oss;
+    int start_day   = boost::lexical_cast<int16_t>(tokens[0]);
+    int start_month = boost::lexical_cast<int16_t>(tokens[1]); 
+    int start_year  = boost::lexical_cast<int16_t>(tokens[2]);
+    oss << "Starting from " << start_day << "/" << start_month 
+                                         << "/" << start_year;
+    // FassLog::log("PM", Log::DEBUG, oss);
 
-    // setup time
-    int start_month = 1;  // January
-    int start_year = 2016;  // TODO(valzacc): set it in the config file
-
-    // TODO(svallero): capire...
-    // time_t time_start = time(0);
     int64_t time_start = 0;
-    // tm tmp_tm = *localtime(&time_start);
     struct tm tmp_tm;
     localtime_r(&time_start, &tmp_tm);
     tmp_tm.tm_sec  = 0;
     tmp_tm.tm_min  = 0;
     tmp_tm.tm_hour = 0;
-    tmp_tm.tm_mday = 1;
+    tmp_tm.tm_mday = start_day;
     tmp_tm.tm_mon  = start_month - 1;
     tmp_tm.tm_year = start_year - 1900;
     tmp_tm.tm_isdst = -1;  // Unknown daylight saving time
 
     time_start = static_cast<uint64_t>(mktime(&tmp_tm));
+    
+    // this is to avoid too large xml response from ONE 
+    time_start = timestamp - (manager_timer*period*n_periods); 
+    // get info from ONE
+    rc = acctpool->set_up(uids, time_start);
+
+    if ( rc != 0 ) {
+        FassLog::log("PM", Log::ERROR, "Cannot retrieve the accounting info!");
+    }
+
 /*
     ostringstream tmp;
     tmp << "" << endl;

@@ -50,29 +50,32 @@ public:
     };	
 
     int start();
+        
+    // kill pending VMs for user
+    int kill_pending(int uid);
     
     VMPool * vmpool;
 private:
        
-        friend void * tm_loop(void *arg);
+    friend void * tm_loop(void *arg);
 
-        // kill running/pending VMs
-        int kill_running(int uid);
-        int kill_pending(int uid);
+    // kill running/pending VMs
+    int kill_running(int uid);
+    int kill_pending();
 
-        // terminate a VM
-        bool terminate(int oid);
+    // terminate a VM
+    bool terminate(int oid);
 
-	string one_xmlrpc;
-	string one_secret;
-	int64_t message_size;
-	int timeout;
+    string one_xmlrpc;
+    string one_secret;
+    int64_t message_size;
+    int timeout;
 
-	vector<string> users;
-        int64_t ttl;
-        int64_t max_wait;
+    vector<string> users;
+    int64_t ttl;
+    int64_t max_wait;
  
-        XMLRPCClient *client;
+    XMLRPCClient *client;
 };
 
 #endif

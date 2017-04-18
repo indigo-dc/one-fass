@@ -214,7 +214,7 @@ bool InfluxDb::write_initial_shares(const float share,
 }
 
 bool InfluxDb::write_usage(User user) {
-    FassLog::log("INFLUXDB", Log::INFO, "Writing usage records.");
+    FassLog::log("INFLUXDB", Log::DEBUG, "Writing usage records.");
     // ostringstream output;
     int uid = user.userID;
     // output << "***** UID " << uid << "*****"<<endl;

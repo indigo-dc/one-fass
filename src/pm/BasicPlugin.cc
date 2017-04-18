@@ -144,7 +144,7 @@ double BasicPlugin::update_prio(int oid, int uid, int gid,
                          << " t2: " << t2_usage
                          << " t3: " << t3_usage << endl;
     oss << "Factor: " << f;
-    FassLog::log("B_PLUGIN", Log::DEBUG, oss);
+    FassLog::log("B_PLUGIN", Log::DDEBUG, oss);
 
     return vm_prio;
 }

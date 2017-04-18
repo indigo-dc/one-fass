@@ -75,6 +75,8 @@ bool FassConfigurator::load_configuration() {
       // Priority manager
       ("pm.manager_timer", po::value<int>()->default_value(60),
        "manager period (s)")
+      ("pm.start_time", po::value<string>()->default_value("19/04/1981"),
+       "to start collecting accounting info (day/month/year)")
       ("pm.max_vm", po::value<int>()->default_value(5000),
        "Maximum number of Virtual Machines scheduled")
       ("pm.period", po::value<int>()->default_value(180),
@@ -136,6 +138,10 @@ void FassConfigurator::print_loaded_options() {
                 switch (tp) {
                         case is_string: os
                                         << boost::any_cast<string>
+                                           (vm[opt_name].value());
+                        break;
+                        case is_long_int: os
+                                        << boost::any_cast<int64_t>
                                            (vm[opt_name].value());
                         break;
                         case is_int: os

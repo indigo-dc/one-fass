@@ -58,7 +58,7 @@ public:
    
     pthread_t get_thread_id() const
     {
-        //return rm_thread;
+        // return rm_thread;
         return rm_xml_server_thread;
     };
 
@@ -67,9 +67,9 @@ public:
         lock();
         AbyssServer->terminate();
         pthread_cond_signal(&cond);
-        //pthread_cancel(rm_xml_server_thread);
-        //pthread_join(rm_xml_server_thread,0);
-        //AbyssServer->terminate();
+        pthread_cancel(rm_xml_server_thread);
+        pthread_join(rm_xml_server_thread,0);
+        // AbyssServer->terminate();
         delete AbyssServer;
         if ( socket_fd != -1 )
         {

@@ -121,6 +121,7 @@ int VMPool::set_up(const string search, const string tag, int uid) {
         string vmlist(static_cast<string>(xmlrpc_c::value_string(values[1])));
         // parse the response and select only pending/rescheduling VMs
         // xmlInitParser();
+        /*
         if ( xml != 0 ) {
             xmlFreeDoc(xml);
         }
@@ -128,7 +129,8 @@ int VMPool::set_up(const string search, const string tag, int uid) {
         if ( ctx != 0 ) {
             xmlXPathFreeContext(ctx);
         }
-
+        */
+        cleanup();
         xml_parse(vmlist);
         // get root node context
         std::vector<xmlNodePtr> nodes;

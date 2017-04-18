@@ -65,20 +65,28 @@ public:
 
     // retrieves running VMs
     int get_running() {
-        return set_up("/VM_POOL/VM[LCM_STATE=3]", "RUNNING");
+        // return set_up("/VM_POOL/VM[LCM_STATE=3]", "RUNNING");
+        // gets all active states
+        return set_up("/VM_POOL/VM[STATE=3]", "RUNNING");
     }; 
 
     int get_running(int uid) {
         ostringstream search;
-        search << "/VM_POOL/VM[LCM_STATE=3 and UID=" << uid << "]";
+        // search << "/VM_POOL/VM[LCM_STATE=3 and UID=" << uid << "]";
+        // gets all active states
+        search << "/VM_POOL/VM[STATE=3 and UID=" << uid << "]";
         return set_up(search.str(), "RUNNING", uid);
     }; 
 
     int get_pending(int uid) {
-        ostringstream search;
-        search << "/VM_POOL/VM[(STATE=1 or ((LCM_STATE=3 or LCM_STATE=16) and RESCHED=1)) and UID="
+        if (uid == -1) {
+            return get_pending();
+        } else { 
+            ostringstream search;
+            search << "/VM_POOL/VM[(STATE=1 or ((LCM_STATE=3 or LCM_STATE=16) and RESCHED=1)) and UID="
                                                                                      << uid << "]";
-        return set_up(search.str(), "PENDING", uid);
+            return set_up(search.str(), "PENDING", uid);
+        }
     }; 
 
     int set_up(const string search, const string tag, int uid = -1);

@@ -92,7 +92,7 @@ int AcctPool::eval_usage(list<User> *user_list, int64_t &time_start,
           // output << "Start: " << cpu.start_time << " Stop: " << cpu.stop_time
             // << " CPU usage: " << cpu.usage << endl;
         // }
-        FassLog::log("AcctPool", Log::DEBUG, output);
+        FassLog::log("AcctPool", Log::DDEBUG, output);
     }  // end loop on users
 
     return 0;
@@ -137,7 +137,7 @@ void AcctPool::make_user_object(int uid, vector<xmlNodePtr> nodes) {
         return;
 }
 
-int AcctPool::set_up(vector<int> const &uids) {
+int AcctPool::set_up(vector<int> const &uids, int64_t &time_start) {
         int rc = 0;
         ostringstream   oss;
 
@@ -147,7 +147,7 @@ int AcctPool::set_up(vector<int> const &uids) {
         // load the complete accounnting pool from OpenNebula
         xmlrpc_c::value result;
 
-        rc = load_acct(result);
+        rc = load_acct(result, time_start);
 
         if ( rc != 0 ) {
             FassLog::log("AcctPool", Log::ERROR,
@@ -172,6 +172,7 @@ int AcctPool::set_up(vector<int> const &uids) {
 
         // parse the response and group entries per user
         // xmlInitParser();
+        /*
         if ( xml != 0 ) {
             xmlFreeDoc(xml);
         }
@@ -179,7 +180,9 @@ int AcctPool::set_up(vector<int> const &uids) {
         if ( ctx != 0 ) {
             xmlXPathFreeContext(ctx);
         }
+        */
 
+        cleanup();
         // FassLog::log("SARA", Log::DEBUG, acctlist);
         xml_parse(acctlist);
 
@@ -211,11 +214,12 @@ int AcctPool::set_up(vector<int> const &uids) {
     return rc;
 }
 
-int AcctPool::load_acct(xmlrpc_c::value &result) {
+int AcctPool::load_acct(xmlrpc_c::value &result, int64_t &time_start) {
     try {
         xmlrpc_c::paramList plist;
         plist.add(xmlrpc_c::value_int(-2));
-        plist.add(xmlrpc_c::value_int(-1));
+        // plist.add(xmlrpc_c::value_int(-1));
+        plist.add(xmlrpc_c::value_int(time_start));
         plist.add(xmlrpc_c::value_int(-1));
 
         client->call("one.vmpool.accounting", plist, &result);

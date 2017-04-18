@@ -92,6 +92,12 @@ public:
         return pm;
     };
 
+    // returns the terminator
+    Terminator* terminator()
+    {
+        return tm;
+    };
+
     /// Start all the managers for Fass 
     void start(bool bootstrap_only=false);
 

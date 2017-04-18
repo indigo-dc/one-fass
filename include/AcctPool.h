@@ -49,7 +49,7 @@ public:
                           int64_t &period,
                           int &num_periods);
 
-    int set_up(vector<int> const &uids);
+    int set_up(vector<int> const &uids, int64_t &time_start);
 
     // gets an object from the pool
     
@@ -79,7 +79,7 @@ private:
     void make_user_object(int uid, vector<xmlNodePtr> node);
  
     // gets list of VMs from ONE
-    int load_acct(xmlrpc_c::value &result);
+    int load_acct(xmlrpc_c::value &result, int64_t &time_start);
 
     // class variables
 

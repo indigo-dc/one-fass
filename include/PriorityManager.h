@@ -47,6 +47,7 @@ public:
     // unsigned int _max_vm,
     vector<string> _shares,
     int _manager_timer,
+    string _start_time, 
     FassDb* _fassdb,
     int _period,
     int _n_periods,
@@ -84,6 +85,7 @@ private:
 	// unsigned int max_vm;
 	vector<string> shares;	
         // int manager_timer; 
+        string start_time;
   
         bool calculate_initial_shares();
 	bool set_up_pools();
