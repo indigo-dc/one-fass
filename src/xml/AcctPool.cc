@@ -62,7 +62,7 @@ int AcctPool::eval_usage(list<User> *user_list, int64_t &time_start,
                 int64_t stop = time_stop - (k * period);
                 int64_t stop_entry = (*j)->get_stop();
                 int64_t start_entry = (*j)->get_start();
-                // output << "Start0: " << start_entry << " Stop0: " 
+                // output << "Start0: " << start_entry << " Stop0: "
                 // << stop_entry << " vmid: " << (*j)->get_vmid() << endl;
                 // VM can still be running at "timestamp"
                 if (!stop_entry || stop_entry > stop) stop_entry = stop;
@@ -71,7 +71,7 @@ int AcctPool::eval_usage(list<User> *user_list, int64_t &time_start,
                 if (start_entry < stop_entry) {
                     sum_cpu[k] += cpu * (stop_entry - start_entry);
                     sum_mem[k] += memory * (stop_entry - start_entry);
-                    // output << "Start1: " << start_entry << " Stop1: " 
+                    // output << "Start1: " << start_entry << " Stop1: "
                     // << stop_entry << " CPU usage: " << sum_cpu[k] << endl;
                 }
             }  // end loop periods

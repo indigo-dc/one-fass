@@ -181,8 +181,8 @@ extern "C" void * pm_loop(void *arg) {
         int rc;
 
         // first let's cleanup all the VMs waiting since too long
-        Terminator * tm = Fass::instance().terminator(); 
-        tm->kill_pending(-1);  
+        Terminator * tm = Fass::instance().terminator();
+        tm->kill_pending(-1);
 
         // let's get the list of pending VMs from ONE
         rc = pm->get_pending();
@@ -263,9 +263,9 @@ void PriorityManager::historical_usage(int64_t timestamp) {
 
     ostringstream oss;
     int start_day   = boost::lexical_cast<int16_t>(tokens[0]);
-    int start_month = boost::lexical_cast<int16_t>(tokens[1]); 
+    int start_month = boost::lexical_cast<int16_t>(tokens[1]);
     int start_year  = boost::lexical_cast<int16_t>(tokens[2]);
-    oss << "Starting from " << start_day << "/" << start_month 
+    oss << "Starting from " << start_day << "/" << start_month
                                          << "/" << start_year;
     // FassLog::log("PM", Log::DEBUG, oss);
 
@@ -281,9 +281,9 @@ void PriorityManager::historical_usage(int64_t timestamp) {
     tmp_tm.tm_isdst = -1;  // Unknown daylight saving time
 
     // time_start = static_cast<uint64_t>(mktime(&tmp_tm));
-    
-    // this is to avoid too large xml response from ONE 
-    time_start = timestamp - (manager_timer*period*(n_periods+1)); 
+
+    // this is to avoid too large xml response from ONE
+    time_start = timestamp - (manager_timer*period*(n_periods+1));
     // get info from ONE
     rc = acctpool->set_up(uids, time_start);
 
@@ -384,7 +384,7 @@ void PriorityManager::do_prioritize(int64_t timestamp) {
 
          // TODO(svallero): make robocop set it
          bool over_quota = false;
-         
+
          if (!over_quota) {
              priorities.insert(pair<float, int>(vm_prio, oid));
 

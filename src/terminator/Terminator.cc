@@ -223,7 +223,7 @@ int Terminator::kill_running(int uid) {
     }
     unlock();
     oss << "Terminated " << count << " ACTIVE VMs";
-    if (uid >= 0) oss << " for user " << uid; 
+    if (uid >= 0) oss << " for user " << uid;
     FassLog::log("TERMIN", Log::INFO, oss);
     return 0;
 }
@@ -265,7 +265,7 @@ int Terminator::kill_pending(int uid) {
     }
     unlock();
     oss << "Terminated " << count << " PENDING VMs";
-    if (uid >= 0) oss << " for user " << uid; 
+    if (uid >= 0) oss << " for user " << uid;
     FassLog::log("TERMIN", Log::INFO, oss);
     return 0;
 }

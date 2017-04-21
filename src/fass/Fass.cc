@@ -169,37 +169,38 @@ void Fass::start(bool bootstrap_only) {
             vector<xmlrpc_c::value> values;
             xmlrpc_c::paramList plist;
             // temporary client
-            XMLRPCClient::initialize(one_secret, one_endpoint, message_size, timeout);
+            XMLRPCClient::initialize(one_secret, one_endpoint, message_size,
+                                                                   timeout);
 
-            XMLRPCClient *client = XMLRPCClient::client();    
-             
+            XMLRPCClient *client = XMLRPCClient::client();
+
             client->call("one.system.config", plist, &result);
-             
+
             values = xmlrpc_c::value_array(result).vectorValueValue();
 
             bool   success = xmlrpc_c::value_boolean(values[0]);
             string message = xmlrpc_c::value_string(values[1]);
 
-            if ( !success /*||(oned_conf.from_xml(message) != 0)*/) {
+            if ( !success ) {
                 ostringstream oss;
                 oss << "Cannot contact oned, will retry... Error: " << message;
                 FassLog::log("FASS", Log::ERROR, oss);
-            } else { 
+            } else {
                 // take manager timer from ONE and compare it to PM timer
                 // ObjectXML * conf = new ObjectXML();
                 // conf->cleanup();
-                // conf->xml_parse(message); 
+                // conf->xml_parse(message);
                 // int one_timer;
                 // conf->xpath(one_timer, "/TEMPLATE/MANAGER_TIMER", 0);
                 // if (manager_timer > one_timer) {
-                //     manager_timer = one_timer - 1; 
+                //     manager_timer = one_timer - 1;
                 //     ostringstream oss;
-                //     oss 
+                //     oss
                 //      << "PM timer is shorter than ONE timer, setting it to: "
                 //                                             << manager_timer;
                 //     FassLog::log("FASS", Log::WARNING, oss);
                 // }
-                // delete conf; 
+                // delete conf;
                 break;
             }
         } catch (exception const& e) {
@@ -209,9 +210,9 @@ void Fass::start(bool bootstrap_only) {
         }
         sleep(2);
     }
-    
+
     FassLog::log("FASS", Log::INFO, "ONE successfully contacted.");
-    FassLog::log("FASS", Log::INFO, 
+    FassLog::log("FASS", Log::INFO,
           "Make sure than the PM timer is not longer than ONE SCHED_INTERVAL!");
 
     /** Block all signals before creating any thread */
