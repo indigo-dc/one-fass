@@ -177,8 +177,6 @@ extern "C" void * pm_loop(void *arg) {
 
         // REAL LOOP
         FassLog::log("PM", Log::INFO, "PRIORITY MANAGER LOOP:");
-        // all entries  should be written to DB with the same timestamp
-        int64_t timestamp = static_cast<int64_t>(time(NULL));
 
         int rc;
 
@@ -192,6 +190,9 @@ extern "C" void * pm_loop(void *arg) {
         if ( rc != 0 ) {
             FassLog::log("PM", Log::ERROR, "Cannot get the VM pool!");
         }
+
+        // all entries  should be written to DB with the same timestamp
+        int64_t timestamp = static_cast<int64_t>(time(NULL));
 
         // get historical usage per user
         pm->historical_usage(timestamp);
@@ -279,17 +280,16 @@ void PriorityManager::historical_usage(int64_t timestamp) {
     tmp_tm.tm_year = start_year - 1900;
     tmp_tm.tm_isdst = -1;  // Unknown daylight saving time
 
-    time_start = static_cast<uint64_t>(mktime(&tmp_tm));
+    // time_start = static_cast<uint64_t>(mktime(&tmp_tm));
     
     // this is to avoid too large xml response from ONE 
-    time_start = timestamp - (manager_timer*period*n_periods); 
+    time_start = timestamp - (manager_timer*period*(n_periods+1)); 
     // get info from ONE
     rc = acctpool->set_up(uids, time_start);
 
     if ( rc != 0 ) {
         FassLog::log("PM", Log::ERROR, "Cannot retrieve the accounting info!");
     }
-
 /*
     ostringstream tmp;
     tmp << "" << endl;
@@ -376,13 +376,21 @@ void PriorityManager::do_prioritize(int64_t timestamp) {
               if (((*i).userID == uid)) user = (*i);
          }
 
+         // if the dynamic partition is full, users configured to use it
+         // get an over_quota flag by robocop.
+         // Their VMs are not added to the queue for scheduling
          vm_prio = plugin->update_prio(oid, uid, gid, vm_cpu,
                                        vm_memory, &user, plugin_debug);
 
-         priorities.insert(pair<float, int>(vm_prio, oid));
+         // TODO(svallero): make robocop set it
+         bool over_quota = false;
+         
+         if (!over_quota) {
+             priorities.insert(pair<float, int>(vm_prio, oid));
 
-         oss << oid << "(" << vm_prio << ") - ";
-         // oss << oid << "(" << priorities[oid] << ") - " ;
+             oss << oid << "(" << vm_prio << ") - ";
+             // oss << oid << "(" << priorities[oid] << ") - " ;
+         }
     }
 
     FassLog::log("PM", Log::DDEBUG, oss);

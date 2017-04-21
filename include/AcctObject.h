@@ -70,6 +70,11 @@ public:
         return uid;
     };
 
+    int get_vmid() const
+    {
+        return vmid;
+    };
+
     float get_cpu() const
     {
         return cpu;
