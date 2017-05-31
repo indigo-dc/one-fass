@@ -98,6 +98,12 @@ public:
         return tm;
     };
 
+    // returns the database
+    FassDb *fass_db()
+    {
+        return database;
+    };
+
     /// Start all the managers for Fass 
     void start(bool bootstrap_only=false);
 
@@ -170,14 +176,13 @@ private:
     string  var_location;
     string  hostname;
 
+    /// Database
+    FassDb * database;
 
     /// Configuration 
 
     FassConfigurator * fass_configuration;
     SharesConfigurator * initial_shares;
-
-    /// Database
-    FassDb * database;
 
     ///  Fass Managers 
 

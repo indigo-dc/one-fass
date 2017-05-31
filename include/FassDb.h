@@ -55,6 +55,8 @@ public:
     virtual bool write_queue(const int priority, const string user, const string group, const int vmid,  const float cpus, const float memory, const long int starttime, const long int timestamp) = 0;
     // for the usage records we should also tag the entries with the start time at which we start to integrate the usage  
     virtual bool write_usage(User user) = 0;
+    // generic write function 
+    virtual bool write(const string key, const string value, const string tag, const int64_t timestamp) = 0;
 
 };
 
@@ -106,6 +108,7 @@ public:
     bool write_initial_shares(const float share, const string user, const string group, const long int timestamp);
     bool write_queue(const int priority, const string user, const string group, const int vmid,  const float cpus, const float memory, const long int starttime, const long int timestamp);
     bool write_usage(User user);
+    bool write(const string key, const string value, const string tag, const int64_t timestamp);
 
 private:
     

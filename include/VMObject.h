@@ -90,6 +90,10 @@ public:
 
     // returns VM usage requirements
     void get_requirements(int& cpu, int& memory); 
+    void get_requirements(float& cpu, int& memory) {
+        cpu = this->cpu;
+        memory = this->memory;   
+    }; 
 
     // returns the requirements of this VM (as is) and reset them
     void reset_requirements(float& cpu, int& memory);

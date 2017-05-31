@@ -60,8 +60,8 @@ void VMObject::reset_requirements(float& c, int& m) {
 }
 
 void VMObject::get_requirements(int& cpu, int& memory) {
-    if (this->memory == 0 || this->cpu == 0) {
-        cpu    = 0;
+    if (this->memory == 0 || this->cpu == 0.) {
+        cpu    = 0.;
         memory = 0;
 
         return;

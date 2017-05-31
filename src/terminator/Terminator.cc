@@ -18,6 +18,7 @@
 
 #include <stdlib.h>
 #include <signal.h>
+#include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/types.h>
@@ -36,9 +37,11 @@
 #include "AcctPool.h"
 #include "Fass.h"
 #include "FassDb.h"
+#include "FassDb.h"
 #include "FassLog.h"
 #include "BasicPlugin.h"
 #include "VMPool.h"
+#include "HostPool.h"
 #include "User.h"
 #include "ObjectXML.h"
 #include "VMObject.h"
@@ -81,6 +84,8 @@ Terminator::Terminator(
 
     // creates the VM pool
     vmpool = new VMPool(client);
+    // creates the host pool
+    hostpool = new HostPool(client);
 }
 
 extern "C" void * tm_loop(void *arg) {
@@ -122,6 +127,9 @@ extern "C" void * tm_loop(void *arg) {
         // REAL LOOP
         FassLog::log("TERMIN", Log::INFO, "TERMINATOR LOOP:");
 
+        // get DB instance from Fass
+        FassDb *database = Fass::instance().fass_db();
+        int64_t timestamp = static_cast<int64_t>(time(NULL));
         int rc;
         // get the pool of running VMs
         // rc = tm->get_running();
@@ -141,13 +149,28 @@ extern "C" void * tm_loop(void *arg) {
             }
             int uid = boost::lexical_cast<int16_t>(tokens[1]);
             // kill running
-            rc = tm->kill_running(uid);
+            // and return instantaneous resource usage
+            float cpu = 0.;
+            int mem = 0;
+            rc = tm->kill_running(uid, cpu, mem);
             oss << "Error terminating running VMs for user " << uid << " !"
                                                                     << endl;
             if ( rc != 0 ) {
                 FassLog::log("TERMIN", Log::ERROR, oss);
             }
-            // kill pending
+
+            ostringstream tmp;
+            tmp << "USER: " << uid << " CPU: " << cpu << " MEM: " << mem;
+            FassLog::log("SARA", Log::INFO, tmp);
+            
+            ostringstream tag;
+            tag << "user=" << uid;
+            ostringstream c;
+            c << cpu;
+            ostringstream m;
+            m << mem;
+            database->write("cpu", c.str(), tag.str(), timestamp); 
+            database->write("memory", m.str(), tag.str(), timestamp); 
             // this should be done in the PM to avoid inconsistencies
             // oss.str("");
             // oss.clear();
@@ -186,7 +209,7 @@ bool Terminator::terminate(int oid) {
     }
 }
 
-int Terminator::kill_running(int uid) {
+int Terminator::kill_running(int uid, float& cpu, int& memory) {
     FassLog::log("TERMIN", Log::DEBUG, "Retrieving running VMs from ONE...");
     // this procedure should be locked,
     // or the PM could try to overwrite the vmpool object
@@ -207,11 +230,18 @@ int Terminator::kill_running(int uid) {
     const map<int, VMObject*> vms = vmpool->get_objects();
     map<int, VMObject*>::const_iterator  vm_it;
     int count = 0;
+    // istantaneous cpu and memory usage (for DB) 
     for (vm_it=vms.begin(); vm_it != vms.end(); vm_it++) {
         ostringstream oss;
         vm = static_cast<VMObject*>(vm_it->second);
         int oid = vm->get_oid();
+        float cpu_vm = 0.;
+        int mem_vm = 0;
+        vm->get_requirements(cpu_vm, mem_vm);
+        cpu += cpu_vm;
+        memory += mem_vm;
         int64_t start = vm->get_start();
+        if (!start) continue;  // it can happen
         int64_t stop = static_cast<int64_t>(time(NULL));
         int64_t life = stop - start;
         oss << "OID: " << oid << " LIFETIME: " << life << " TTL: " << ttl;
