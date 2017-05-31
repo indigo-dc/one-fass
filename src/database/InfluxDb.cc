@@ -222,7 +222,7 @@ bool InfluxDb::write(const string key,
     FassLog::log("INFLUXDB", Log::DEBUG, oss);
     string response;
     ostringstream query;
-    query << key;  
+    query << key;
     if (!tag.empty()) {
         query << "," << tag;
     }

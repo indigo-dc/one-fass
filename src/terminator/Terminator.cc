@@ -162,15 +162,15 @@ extern "C" void * tm_loop(void *arg) {
             ostringstream tmp;
             tmp << "USER: " << uid << " CPU: " << cpu << " MEM: " << mem;
             FassLog::log("SARA", Log::INFO, tmp);
-            
+
             ostringstream tag;
             tag << "user=" << uid;
             ostringstream c;
             c << cpu;
             ostringstream m;
             m << mem;
-            database->write("cpu", c.str(), tag.str(), timestamp); 
-            database->write("memory", m.str(), tag.str(), timestamp); 
+            database->write("cpu", c.str(), tag.str(), timestamp);
+            database->write("memory", m.str(), tag.str(), timestamp);
             // this should be done in the PM to avoid inconsistencies
             // oss.str("");
             // oss.clear();
@@ -230,7 +230,7 @@ int Terminator::kill_running(int uid, float& cpu, int& memory) {
     const map<int, VMObject*> vms = vmpool->get_objects();
     map<int, VMObject*>::const_iterator  vm_it;
     int count = 0;
-    // istantaneous cpu and memory usage (for DB) 
+    // istantaneous cpu and memory usage (for DB)
     for (vm_it=vms.begin(); vm_it != vms.end(); vm_it++) {
         ostringstream oss;
         vm = static_cast<VMObject*>(vm_it->second);
