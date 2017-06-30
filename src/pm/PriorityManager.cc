@@ -43,6 +43,7 @@
 #include "User.h"
 #include "ObjectXML.h"
 #include "VMObject.h"
+#include "Terminator.h"
 
 list<User> PriorityManager::user_list;
 map<float, int, std::greater<float> > PriorityManager::priorities;
@@ -77,18 +78,24 @@ PriorityManager::PriorityManager(
           // unsigned int _max_vm,
           vector<string> _shares,
           int _manager_timer,
+          string _start_time,
           FassDb* _fassdb,
+          int _period,
+          int _n_periods,
           int _plugin_debug):
+                Manager(_manager_timer),
                 one_xmlrpc(_one_xmlrpc),
                 one_secret(_one_secret),
                 message_size(_message_size),
                 timeout(_timeout),
                 // max_vm(_max_vm),
                 shares(_shares),
-                manager_timer(_manager_timer),
-                stop_manager(false),
+                // manager_timer(_manager_timer),
+                start_time(_start_time),
                 queue(""),
                 fassdb(_fassdb),
+                period(_period),
+                n_periods(_n_periods),
                 plugin_debug(_plugin_debug) {
     // initialize XML-RPC Client
     ostringstream oss;
@@ -104,7 +111,7 @@ PriorityManager::PriorityManager(
     // << " bytes for response buffer." << endl;
     << " bytes for response buffer.";
 
-    FassLog::log("PM", Log::INFO, oss);
+    FassLog::log("PM", Log::DEBUG, oss);
     }
     catch(runtime_error &) {
         throw;
@@ -170,10 +177,12 @@ extern "C" void * pm_loop(void *arg) {
 
         // REAL LOOP
         FassLog::log("PM", Log::INFO, "PRIORITY MANAGER LOOP:");
-        // all entries  should be written to DB with the same timestamp
-        int64_t timestamp = static_cast<int64_t>(time(NULL));
 
         int rc;
+
+        // first let's cleanup all the VMs waiting since too long
+        Terminator * tm = Fass::instance().terminator();
+        tm->kill_pending(-1);
 
         // let's get the list of pending VMs from ONE
         rc = pm->get_pending();
@@ -181,6 +190,9 @@ extern "C" void * pm_loop(void *arg) {
         if ( rc != 0 ) {
             FassLog::log("PM", Log::ERROR, "Cannot get the VM pool!");
         }
+
+        // all entries  should be written to DB with the same timestamp
+        int64_t timestamp = static_cast<int64_t>(time(NULL));
 
         // get historical usage per user
         pm->historical_usage(timestamp);
@@ -223,13 +235,13 @@ int PriorityManager::start() {
     pthread_attr_init(&pattr);
     pthread_attr_setdetachstate(&pattr, PTHREAD_CREATE_JOINABLE);
 
-    pthread_create(&pm_thread, &pattr, pm_loop, reinterpret_cast<void *>(this));
+    pthread_create(&m_thread, &pattr, pm_loop, reinterpret_cast<void *>(this));
 
     return true;
 }
 
 void PriorityManager::historical_usage(int64_t timestamp) {
-    FassLog::log("PM", Log::DEBUG, "Evaluating historical usage...");
+    FassLog::log("PM", Log::INFO, "Evaluating historical usage...");
     int rc;
 
     // vector of user ids
@@ -239,32 +251,45 @@ void PriorityManager::historical_usage(int64_t timestamp) {
         uids.push_back((*i).userID);
     }
 
-    rc = acctpool->set_up(uids);
+    // setup time
+    // chop the date string
+    vector< string > tokens;
+    boost::split(tokens, start_time, boost::is_any_of("/"));
 
-    if ( rc != 0 ) {
-        FassLog::log("PM", Log::ERROR, "Cannot retrieve the accounting info!");
+    if ( 3 != tokens.size() ) {
+      FassLog::log("PM", Log::ERROR, "Wrong format for start_time.");
+      throw;
     }
 
+    ostringstream oss;
+    int start_day   = boost::lexical_cast<int16_t>(tokens[0]);
+    int start_month = boost::lexical_cast<int16_t>(tokens[1]);
+    int start_year  = boost::lexical_cast<int16_t>(tokens[2]);
+    oss << "Starting from " << start_day << "/" << start_month
+                                         << "/" << start_year;
+    // FassLog::log("PM", Log::DEBUG, oss);
 
-    // setup time
-    int start_month = 1;  // January
-    int start_year = 2016;  // TODO(valzacc): set it in the config file
-
-    // TODO(svallero): capire...
-    // time_t time_start = time(0);
     int64_t time_start = 0;
-    // tm tmp_tm = *localtime(&time_start);
     struct tm tmp_tm;
     localtime_r(&time_start, &tmp_tm);
     tmp_tm.tm_sec  = 0;
     tmp_tm.tm_min  = 0;
     tmp_tm.tm_hour = 0;
-    tmp_tm.tm_mday = 1;
+    tmp_tm.tm_mday = start_day;
     tmp_tm.tm_mon  = start_month - 1;
     tmp_tm.tm_year = start_year - 1900;
     tmp_tm.tm_isdst = -1;  // Unknown daylight saving time
 
-    time_start = static_cast<uint64_t>(mktime(&tmp_tm));
+    // time_start = static_cast<uint64_t>(mktime(&tmp_tm));
+
+    // this is to avoid too large xml response from ONE
+    time_start = timestamp - (manager_timer*period*(n_periods+1));
+    // get info from ONE
+    rc = acctpool->set_up(uids, time_start);
+
+    if ( rc != 0 ) {
+        FassLog::log("PM", Log::ERROR, "Cannot retrieve the accounting info!");
+    }
 /*
     ostringstream tmp;
     tmp << "" << endl;
@@ -274,11 +299,10 @@ void PriorityManager::historical_usage(int64_t timestamp) {
 */
     // evaluate historical usage
     // user_list, start_time, stop_time, period, n_periods
-    // TODO(svallero): take period and n_periods from config
-    int64_t period = manager_timer;
-    int n_periods = 3;
+    int64_t period_s = manager_timer*period;
+
     rc = acctpool->eval_usage(&user_list, time_start, timestamp,
-                                                            period, n_periods);
+                                                      period_s, n_periods);
 
     if ( rc != 0 ) {
         FassLog::log("PM", Log::ERROR, "Cannot evaluate the accounting info!");
@@ -302,7 +326,7 @@ int PriorityManager::get_pending() {
 
     // cleans the cache and gets the VM pool
     // lock();
-    rc = vmpool->set_up();
+    rc = vmpool->get_pending();
     // unlock();
     // TODO(svallero): real return code
     return rc;
@@ -352,13 +376,21 @@ void PriorityManager::do_prioritize(int64_t timestamp) {
               if (((*i).userID == uid)) user = (*i);
          }
 
+         // if the dynamic partition is full, users configured to use it
+         // get an over_quota flag by robocop.
+         // Their VMs are not added to the queue for scheduling
          vm_prio = plugin->update_prio(oid, uid, gid, vm_cpu,
                                        vm_memory, &user, plugin_debug);
 
-         priorities.insert(pair<float, int>(vm_prio, oid));
+         // TODO(svallero): make robocop set it
+         bool over_quota = false;
 
-         oss << oid << "(" << vm_prio << ") - ";
-         // oss << oid << "(" << priorities[oid] << ") - " ;
+         if (!over_quota) {
+             priorities.insert(pair<float, int>(vm_prio, oid));
+
+             oss << oid << "(" << vm_prio << ") - ";
+             // oss << oid << "(" << priorities[oid] << ") - " ;
+         }
     }
 
     FassLog::log("PM", Log::DDEBUG, oss);

@@ -38,6 +38,12 @@ void VMObject::init_attributes() {
 
     xpath(memory, "/VM/TEMPLATE/MEMORY", 0);
     xpath<float>(cpu, "/VM/TEMPLATE/CPU", 0);
+    // xpath<float>(prio, "/VM/PRIO", -1.);
+    // below is the time at which the VM was created
+    xpath(birth, "/VM/STIME", static_cast<int64_t>(-1));
+    // below is the time at which the VM was active
+    // the first value is taken
+    xpath(start, "/VM/HISTORY_RECORDS/HISTORY/STIME", static_cast<int64_t>(-1));
 }
 
 void VMObject::add_requirements(float c, int m) {
@@ -54,8 +60,8 @@ void VMObject::reset_requirements(float& c, int& m) {
 }
 
 void VMObject::get_requirements(int& cpu, int& memory) {
-    if (this->memory == 0 || this->cpu == 0) {
-        cpu    = 0;
+    if (this->memory == 0 || this->cpu == 0.) {
+        cpu    = 0.;
         memory = 0;
 
         return;

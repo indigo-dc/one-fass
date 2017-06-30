@@ -6,3 +6,4 @@ src/database/test
 src/rpcm/test_queue
 src/rpcm/test_queue.cc
 src/rpcm/tree1.c
+simulator.sh

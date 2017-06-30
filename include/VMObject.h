@@ -73,9 +73,27 @@ public:
         return gid;
     };
 
+    int64_t get_start() const
+    {
+        return start;
+    };
+
+    int64_t get_birth() const
+    {
+        return birth;
+    };
+
+    // float get_prio() const
+    // {
+    //    return prio;
+    // };
 
     // returns VM usage requirements
     void get_requirements(int& cpu, int& memory); 
+    void get_requirements(float& cpu, int& memory) {
+        cpu = this->cpu;
+        memory = this->memory;   
+    }; 
 
     // returns the requirements of this VM (as is) and reset them
     void reset_requirements(float& cpu, int& memory);
@@ -91,9 +109,11 @@ private:
     int   oid;
     int   uid;
     int   gid;
-
+    int64_t start;
+    int64_t birth;
     int   memory;
     float cpu;
+    // float prio;
 
 };
 

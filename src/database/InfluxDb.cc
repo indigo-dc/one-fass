@@ -200,20 +200,42 @@ bool InfluxDb::write_initial_shares(const float share,
                                     const string group,
                                     const int64_t timestamp) {
     FassLog::log("INFLUXDB", Log::DEBUG, "Writing initial shares.");
+    // timestamp shpuld be in ns
     // query_db(string method, string q, string &retval)
     string response;
     ostringstream query;
     query << "share,user=" << user
     << ",group=" << group
     << " value=" << share
-    << " " << timestamp;
+    << " " << timestamp*1000000000;
     FassLog::log("INFLUXDB", Log::DEBUG, query);
     bool retval = InfluxDb::query_db("WRITE", query.str(), response);
     return retval;
 }
 
+bool InfluxDb::write(const string key,
+                     const string value,
+                     const string tag,
+                     const int64_t timestamp) {
+    ostringstream oss;
+    oss << "Writing " << key << " to DB.";
+    FassLog::log("INFLUXDB", Log::DEBUG, oss);
+    string response;
+    ostringstream query;
+    query << key;
+    if (!tag.empty()) {
+        query << "," << tag;
+    }
+    query << " value=" << value
+    << " " << timestamp*1000000000;
+    FassLog::log("INFLUXDB", Log::DEBUG, query);
+    bool retval = InfluxDb::query_db("WRITE", query.str(), response);
+
+    return retval;
+}
+
 bool InfluxDb::write_usage(User user) {
-    FassLog::log("INFLUXDB", Log::INFO, "Writing usage records.");
+    FassLog::log("INFLUXDB", Log::DEBUG, "Writing usage records.");
     // ostringstream output;
     int uid = user.userID;
     // output << "***** UID " << uid << "*****"<<endl;
@@ -224,7 +246,7 @@ bool InfluxDb::write_usage(User user) {
     // write CPU
     string response;
     ostringstream query;
-    query << "cpu,user=" << uid;
+    query << "h_cpu,user=" << uid;
     query << " ";
     int64_t timestamp = 0;
     for (usage_it = cpu_usage.begin(); usage_it != cpu_usage.end();
@@ -237,7 +259,7 @@ bool InfluxDb::write_usage(User user) {
         else
            query << "value" << usage_it->first << "=" << cpu.usage;
     }
-    query << " " << timestamp;
+    query << " " << timestamp*1000000000;
     bool retval1 = InfluxDb::query_db("WRITE", query.str(), response);
     FassLog::log("INFLUXDB", Log::DEBUG, query);
 
@@ -245,7 +267,7 @@ bool InfluxDb::write_usage(User user) {
     timestamp = 0;
     query.str("");
     query.clear();
-    query << "memory,user=" << uid;
+    query << "h_memory,user=" << uid;
     query << " ";
     for (usage_it = memory_usage.begin(); usage_it != memory_usage.end();
                                                                   usage_it++) {
@@ -258,7 +280,7 @@ bool InfluxDb::write_usage(User user) {
         else
            query << "value" << usage_it->first << "=" << memory.usage;
     }
-    query << " " << timestamp;
+    query << " " << timestamp*1000000000;
     bool retval2 = InfluxDb::query_db("WRITE", query.str(), response);
     FassLog::log("INFLUXDB", Log::DEBUG, query);
 

@@ -52,7 +52,7 @@ protected:
 
 
     /** Allowed option types */
-    enum allowed_types {is_string, is_int, is_double, is_bool, is_unkn};
+    enum allowed_types {is_string, is_int, is_long_int, is_double, is_bool, is_unkn};
 
     /** Gets the option value type */
     allowed_types get_option_type(boost::any value);

@@ -72,13 +72,27 @@ bool FassConfigurator::load_configuration() {
        "DB listen port")
       ("database.name", po::value<string>()->default_value("fassdb"),
        "DB name")
-       /// Priority manager
+      // Priority manager
       ("pm.manager_timer", po::value<int>()->default_value(60),
        "manager period (s)")
+      ("pm.start_time", po::value<string>()->default_value("19/04/1981"),
+       "to start collecting accounting info (day/month/year)")
       ("pm.max_vm", po::value<int>()->default_value(5000),
        "Maximum number of Virtual Machines scheduled")
+      ("pm.period", po::value<int>()->default_value(180),
+       "for historical usage, it multiplies manager_timer")
+      ("pm.n_periods", po::value<int>()->default_value(3),
+       "number of periods used in the algorithm")
       ("pm.plugin_debug", po::value<int>()->default_value(0),
-       "Use dummy algo if set to 0, use simple fairshare algo otherwise");
+       "Use dummy algo if set to 0, use simple fairshare algo otherwise")
+      // Terminator
+      ("terminator.manager_timer", po::value<int>()->default_value(60),
+       "manager period (s)")
+      ("terminator.ttl", po::value<int64_t>()->default_value(1000),
+       "VMs time to live")
+      ("terminator.max_wait", po::value<int64_t>()->default_value(3600),
+       "VMs max waiting time");
+
 
     /// Read the configuration file
     ifstream settings_file(conf_file.c_str());
@@ -124,6 +138,10 @@ void FassConfigurator::print_loaded_options() {
                 switch (tp) {
                         case is_string: os
                                         << boost::any_cast<string>
+                                           (vm[opt_name].value());
+                        break;
+                        case is_long_int: os
+                                        << boost::any_cast<int64_t>
                                            (vm[opt_name].value());
                         break;
                         case is_int: os

@@ -51,6 +51,7 @@ RPCManager::RPCManager(
         const string _call_log_format,
         const string _listen_address,
         int _message_size):
+            Manager(0),
             one_endpoint(_one_endpoint),
             port(_port),
             socket_fd(-1),
@@ -128,7 +129,7 @@ void RPCManager::register_xml_methods() {
     RPCManagerRegistry.setDefaultMethod(one_proxy);
 }
 
-bool RPCManager::start() {
+int RPCManager::start() {
     // cout << "Starting RPC Manager..." << endl;
 
     ostringstream   oss;
@@ -138,7 +139,7 @@ bool RPCManager::start() {
     int rc = setup_socket_new();
 
     if ( rc != 0 ) {
-        return false;
+        return 0;
     }
 
     register_xml_methods();
@@ -154,7 +155,7 @@ bool RPCManager::start() {
                    reinterpret_cast<void *>(this));
 
     FassLog::log("RPCM", Log::INFO, "...started.");
-    return true;
+    return 1;
 }
 
 bool RPCManager::setup_socket() {

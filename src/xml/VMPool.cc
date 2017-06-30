@@ -54,10 +54,11 @@ const string VMPool::make_queue(map<float, int, std::greater<float> > prios) {
     retval = oss.str();
 
     FassLog::log("VMPOOL", Log::DDDEBUG, oss);
+    FassLog::log("VMPOOL", Log::DDEBUG, "... done!");
     return retval;
 }
 
-void VMPool::add_object(xmlNodePtr node) {
+void VMPool::add_object(xmlNodePtr node, const string tag, int uid) {
         if ( node == 0 || node->children == 0 || node->children->next == 0 ) {
               FassLog::log("VMPOOL", Log::ERROR,
               "XML Node does not represent a valid Virtual Machine");
@@ -69,7 +70,8 @@ void VMPool::add_object(xmlNodePtr node) {
         objects.insert(pair<int, VMObject*>(vm->get_oid(), vm));
 
         ostringstream   oss;
-        oss << "Inserting VM object with ID: " << vm->get_oid();
+        oss << "Inserting " << tag << " VM object with ID: " << vm->get_oid();
+        if (uid >= 0) oss << " UID: " << uid;
         FassLog::log("VMPOOL", Log::DDEBUG, oss);
 }
 
@@ -83,7 +85,7 @@ void VMPool::flush() {
         objects.clear();
 }
 
-int VMPool::set_up() {
+int VMPool::set_up(const string search, const string tag, int uid) {
         int rc;
         ostringstream   oss;
 
@@ -119,6 +121,7 @@ int VMPool::set_up() {
         string vmlist(static_cast<string>(xmlrpc_c::value_string(values[1])));
         // parse the response and select only pending/rescheduling VMs
         // xmlInitParser();
+        /*
         if ( xml != 0 ) {
             xmlFreeDoc(xml);
         }
@@ -126,20 +129,21 @@ int VMPool::set_up() {
         if ( ctx != 0 ) {
             xmlXPathFreeContext(ctx);
         }
-
+        */
+        cleanup();
         xml_parse(vmlist);
         // get root node context
         std::vector<xmlNodePtr> nodes;
         int n_nodes;
-        n_nodes = get_nodes(
-        "/VM_POOL/VM[STATE=1 or ((LCM_STATE=3 or LCM_STATE=16) and RESCHED=1)]",
-        nodes);
+        n_nodes = get_nodes(search, nodes);
 
-        oss << "I got " << n_nodes << " pending VMs!";
+        oss << "I got " << n_nodes << " " << tag << " VMs";
+        if (uid >= 0) oss << " for user " << uid;
+        oss << "!";
         FassLog::log("VMPOOL", Log::DEBUG, oss);
 
          for (unsigned int i = 0 ; i < nodes.size(); i++) {
-            VMPool::add_object(nodes[i]);
+            VMPool::add_object(nodes[i], tag, uid);
         }
 
         free_nodes(nodes);

@@ -24,6 +24,7 @@
 #include "RPCManager.h"
 #include "XMLRPCClient.h"
 #include "PriorityManager.h"
+#include "Terminator.h"
 
 #include <stdlib.h>
 #include <string>
@@ -91,6 +92,18 @@ public:
         return pm;
     };
 
+    // returns the terminator
+    Terminator* terminator()
+    {
+        return tm;
+    };
+
+    // returns the database
+    FassDb *fass_db()
+    {
+        return database;
+    };
+
     /// Start all the managers for Fass 
     void start(bool bootstrap_only=false);
 
@@ -151,6 +164,7 @@ private:
         delete rpcm;
         delete database;
 	delete pm;
+	delete tm;
     };
 
     Fass& operator=(Fass const&){return *this;};
@@ -162,14 +176,13 @@ private:
     string  var_location;
     string  hostname;
 
+    /// Database
+    FassDb * database;
 
     /// Configuration 
 
     FassConfigurator * fass_configuration;
     SharesConfigurator * initial_shares;
-
-    /// Database
-    FassDb * database;
 
     ///  Fass Managers 
 
@@ -177,6 +190,7 @@ private:
     XMLRPCClient *      rpccli;
 
     PriorityManager *   pm;
+    Terminator *   tm;
 /**
     /// Implementation functions 
     /// Is this needed? 

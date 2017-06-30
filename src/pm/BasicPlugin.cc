@@ -107,7 +107,7 @@ double BasicPlugin::update_prio(int oid, int uid, int gid,
     int64_t h2_usage = (it->second).usage;
     it = usage.find(3);
     int64_t h3_usage = (it->second).usage;
-    int64_t h_usage = (h0_usage - h1_usage) + decay * (h1_usage - h2_usage)
+    double h_usage = (h0_usage - h1_usage) + decay * (h1_usage - h2_usage)
                                      + decay * decay * (h2_usage -h3_usage);
     // half-life total usage
     map<int, int64_t>::const_iterator t_it;
@@ -119,7 +119,7 @@ double BasicPlugin::update_prio(int oid, int uid, int gid,
     int64_t t2_usage = t_it->second;
     t_it = tot_cpu.find(3);
     int64_t t3_usage = t_it->second;
-    int64_t t_usage = (t0_usage - t1_usage) + decay * (t1_usage - t2_usage)
+    double t_usage = (t0_usage - t1_usage) + decay * (t1_usage - t2_usage)
                                      + decay * decay * (t2_usage - t3_usage);
 
     double ratio;
@@ -129,12 +129,22 @@ double BasicPlugin::update_prio(int oid, int uid, int gid,
 
     // this is the fair-share factor F
     vm_prio = pow(2, 0.-(ratio/(user->share)));
-    // VMs shpuld not have the same prio value
-    vm_prio = vm_prio - oid;
-    oss << "VM: " << oid << " User: " << uid << " h_usage: " << h_usage
-                     << " t_usage: " << t_usage << " Prio: " << vm_prio;
-
-    FassLog::log("B_PLUGIN", Log::DEBUG, oss);
+    // VMs should not have the same prio value
+    // the VM ID is an indication of the start time
+    float f = 1./oid;
+    vm_prio = vm_prio * f * 1000000000000.;
+    // oss << "VM: " << oid << " User: " << uid << " h_usage: " << h_usage
+    //                 << " t_usage: " << t_usage << " Prio: " << vm_prio;
+    oss << "VM: " << oid << " h0: " << h0_usage
+                         << " h1: " << h1_usage
+                         << " h2: " << h2_usage
+                         << " h3: " << h3_usage
+                         << " t0: " << t0_usage
+                         << " t1: " << t1_usage
+                         << " t2: " << t2_usage
+                         << " t3: " << t3_usage << endl;
+    oss << "Factor: " << f;
+    FassLog::log("B_PLUGIN", Log::DDEBUG, oss);
 
     return vm_prio;
 }

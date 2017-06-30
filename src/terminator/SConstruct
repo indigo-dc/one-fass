@@ -1,13 +1,13 @@
-# SConstruct for src/fass
+# SConstruct for src/pm
 
 import os
 Import('env')
 
-lib_name='fass_core'
+lib_name='fass_terminator'
 
 # Sources to generate the library
 source_files=[
-    'Fass.cc'
+    'Terminator.cc'
 ]
 
 # Build library
@@ -15,19 +15,11 @@ env.StaticLibrary(lib_name, source_files)
 
 # Build daemon
 env.Prepend(LIBS=[
-    'fass_core',
-    'fass_pm',
-    'fass_terminator',
     'fass_log',
-    'fass_config', 
-    'fass_rpcm',
-    'fass_db',
+    'fass_client',
     'fass_xml',
-    'fass_client'
+    'fass_terminator'
 ])
 
 if not env.GetOption('clean'):
     env.ParseConfig(("LDFLAGS='%s'") % (os.environ['LDFLAGS'],))
-
-env.Program('fassd.cc')
-

@@ -50,15 +50,7 @@ public:
     };
 
     ~ObjectXML() {
-
-        if (ctx != 0) {
-            xmlXPathFreeContext(ctx);
-        }
-
-        if (xml != 0) {
-            xmlFreeDoc(xml);
-        }
-        //xmlCleanupParser();
+        cleanup(); 
     };
 
     const string dump(xmlDocPtr xml_doc){
@@ -74,11 +66,54 @@ public:
         }        
 
     void init(const xmlNodePtr node);
-
-protected:
-
+  
+    void cleanup() {
+        if ( xml != 0 ) {
+            xmlFreeDoc(xml);
+        }
+    
+        if ( ctx != 0 ) {
+            xmlXPathFreeContext(ctx);
+        }
+    }; 
     // parse the XML response from ONE into a xmlXPathContextPtr
     bool xml_parse(const string &xml_doc);  
+
+    // gets a xpath attribute, if the attribute is not found a default is used:
+    // (this function only returns the first element)
+    //    param value of the element
+    //    param xpath_expr of the xml element
+    //    param def default value if the element is not found
+    //    return -1 if default was set
+    template<typename T>
+    int xpath(T& value, const char * xpath_expr, const T& def)
+    {
+        std::vector<std::string> values;
+
+        xpaths(values, xpath_expr);
+
+        if (values.empty() == true)
+        {
+            value = def;
+            return -1;
+        }
+
+        std::istringstream iss(values[0]);
+
+        iss >> std::dec >> value;
+
+        if (iss.fail() == true)
+        {
+            value = def;
+            return -1;
+        }
+
+        return 0;
+    }
+
+    int xpath(std::string& value, const char * xpath_expr, const char * def);
+
+protected:
 
     // get XML nodes corresponding to objects
     int get_nodes(const string& xpath_expr, std::vector<xmlNodePtr>& content);
@@ -156,40 +191,6 @@ protected:
     };
 
     void xpaths(std::vector<std::string>& values, const char * xpath_expr);
-
-    // gets a xpath attribute, if the attribute is not found a default is used:
-    // (this function only returns the first element)
-    //    param value of the element
-    //    param xpath_expr of the xml element
-    //    param def default value if the element is not found
-    //    return -1 if default was set
-    template<typename T>
-    int xpath(T& value, const char * xpath_expr, const T& def)
-    {
-        std::vector<std::string> values;
-
-        xpaths(values, xpath_expr);
-
-        if (values.empty() == true)
-        {
-            value = def;
-            return -1;
-        }
-
-        std::istringstream iss(values[0]);
-
-        iss >> std::dec >> value;
-
-        if (iss.fail() == true)
-        {
-            value = def;
-            return -1;
-        }
-
-        return 0;
-    }
-
-    int xpath(std::string& value, const char * xpath_expr, const char * def);
 
     // class variables
     xmlXPathContextPtr ctx; // XML xpath context pointer

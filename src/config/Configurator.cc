@@ -26,6 +26,7 @@ Configurator::allowed_types Configurator::get_option_type(boost::any value) {
         const type_info& type = value.type();
         if (type == typeid (string)) return is_string;
         else if (type == typeid (int)) return is_int;
+        else if (type == typeid (int64_t)) return is_long_int;
         else if (type == typeid (double)) return is_double;
         else if (type == typeid (bool)) return is_bool;
         else

@@ -23,10 +23,12 @@ int AcctPool::eval_usage(list<User> *user_list, int64_t &time_start,
     FassLog::log("AcctPool", Log::DEBUG,
                           "Evaluating historical usage per user...");
     // we need one entry more to evaluate the deltas
-    const int n_periods = num_periods++;
+    int n_periods = num_periods + 1;
     // loop over users
     for (list<User>::iterator i = user_list->begin();
                                    i != user_list->end(); ++i) {
+        ostringstream output;
+        output << "***** UID " << (*i).userID << "*****" << endl;
         int uid = (*i).userID;
 
         // get list of entries for this user
@@ -60,19 +62,24 @@ int AcctPool::eval_usage(list<User> *user_list, int64_t &time_start,
                 int64_t stop = time_stop - (k * period);
                 int64_t stop_entry = (*j)->get_stop();
                 int64_t start_entry = (*j)->get_start();
+                // output << "Start0: " << start_entry << " Stop0: "
+                // << stop_entry << " vmid: " << (*j)->get_vmid() << endl;
                 // VM can still be running at "timestamp"
                 if (!stop_entry || stop_entry > stop) stop_entry = stop;
                 // VM might have started before "time_start"
                 if (start_entry < time_start) start_entry = time_start;
-                sum_cpu[k] += cpu * (stop_entry - start_entry);
-                sum_mem[k] += memory * (stop_entry - start_entry);
+                if (start_entry < stop_entry) {
+                    sum_cpu[k] += cpu * (stop_entry - start_entry);
+                    sum_mem[k] += memory * (stop_entry - start_entry);
+                    // output << "Start1: " << start_entry << " Stop1: "
+                    // << stop_entry << " CPU usage: " << sum_cpu[k] << endl;
+                }
             }  // end loop periods
+            // output << "" << endl;
         }  // end loop acct entries
 
         // set accounting entries in User object
         (*i).flush_usage();
-        // ostringstream output;
-        // output << "***** UID " << (*i).userID << "*****"<<endl;
         for (int k = 0; k < n_periods; k++) {
             struct Usage cpu_usage((int64_t)(sum_cpu[k]),
                                              time_start, time_stop);
@@ -80,8 +87,8 @@ int AcctPool::eval_usage(list<User> *user_list, int64_t &time_start,
                                              time_start, time_stop);
             (*i).set_cpu_usage(k, cpu_usage);
             (*i).set_memory_usage(k, mem_usage);
-            // output << "Start: " << time_start << " Stop: " << time_stop
-            // << " CPU usage: " << sum_cpu[k] << endl;
+            output << "Start: " << time_start << " Stop: " << time_stop
+            << " CPU usage: " << sum_cpu[k] << endl;
         }
 
         // const map<int, struct Usage> cpu_usage = (*i).get_cpu_usage();
@@ -92,7 +99,7 @@ int AcctPool::eval_usage(list<User> *user_list, int64_t &time_start,
           // output << "Start: " << cpu.start_time << " Stop: " << cpu.stop_time
             // << " CPU usage: " << cpu.usage << endl;
         // }
-        // FassLog::log("PM", Log::DEBUG, output);
+        FassLog::log("AcctPool", Log::DDEBUG, output);
     }  // end loop on users
 
     return 0;
@@ -137,7 +144,7 @@ void AcctPool::make_user_object(int uid, vector<xmlNodePtr> nodes) {
         return;
 }
 
-int AcctPool::set_up(vector<int> const &uids) {
+int AcctPool::set_up(vector<int> const &uids, int64_t &time_start) {
         int rc = 0;
         ostringstream   oss;
 
@@ -147,7 +154,7 @@ int AcctPool::set_up(vector<int> const &uids) {
         // load the complete accounnting pool from OpenNebula
         xmlrpc_c::value result;
 
-        rc = load_acct(result);
+        rc = load_acct(result, time_start);
 
         if ( rc != 0 ) {
             FassLog::log("AcctPool", Log::ERROR,
@@ -172,6 +179,7 @@ int AcctPool::set_up(vector<int> const &uids) {
 
         // parse the response and group entries per user
         // xmlInitParser();
+        /*
         if ( xml != 0 ) {
             xmlFreeDoc(xml);
         }
@@ -179,7 +187,9 @@ int AcctPool::set_up(vector<int> const &uids) {
         if ( ctx != 0 ) {
             xmlXPathFreeContext(ctx);
         }
+        */
 
+        cleanup();
         // FassLog::log("SARA", Log::DEBUG, acctlist);
         xml_parse(acctlist);
 
@@ -211,11 +221,12 @@ int AcctPool::set_up(vector<int> const &uids) {
     return rc;
 }
 
-int AcctPool::load_acct(xmlrpc_c::value &result) {
+int AcctPool::load_acct(xmlrpc_c::value &result, int64_t &time_start) {
     try {
         xmlrpc_c::paramList plist;
         plist.add(xmlrpc_c::value_int(-2));
-        plist.add(xmlrpc_c::value_int(-1));
+        // plist.add(xmlrpc_c::value_int(-1));
+        plist.add(xmlrpc_c::value_int(time_start));
         plist.add(xmlrpc_c::value_int(-1));
 
         client->call("one.vmpool.accounting", plist, &result);
