@@ -41,7 +41,6 @@
 #include "FassLog.h"
 #include "BasicPlugin.h"
 #include "VMPool.h"
-#include "HostPool.h"
 #include "User.h"
 #include "ObjectXML.h"
 #include "VMObject.h"
@@ -84,8 +83,6 @@ Terminator::Terminator(
 
     // creates the VM pool
     vmpool = new VMPool(client);
-    // creates the host pool
-    hostpool = new HostPool(client);
 }
 
 extern "C" void * tm_loop(void *arg) {
