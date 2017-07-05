@@ -242,7 +242,8 @@ int Terminator::kill_running(int uid, float& cpu, int& memory) {
         if (!start) continue;  // it can happen
         int64_t stop = static_cast<int64_t>(time(NULL));
         int64_t life = stop - start;
-        oss << "OID: " << oid << " LIFETIME: " << life << " TTL: " << ttl << " VM Static: " << static_vm;
+        oss << "OID: " << oid << " LIFETIME: " << life << " TTL: "
+            << ttl << " VM Static: " << static_vm;
         FassLog::log("TERMIN", Log::DDEBUG, oss);
         if (life > ttl && static_vm == 0) {
             terminate(oid);
