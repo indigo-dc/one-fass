@@ -95,6 +95,11 @@ public:
         return stop_time;
     };
 
+    int get_static_vm() const
+    {
+        return static_vm;
+    };
+
 private:
 
     // object attributes
@@ -105,6 +110,7 @@ private:
     float cpu;
     int64_t start_time; 
     int64_t stop_time; 
+    int static_vm;
 
     void init_attributes();
 

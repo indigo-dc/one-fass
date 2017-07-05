@@ -232,6 +232,7 @@ int Terminator::kill_running(int uid, float& cpu, int& memory) {
         ostringstream oss;
         vm = static_cast<VMObject*>(vm_it->second);
         int oid = vm->get_oid();
+        int static_vm = vm->get_static_vm();
         float cpu_vm = 0.;
         int mem_vm = 0;
         vm->get_requirements(cpu_vm, mem_vm);
@@ -241,9 +242,9 @@ int Terminator::kill_running(int uid, float& cpu, int& memory) {
         if (!start) continue;  // it can happen
         int64_t stop = static_cast<int64_t>(time(NULL));
         int64_t life = stop - start;
-        oss << "OID: " << oid << " LIFETIME: " << life << " TTL: " << ttl;
+        oss << "OID: " << oid << " LIFETIME: " << life << " TTL: " << ttl << " VM Static: " << static_vm;
         FassLog::log("TERMIN", Log::DDEBUG, oss);
-        if (life > ttl) {
+        if (life > ttl && static_vm == 0) {
             terminate(oid);
             count = count + 1;
         }
@@ -279,13 +280,14 @@ int Terminator::kill_pending(int uid) {
         ostringstream oss;
         vm = static_cast<VMObject*>(vm_it->second);
         int oid = vm->get_oid();
+        int static_vm = vm->get_static_vm();
         int64_t start = vm->get_birth();
         int64_t stop = static_cast<int64_t>(time(NULL));
         int64_t wait = stop - start;
         oss << "OID: " << oid << " WAIT TIME: " << wait << " MAX WAIT : "
-                                                            << max_wait;
+            << max_wait << " VM Static: " << static_vm;
         FassLog::log("TERMIN", Log::DDEBUG, oss);
-        if (wait > max_wait) {
+        if (wait > max_wait && static_vm == 0) {
             terminate(oid);
             count = count + 1;
         }

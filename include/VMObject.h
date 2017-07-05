@@ -83,6 +83,11 @@ public:
         return birth;
     };
 
+    int get_static_vm() const
+    {
+        return static_vm;
+    };
+
     // float get_prio() const
     // {
     //    return prio;
@@ -113,6 +118,7 @@ private:
     int64_t birth;
     int   memory;
     float cpu;
+    int static_vm;
     // float prio;
 
 };
