@@ -20,7 +20,6 @@
 #include "Manager.h"
 #include "XMLRPCClient.h"
 #include "VMPool.h"
-#include "HostPool.h"
 
 #include <time.h>
 #include <pthread.h>
@@ -56,7 +55,7 @@ public:
     int kill_pending(int uid);
     
     VMPool * vmpool;
-    HostPool * hostpool;
+
 private:
        
     friend void * tm_loop(void *arg);
