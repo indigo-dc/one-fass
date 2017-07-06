@@ -44,3 +44,11 @@ systemctl start fass
 ## Using FaSS
 Version 1.0 of FaSS does implement a dummy algorithm by default, which inverts the priorities recevied from OpenNebula. A simle version of the SLURM MultiFactor algorithm is also implemented, to enable it set the parameter ```plugin_debug``` to 1 in the FaSS configuration file.
 In order to implement your own fair-share algorithm, edit the ```BasicPlugin``` class, in ```/tmp/one-fass/src/pm```.
+
+## Set Virtual Machines to be static
+By default the VMs are terminated after they have exceeded their time to live ```ttl``` or maximum waiting time ```max_wait```, both set in the FaSS configuration file ```/one-fass/etc/fassd.conf```. Anyway, it is possible to instantiate a VM as static. This means that it will not be terminated. To do so, add a raw attribute to the onevm instantiate command:
+```bash
+$ onetemplate instantiate yourtemplateid --raw static_vm=1
+```
+The defalt value for ```static_vm``` is ```0```, i.e. the VM is dynamic. 
+
