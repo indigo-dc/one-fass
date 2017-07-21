@@ -48,8 +48,7 @@ const string VMPool::make_queue(map<float, int, std::greater<float> > prios) {
                             +boost::lexical_cast<std::string>(it->first)
                             +"</USER_PRIORITY>");
            node.insert(start, prio_node);
-     }
-     else {
+     } else {
            size_t pos = node.find("<USER_TEMPLATE>");
            string prio_node("<USER_PRIORITY>"
                             +boost::lexical_cast<std::string>(it->first)
