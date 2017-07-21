@@ -25,6 +25,7 @@ ExecStartPre=/bin/chown fassadmin:fassadmin /var/lib/fass
 ExecStartPre=/bin/chown fassadmin:fassadmin /etc/fass/fassd.conf
 ExecStartPre=/usr/sbin/logrotate -s /tmp/logrotate_fass.state -f /etc/logrotate.d/fass
 ExecStop=/bin/kill -TERM $MAINPID
+ExecStop=/bin/rm -rf /var/lock/fass
 PIDFile=/var/run/fass/fass.pid
 
 [Install]

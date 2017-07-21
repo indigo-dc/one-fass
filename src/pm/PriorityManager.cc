@@ -92,7 +92,7 @@ PriorityManager::PriorityManager(
                 shares(_shares),
                 // manager_timer(_manager_timer),
                 start_time(_start_time),
-                queue(""),
+                queue("<VM_POOL></VM_POOL>"),
                 fassdb(_fassdb),
                 period(_period),
                 n_periods(_n_periods),
