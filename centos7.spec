@@ -1,13 +1,13 @@
-Name: one-fass-indigo
-Version: test
+Name: one-fass
+Version: v1.3
 Summary: A FairShare Scheduling Service for Opennebula 
-Release: 1.1.1
+Release: 1.3
 License: Apache
 Group: System
 URL: https://github.com/indigo-dc/one-fass
 
 #Source0: fass-%{version}.zip
-Source0: one-fass-v1.1.1.zip 
+Source0: one-fass-v1.3.zip 
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 
@@ -15,7 +15,6 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 # Build Requires
 ################################################################################
 
-# TODO: in realtà devo provare su un fresh install di Centos7
 BuildRequires: scons 
 BuildRequires: boost
 BuildRequires: xmlrpc-c-c++
@@ -56,7 +55,7 @@ Requires: coreutils
 Requires: glibc-common
 
 %description service
-This package provides the Fass daemon (fassd) and a patched verion of the OpenNbula scheduler (mm_sched_fass).
+This package provides the Fass daemon (fassd).
 
 ################################################################################
 # Package common
