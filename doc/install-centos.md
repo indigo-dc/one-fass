@@ -28,7 +28,7 @@ $ cd /tmp/
 $ git clone https://github.com/indigo-dc/one-fass
 $ cd one-fass
 $ cd rpms
-$ yum localinstall one-fass-indigo-service-test-1.1.x86_64.rpm
+$ yum localinstall one-fass-service-v1.3-1.3.x86_64.rpm
 ```
 or
 ```
