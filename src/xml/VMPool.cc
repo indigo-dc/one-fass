@@ -39,8 +39,8 @@ const string VMPool::make_queue(map<float, int, std::greater<float> > prios) {
          int oid = it->second;
          VMObject *vm = get(oid);
          string node = vm->dump_node();
-        
-    if (node.find("USER_PRIORITY") != std::string::npos) { 
+
+    if (node.find("USER_PRIORITY") != std::string::npos) {
            size_t start = node.find("<USER_PRIORITY>");
            size_t end = node.find("</USER_PRIORITY>");
            node.erase(start, end+16-start);
@@ -48,15 +48,14 @@ const string VMPool::make_queue(map<float, int, std::greater<float> > prios) {
                             +boost::lexical_cast<std::string>(it->first)
                             +"</USER_PRIORITY>");
            node.insert(start, prio_node);
-     }
-         else {
+     } else {
            size_t pos = node.find("<USER_TEMPLATE>");
            string prio_node("<USER_PRIORITY>"
                             +boost::lexical_cast<std::string>(it->first)
                             +"</USER_PRIORITY>");
            node.insert(pos+15, prio_node);
-         }
-           
+     }
+
          oss << node;
     }
     // write footer
