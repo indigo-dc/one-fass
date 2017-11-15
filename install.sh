@@ -129,7 +129,7 @@ INSTALL_ETC_FILES=( ETC_FILES:$ETC_LOCATION)
 
 # Binary files, to be installed under $BIN_LOCATION
 
-BIN_FILES="src/fass/fassd one-sched-patched/mm_sched_fass" 
+BIN_FILES="src/fass/fassd" 
 
 # Configuration files for Fass, to be installed under $ETC_LOCATION
 

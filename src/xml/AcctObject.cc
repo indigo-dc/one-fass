@@ -35,7 +35,8 @@ void AcctObject::init_attributes() {
     xpath(vmid, "/HISTORY/VM/ID", -1);
 
     // TODO(svallero): valore in template o no? che differenza fa?
-    xpath(static_vm, "/HISTORY/VM/USER_TEMPLATE/STATIC_VM", 0);
+    // xpath(static_vm, "/HISTORY/VM/USER_TEMPLATE/STATIC_VM", 0);
+    xpath(static_vm, "/HISTORY/VM/USER_TEMPLATE/STATIC_VM", 1);
     xpath(memory, "/HISTORY/VM/TEMPLATE/MEMORY", 0);
     xpath<float>(cpu, "/HISTORY/VM/TEMPLATE/CPU", 0);
 
