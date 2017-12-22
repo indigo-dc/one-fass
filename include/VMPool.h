@@ -76,7 +76,7 @@ public:
         // gets all active states
         search << "/VM_POOL/VM[STATE=3 and UID=" << uid << "]";
         return set_up(search.str(), "RUNNING", uid);
-    }; 
+    };
 
     int get_pending(int uid) {
         if (uid == -1) {
