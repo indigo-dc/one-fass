@@ -62,7 +62,7 @@ Terminator::Terminator(
                 timeout(_timeout),
                 users(_users),
                 ttl(_ttl),
-                max_wait(_max_wait), 
+                max_wait(_max_wait),
                 action(_action) {
     // initialize XML-RPC Client
     ostringstream oss;
@@ -272,7 +272,8 @@ int Terminator::kill_running(int uid, float& cpu, int& memory) {
             terminate(oid);
             count = count + 1;
         } else if (life > ttl && static_vm == 0 &&
-                  (action == "suspend" || action == "poweroff" || action == "reboot")) {
+                  (action == "suspend" || action == "poweroff"
+                   || action == "reboot")) {
             operate(oid);
             count = count + 1;
         } else {
