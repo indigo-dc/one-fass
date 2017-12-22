@@ -63,7 +63,7 @@ Terminator::Terminator(
                 users(_users),
                 ttl(_ttl),
                 max_wait(_max_wait), 
-                action(_action){
+                action(_action) {
     // initialize XML-RPC Client
     ostringstream oss;
 
@@ -265,18 +265,19 @@ int Terminator::kill_running(int uid, float& cpu, int& memory) {
         int64_t stop = static_cast<int64_t>(time(NULL));
         int64_t life = stop - start;
         oss << "OID: " << oid << " LIFETIME: " << life << " TTL: "
-            << ttl << " VM Static: " << static_vm << " ACTION " << action << endl;
+            << ttl << " VM Static: " << static_vm << " ACTION "
+            << action << endl;
         FassLog::log("TERMIN", Log::DDEBUG, oss);
         if (life > ttl && static_vm == 0 && action == "kill") {
             terminate(oid);
             count = count + 1;
-        }
-        else if (life > ttl && static_vm == 0 && (action == "suspend" || action == "poweroff" || action == "reboot")) {
+        } else if (life > ttl && static_vm == 0 &&
+                  (action == "suspend" || action == "poweroff" || action == "reboot")) {
             operate(oid);
             count = count + 1;
-        }
-        else {
-              oss << "Action: " << action << " not supported or mispelled." << endl;
+        } else {
+              oss << "Action: " << action <<
+                     " not supported or mispelled." << endl;
               FassLog::log("TERMIN", Log::ERROR, oss);
               }
     }
