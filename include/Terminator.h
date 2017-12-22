@@ -43,7 +43,8 @@ public:
     int _manager_timer,
     const vector<string> _users, 
     int64_t _ttl, 
-    int64_t _max_wait);
+    int64_t _max_wait,
+    const string _action);
 
     ~Terminator(){
         delete vmpool;
@@ -67,6 +68,9 @@ private:
     // terminate a VM
     bool terminate(int oid);
 
+    // perform action on VM
+    bool operate(int oid);
+
     string one_xmlrpc;
     string one_secret;
     int64_t message_size;
@@ -75,6 +79,8 @@ private:
     vector<string> users;
     int64_t ttl;
     int64_t max_wait;
+
+    string action;
  
     XMLRPCClient *client;
 };

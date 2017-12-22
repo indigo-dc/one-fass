@@ -275,15 +275,19 @@ void Fass::start(bool bootstrap_only) {
     try {
         int64_t ttl;
         int64_t max_wait;
+        string action;
         fass_configuration->get_single_option
              ("terminator", "manager_timer", manager_timer);
         fass_configuration->get_single_option
              ("terminator", "ttl", ttl);
         fass_configuration->get_single_option
              ("terminator", "max_wait", max_wait);
+        fass_configuration->get_single_option
+             ("terminator", "action", action);
 
         tm = new Terminator(one_endpoint, one_secret, message_size,
-                               timeout, manager_timer, shares, ttl, max_wait);
+                            timeout, manager_timer, shares, ttl,
+                            max_wait, action);
         }
 
     catch (bad_alloc&) {

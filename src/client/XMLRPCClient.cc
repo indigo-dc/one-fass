@@ -97,8 +97,6 @@ void XMLRPCClient::call(const std::string& method,
     s_plist.add(xmlrpc_c::value_string(_auth));
 
     for (unsigned i = 0; i < plist.size(); i++) {
-        ostringstream oss;
-        oss << xmlrpc_c::value_int(plist[i]) << "\n";
         s_plist.addc(plist[i]);
     }
 

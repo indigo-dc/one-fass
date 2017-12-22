@@ -91,7 +91,9 @@ bool FassConfigurator::load_configuration() {
       ("terminator.ttl", po::value<int64_t>()->default_value(1000),
        "VMs time to live")
       ("terminator.max_wait", po::value<int64_t>()->default_value(3600),
-       "VMs max waiting time");
+       "VMs max waiting time")
+      ("terminator.action", po::value<string>()->default_value("kill"),
+       "action to perform after ttl");
 
 
     /// Read the configuration file

@@ -53,7 +53,8 @@ Terminator::Terminator(
           int _manager_timer,
           const vector<string> _users,
           int64_t _ttl,
-          int64_t _max_wait):
+          int64_t _max_wait,
+          const string _action):
                 Manager(_manager_timer),
                 one_xmlrpc(_one_xmlrpc),
                 one_secret(_one_secret),
@@ -61,7 +62,8 @@ Terminator::Terminator(
                 timeout(_timeout),
                 users(_users),
                 ttl(_ttl),
-                max_wait(_max_wait) {
+                max_wait(_max_wait),
+                action(_action) {
     // initialize XML-RPC Client
     ostringstream oss;
 
@@ -72,7 +74,6 @@ Terminator::Terminator(
 
     oss << "XML-RPC client using "
         << (XMLRPCClient::client())->get_message_size()
-    // << " bytes for response buffer." << endl;
     << " bytes for response buffer.";
 
     FassLog::log("TERMIN", Log::DEBUG, oss);
@@ -158,7 +159,7 @@ extern "C" void * tm_loop(void *arg) {
 
             ostringstream tmp;
             tmp << "USER: " << uid << " CPU: " << cpu << " MEM: " << mem;
-            FassLog::log("SARA", Log::INFO, tmp);
+            FassLog::log("TERMIN", Log::INFO, tmp);
 
             ostringstream tag;
             tag << "user=" << uid;
@@ -206,6 +207,27 @@ bool Terminator::terminate(int oid) {
     }
 }
 
+bool Terminator::operate(int oid) {
+    ostringstream   oss;
+    oss << "Performing requested action to VM " << oid;
+    FassLog::log("TERMIN", Log::DEBUG, oss);
+
+    try {
+        xmlrpc_c::value result;
+        xmlrpc_c::paramList plist;
+        plist.add(xmlrpc_c::value_string(action));
+        plist.add(xmlrpc_c::value_int(oid));
+        client->call("one.vm.action", plist, &result);
+        return true;
+    }
+    catch (exception const& e) {
+        ostringstream   oss;
+        oss << "Exception raised: " << e.what();
+        FassLog::log("TERMIN", Log::ERROR, oss);
+        return false;
+    }
+}
+
 int Terminator::kill_running(int uid, float& cpu, int& memory) {
     FassLog::log("TERMIN", Log::DEBUG, "Retrieving running VMs from ONE...");
     // this procedure should be locked,
@@ -243,17 +265,27 @@ int Terminator::kill_running(int uid, float& cpu, int& memory) {
         int64_t stop = static_cast<int64_t>(time(NULL));
         int64_t life = stop - start;
         oss << "OID: " << oid << " LIFETIME: " << life << " TTL: "
-            << ttl << " VM Static: " << static_vm;
+            << ttl << " VM Static: " << static_vm << " ACTION "
+            << action << endl;
         FassLog::log("TERMIN", Log::DDEBUG, oss);
-        if (life > ttl && static_vm == 0) {
+        if (life > ttl && static_vm == 0 && action == "kill") {
             terminate(oid);
             count = count + 1;
-        }
+        } else if (life > ttl && static_vm == 0 &&
+                  (action == "suspend" || action == "poweroff"
+                   || action == "reboot")) {
+            operate(oid);
+            count = count + 1;
+        } else {
+              oss << "Action: " << action <<
+                     " not supported or mispelled." << endl;
+              FassLog::log("TERMIN", Log::ERROR, oss);
+              }
     }
     unlock();
-    oss << "Terminated " << count << " ACTIVE VMs";
-    if (uid >= 0) oss << " for user " << uid;
-    FassLog::log("TERMIN", Log::INFO, oss);
+    // oss << "Terminated " << count << " ACTIVE VMs";
+    // if (uid >= 0) oss << " for user " << uid;
+    // FassLog::log("TERMIN", Log::INFO, oss);
     return 0;
 }
 
