@@ -28,14 +28,14 @@ $ cd /tmp/
 $ git clone https://github.com/indigo-dc/one-fass
 $ cd one-fass
 $ cd rpms
-$ yum localinstall one-fass-indigo-service-test-1.1.x86_64.rpm
+$ yum localinstall one-fass-service-v1.3-1.3.x86_64.rpm
 ```
 or
 ```
 $ scons 
-$ ./install -u fassadmin -g fassadmin
+$ ./install.sh -u fassadmin -g fassadmin
 ```
-Check ```./install --help``` for additional options, e.g. ```-k``` to keep the configuration files.
+Check ```./install.sh --help``` for additional options, e.g. ```-k``` to keep the configuration files.
 
 ## Configuration of FaSS
 
