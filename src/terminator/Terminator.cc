@@ -52,7 +52,6 @@ Terminator::Terminator(
           int _timeout,
           int _manager_timer,
           const vector<string> _users,
-          int64_t _ttl,
           int64_t _max_wait,
           const string _action):
                 Manager(_manager_timer),
@@ -61,7 +60,6 @@ Terminator::Terminator(
                 message_size(_message_size),
                 timeout(_timeout),
                 users(_users),
-                ttl(_ttl),
                 max_wait(_max_wait), 
                 action(_action){
     // initialize XML-RPC Client
@@ -142,15 +140,16 @@ extern "C" void * tm_loop(void *arg) {
             ostringstream oss;
             vector< string > tokens;
             boost::split(tokens, (*i), boost::is_any_of(":"));
-            if ( 4 != tokens.size() ) {
+            if ( 5 != tokens.size() ) {
                 throw;
             }
             int uid = boost::lexical_cast<int16_t>(tokens[1]);
+            int64_t ttl = boost::lexical_cast<int64_t>(tokens[4]);
             // kill running
             // and return instantaneous resource usage
             float cpu = 0.;
             int mem = 0;
-            rc = tm->kill_running(uid, cpu, mem);
+            rc = tm->kill_running(uid, ttl, cpu, mem);
             oss << "Error terminating running VMs for user " << uid << " !"
                                                                     << endl;
             if ( rc != 0 ) {
@@ -228,7 +227,7 @@ bool Terminator::operate(int oid) {
     }
 }
 
-int Terminator::kill_running(int uid, float& cpu, int& memory) {
+int Terminator::kill_running(int uid, int64_t ttl, float& cpu, int& memory) {
     FassLog::log("TERMIN", Log::DEBUG, "Retrieving running VMs from ONE...");
     // this procedure should be locked,
     // or the PM could try to overwrite the vmpool object

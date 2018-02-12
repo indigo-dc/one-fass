@@ -88,8 +88,8 @@ bool FassConfigurator::load_configuration() {
       // Terminator
       ("terminator.manager_timer", po::value<int>()->default_value(60),
        "manager period (s)")
-      ("terminator.ttl", po::value<int64_t>()->default_value(1000),
-       "VMs time to live")
+      // ("terminator.ttl", po::value<int64_t>()->default_value(1000),
+      //  "VMs time to live")
       ("terminator.max_wait", po::value<int64_t>()->default_value(3600),
        "VMs max waiting time")
       ("terminator.action", po::value<string>()->default_value("kill"),

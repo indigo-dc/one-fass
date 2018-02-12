@@ -42,7 +42,7 @@ public:
     int _timeout,
     int _manager_timer,
     const vector<string> _users, 
-    int64_t _ttl, 
+    // int64_t _ttl, 
     int64_t _max_wait,
     const string _action);
 
@@ -62,7 +62,7 @@ private:
     friend void * tm_loop(void *arg);
 
     // kill running/pending VMs
-    int kill_running(int uid, float& cpu, int& memory);
+    int kill_running(int uid, int64_t ttl, float& cpu, int& memory);
     int kill_pending();
 
     // terminate a VM
@@ -77,7 +77,7 @@ private:
     int timeout;
 
     vector<string> users;
-    int64_t ttl;
+    // int64_t ttl;
     int64_t max_wait;
 
     string action;
