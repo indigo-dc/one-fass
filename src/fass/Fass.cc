@@ -288,7 +288,7 @@ void Fass::start(bool bootstrap_only) {
         // tm = new Terminator(one_endpoint, one_secret, message_size,
         //                        timeout, manager_timer, shares, ttl, max_wait, action);
         tm = new Terminator(one_endpoint, one_secret, message_size,
-                                timeout, manager_timer, shares, max_wait, action);
+                            timeout, manager_timer, shares, max_wait, action);
         }
 
     catch (bad_alloc&) {
