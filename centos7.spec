@@ -1,13 +1,13 @@
 Name: one-fass
-Version: v1.3
+Version: v1.4
 Summary: A FairShare Scheduling Service for Opennebula 
-Release: 1.3
+Release: 1.4
 License: Apache
 Group: System
 URL: https://github.com/indigo-dc/one-fass
 
 #Source0: fass-%{version}.zip
-Source0: one-fass-v1.3.zip 
+Source0: one-fass-v1.4.zip 
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 
