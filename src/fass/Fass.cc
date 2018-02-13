@@ -285,8 +285,6 @@ void Fass::start(bool bootstrap_only) {
         fass_configuration->get_single_option
              ("terminator", "action", action);
 
-        // tm = new Terminator(one_endpoint, one_secret, message_size,
-        //                        timeout, manager_timer, shares, ttl, max_wait, action);
         tm = new Terminator(one_endpoint, one_secret, message_size,
                             timeout, manager_timer, shares, max_wait, action);
         }
