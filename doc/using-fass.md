@@ -57,7 +57,7 @@ $ onetemplate instantiate <yourtemplateid> --raw static_vm=0
 The defalt value for ```static_vm``` is ```1```, i.e. the VM is static. 
 
 ## Set action to be performed by Terminator
-By default the VMs are terminated after the TTL set in the FaSS configuration file ```/one-fass/etc/fassd.conf```. Other actions are possible, changing the ```action=kill``` in ```fassd.conf``` to be:
+By default the VMs are terminated after the TTL set in the shares configuration file ```/one-fass/etc/shares.conf```. Other actions are possible, changing the ```action=kill``` in ```fassd.conf``` to be:
 ```bash
 poweroff
 suspend
