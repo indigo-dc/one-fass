@@ -198,6 +198,7 @@ bool InfluxDb::create_db() {
 bool InfluxDb::write_initial_shares(const float share,
                                     const string user,
                                     const string group,
+                                    const int64_t ttl,
                                     const int64_t timestamp) {
     FassLog::log("INFLUXDB", Log::DEBUG, "Writing initial shares.");
     // timestamp shpuld be in ns
@@ -206,6 +207,7 @@ bool InfluxDb::write_initial_shares(const float share,
     ostringstream query;
     query << "share,user=" << user
     << ",group=" << group
+    << ",ttl="   << ttl
     << " value=" << share
     << " " << timestamp*1000000000;
     FassLog::log("INFLUXDB", Log::DEBUG, query);

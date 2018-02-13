@@ -54,18 +54,20 @@ void PriorityManager::make_user(
   vector< string > tokens;
   boost::split(tokens, user_group_share, boost::is_any_of(":"));
 
-  if ( 4 != tokens.size() ) {
+  if ( 5 != tokens.size() ) {
      throw;
   }
 
   int uid = boost::lexical_cast<int16_t>(tokens[1]);
   int gid = boost::lexical_cast<int16_t>(tokens[2]);
   float share = boost::lexical_cast<float_t>(tokens[3])/sum;
+  int64_t ttl = boost::lexical_cast<int64_t>(tokens[4]);
 
   // PriorityManager::user *us = new PriorityManager::user(uid, gid, share);
   us->userID = uid;
   us->groupID = gid;
   us->share = share;
+  us->ttl = ttl;
 
   // return us;
 }
@@ -431,6 +433,7 @@ bool PriorityManager::calculate_initial_shares() {
        rc = fassdb->write_initial_shares(us->share,
                                       boost::lexical_cast<string>(us->userID),
                                       boost::lexical_cast<string>(us->groupID),
+                                      boost::lexical_cast<int64_t>(us->ttl),
                                       timestamp);
        if (!rc) {
            FassLog::log("PM", Log::ERROR,

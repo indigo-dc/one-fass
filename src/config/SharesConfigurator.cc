@@ -26,7 +26,7 @@
 bool SharesConfigurator::print_shares() {
     ostringstream os;
     os << "Reading initial shares..." << endl;
-    os << "(username:uid:gid:share)" << endl;
+    os << "(username:uid:gid:share:ttl)" << endl;
 
     for (vector<string>::const_iterator i = shares.begin();
                                       i != shares.end(); ++i) {
@@ -43,7 +43,7 @@ bool SharesConfigurator::load_shares() {
     cout << "Loading shares..." << endl;
 
     ostringstream os;
-    vector<string> properties(props, props + 3);
+    vector<string> properties(props, props + 4);
 
     boost::property_tree::ptree pt;
     boost::property_tree::ptree pt_tmp;
@@ -97,4 +97,4 @@ const char * SharesConfigurator::conf_name = "shares.conf";
 
 /* -------------------------------------------------------------------------- */
 
-const char * SharesConfigurator::props[]={"uid", "gid", "share"};
+const char * SharesConfigurator::props[]={"uid", "gid", "share", "ttl"};

@@ -83,7 +83,7 @@ public:
      */
     static string version()
     {
-        return "Fass 1.0";
+        return "Fass 1.4";
     };
 
     // returns the pm

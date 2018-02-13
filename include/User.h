@@ -42,10 +42,12 @@ public:
     User() {};
     User(unsigned short userID,
       unsigned short groupID,
-      float share):
+      float share,
+      int64_t ttl):
         userID(userID),
         groupID(groupID),
-        share(share)
+        share(share),
+        ttl(ttl)
         {};
 
       ~User(){};
@@ -81,6 +83,7 @@ public:
     unsigned short userID;
     unsigned short groupID;
     float share;
+    int64_t ttl;
 
     // hash map contains [period_id, usage]
     map<int, struct Usage > cpu_usage; 
