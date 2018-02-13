@@ -275,7 +275,8 @@ int Terminator::kill_running(int uid, int64_t ttl, float& cpu, int& memory) {
                    || action == "reboot")) {
             operate(oid);
             count = count + 1;
-        } else {
+        } else if (life > ttl && static_vm == 0) {
+              ostringstream oss;
               oss << "Action: " << action <<
                      " not supported or mispelled." << endl;
               FassLog::log("TERMIN", Log::ERROR, oss);
