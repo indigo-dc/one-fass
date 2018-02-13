@@ -1,7 +1,7 @@
 # Using FaSS
 
-## Edit initial shares
-After having installed FaSS following this [guidelines](https://github.com/indigo-dc/one-fass/blob/indigo-test/doc/install.md), you need to set the initial shares for every user.
+## Edit initial shares and Time To Live (ttl)
+After having installed FaSS following this [guidelines](https://github.com/indigo-dc/one-fass/blob/indigo-test/doc/install.md), you need to set the initial shares and the ttl for every user.
 
 ```bash
 $ cd /tmp/one-fass/etc
@@ -24,6 +24,7 @@ The ```shares.conf``` file, therefore, contains the basic working setup for only
 uid=0
 gid=0
 share=50
+ttl=600
 [serveradmin]
 uid=1
 gid=0
@@ -32,6 +33,7 @@ share=0
 uid=2
 gid=1
 share=50
+ttl=600
 ```
 you need to change the users accordingly to your list.
 
@@ -42,7 +44,7 @@ systemctl start fass
 ```
 
 ## Using FaSS
-Starting fro FaSS v1.1, the scheduler implements a simple version of the SLURM MultiFactor algorithm, setting the parameter ```plugin_debug``` to 1 in the FaSS configuration file.
+Starting from FaSS v1.1, the scheduler implements a simple version of the SLURM MultiFactor algorithm, setting the parameter ```plugin_debug``` to 1 in the FaSS configuration file.
 In order to implement your own fair-share algorithm, edit the ```BasicPlugin``` class, in ```/tmp/one-fass/src/pm```.
 A dummy algorithm, which inverts the priorities recevied from OpenNebula, is also available setting ```plugin_debug``` to 0.  
 
