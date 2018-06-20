@@ -4,6 +4,9 @@
 
 FairShare Scheduler for OpenNebula.
 
+## Watch our [Demo](https://vimeo.com/216656868)
+Password: fass
+
 ## What is FaSS?
 The current [OpenNebula](http://www.opennebula.org/) scheduler is first-in-first-out (FIFO).
 FaSS grants fair access to dynamic resources prioritizing tasks assigned according to an initial weight and to the historical resource usage.
